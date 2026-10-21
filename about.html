@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet the Author | Olly Davis</title>
+    <style>
+        :root {
+            --deep-sea: #0a192f;
+            --sylvan-gold: #d4af37;
+            --pitch-black: #050b14;
+            --canvas-white: #e6f1ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: var(--deep-sea);
+            color: var(--canvas-white);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1.5rem;
+            background-color: var(--pitch-black);
+        }
+
+        .nav a {
+            color: var(--canvas-white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav a:hover, .nav a.active {
+            color: var(--sylvan-gold);
+        }
+
+        /* Main Content Container */
+        .author-container {
+            flex: 1;
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        /* Header */
+        .author-header h1 {
+            font-size: 3rem;
+            color: var(--sylvan-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--sylvan-gold);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Author Profile Layout */
+        .author-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .author-profile {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        /* Author Photo Placeholder */
+        .author-photo {
+            flex-shrink: 0;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 3px solid var(--sylvan-gold);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background-color: var(--pitch-black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .author-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Bio Text */
+        .author-bio {
+            flex: 1;
+        }
+
+        .author-bio p {
+            margin-bottom: 1.5rem;
+            font-size: 1.15rem;
+            text-align: justify;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--pitch-black);
+            font-size: 0.9rem;
+            color: #a8b2d1;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="https://justindavis882.github.io/Tesahoda/">Tesahoda</a>
+        <a href="about.html" class="active">Meet the Author</a>
+    </nav>
+    
+    <main class="author-container">
+        <header class="author-header">
+            <h1>About Mixter Olly Davis</h1>
+        </header>
+
+        <section class="author-profile">
+            <div class="author-photo">
+                <!-- Replace src with your actual author headshot -->
+                <img src="author.png" alt="Portrait of Olly Davis" onerror="this.style.display='none'">
+            </div>
+            
+            <div class="author-bio">
+                <p>Mixter Olly Davis is a multifaceted creator, author, and former computer science educator based in South Jersey. As the creative mind behind <i>The Tides of Rodentia</i>, they weave intricate worlds that bridge the gap between immersive literature and interactive experiences.</p>
+                
+                <p>Beyond the pages of the Rodentia archipelago, Olly is the architect of the fully developed constructed language Tesahoda. Their passion for world-building heavily influences their work across multiple mediums, from self-published fiction to designing custom tabletop roleplaying and trading card games through TwoPart Trading.</p>
+
+                <p>When they aren't writing, formatting books for KDP, or coding custom web applications, Olly enjoys a variety of hands-on creative pursuits—from practicing freehand line art tattoo design to crocheting quick projects. They currently reside in Blackwood, New Jersey, where they spend their downtime exploring local nature trails, gaming, and relaxing with their husband, Joseph, and their two cats, Olive Oyl and Zola.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Copyright &copy; 2026 Olly Davis. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
