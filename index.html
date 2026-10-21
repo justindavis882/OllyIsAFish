@@ -94,7 +94,7 @@
         }
 
         /* Coming Soon Button */
-        .cta-button {
+        .cta-button-disabled {
             display: inline-block;
             background-color: transparent;
             color: var(--sylvan-gold);
@@ -111,6 +111,21 @@
             opacity: 0.6;
             cursor: not-allowed;
             pointer-events: none; 
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--sylvan-gold);
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.25rem;
+            border: 2px solid var(--sylvan-gold);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
         }
 
         /* Synopsis Section */
@@ -180,7 +195,7 @@
         <p>Caught in a massive three-way naval war, the crew of <i>The Mudskipper</i> will test the absolute limits of freedom and found family.</p>
         
         <h2>English Translation</h2>
-        <a href="#" class="cta-button">Amazon Link Coming Soon</a>
+        <a href="#" class="cta-button-disabled">Amazon Link Coming Soon</a>
         <a href="https://www.amazon.com/dp/B0HNTHL863" class="cta-button">Pre-Order the Digital Verison</a>
     </section>
     
@@ -195,8 +210,8 @@
         <p>Hina bika te-we siko navo-fai, mota bota <i>The Mudskipper</i> boto masi tesi safi libe a fami sina.</p>
         
         <h2>Tesahoda Leno-toko</h2>
-        <a href="#" class="cta-button">Amazon Link Coming Soon / Pisi kodo rivato</a>
-        <a href="#" class="cta-button">ePub Link Coming Soon / Pisi kodo rivato</a>
+        <a href="#" class="cta-button-disabled">Amazon Link Coming Soon / Pisi kodo rivato</a>
+        <a href="#" class="cta-button-disabled">ePub Link Coming Soon / Pisi kodo rivato</a>
     </section>
 
     <footer>
