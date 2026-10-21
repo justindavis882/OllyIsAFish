@@ -25,6 +25,26 @@
             line-height: 1.6;
         }
 
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1.5rem;
+            background-color: var(--pitch-black);
+        }
+
+        .nav a {
+            color: var(--canvas-white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav a:hover {
+            color: var(--sylvan-gold);
+        }
+
         /* Hero Section */
         .hero {
             display: flex;
@@ -86,6 +106,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
+            margin-bottom: 2rem;
             /* Disabled styles for Coming Soon */
             opacity: 0.6;
             cursor: not-allowed;
@@ -130,6 +151,12 @@
 </head>
 <body>
 
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="https://justindavis882.github.io/Tesahoda/">Tesahoda</a>
+        <a href="author.html">Meet the Author</a>
+    </nav>
+    
     <header class="hero">
         <div class="cover-container">
             <!-- Replace src with the actual cover image path when ready -->
@@ -138,10 +165,8 @@
         <h1>The Tides of Rodentia</h1>
         <p class="tagline">"For those who seek the horizon, no matter how rough the tides."</p>
         
-        <p id="countdown"></p>
-        
-        <!-- The href will be updated to the Amazon link later -->
-        <a href="#" class="cta-button">Amazon Link Coming Soon</a>
+        <h2> Coming soon:</h2>
+        <h1 style="border: 2px dashed" id="countdown"></h1>
     </header>
 
     <section class="synopsis">
@@ -153,6 +178,23 @@
         <p>Nursing a ruined fleet, the Rat King forms a desperate, volatile alliance with the deadly syndicate leader Madame Viper. Hunted by pitch-black cutters and venomous polecat assassins, the crew is forced into uncharted, churning waters. From surviving psychological traps in fog-choked mangroves to navigating a gravity-defying oceanic trench, Thorne and Skulk must prove that their bond is their greatest weapon.</p>
 
         <p>Caught in a massive three-way naval war, the crew of <i>The Mudskipper</i> will test the absolute limits of freedom and found family.</p>
+        
+        <h2>English Translation</h2>
+        <a href="#" class="cta-button">Amazon Link Coming Soon</a>
+    </section>
+    
+    <section class="synopsis">
+        <h3>Ina Buko</h3>
+        <p>Keti kapita Thorne, mawu-sidi fiti botamota, takapa poko-huna oda ata donawata doma-sato, mu na sinapa suwa-budi paba Mawu-bika mada solo—mu sinapa fami. Hina mota bota <i>The Mudskipper</i>, Thorne sinapa mabo pito diza para fasa iron-mota bika paba: Sasha, mawu suta ki nolyoto oda sylvan-magi Rini; Elias, bada rapi a bota-mota; a Skulk, fisi bika ki wiyoto kani a kamo nuwa faba kapita nuwa.</p>
+        
+        <p>Baka, fai riti para lekaleka nawa rivapa solo.</p>
+        
+        <p>Sifa paba Mawu-bika bera biki sina kani hika a mabo biki Madam Viper, keti ratu pisi dako a kora paka kifa mota fosa nwa dika lura bisi. Hika toko foke sike mido foza duko tura dona keri sika, Thorne a Skulk saki mu kamo kani biki hevi gida safi.</p>
+
+        <p>Hina bika te-we siko navo-fai, mota bota <i>The Mudskipper</i> boto masi tesi safi libe a fami sina.</p>
+        
+        <h2>Tesahoda Leno-difa</h2>
+        <a href="#" class="cta-button">Amazon Link Coming Soon</a>
     </section>
 
     <footer>
@@ -161,35 +203,34 @@
 
     <script>
         // Set the date we're counting down to
-    var countDownDate = new Date("Nov 1, 2026 00:00:00").getTime();
-    
-    // Update the count down every 1 second
-    var x = setInterval(function() {
-    
-      // Get today's date and time
-      var now = new Date().getTime();
-    
-      // Find the distance between now and the count down date
-      var distance = countDownDate - now;
-    
-      // Time calculations for days, hours, minutes and seconds
-      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-      // Display the result in the element with id="demo"
-      document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
-      + minutes + "m " + seconds + "s ";
-    
-      // If the count down is finished, write some text
-      if (distance < 0) {
-        clearInterval(x);
-        document.getElementById("demo").innerHTML = "Out Now!";
-      }
-    }, 1000);
-</script>
+        var countDownDate = new Date("Nov 1, 2026 00:00:00").getTime();
+        
+        // Update the count down every 1 second
+        var x = setInterval(function() {
+        
+            // Get today's date and time
+            var now = new Date().getTime();
+        
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+        
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+            // Display the result in the element with id="countdown"
+            document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s ";
+        
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "Out Now!";
+            }
+        }, 1000);
+    </script>
 
 </body>
 </html>
-
