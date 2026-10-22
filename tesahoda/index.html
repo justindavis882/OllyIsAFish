@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesahoda - The Threshold Language</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .vocab-table th { background-color: #eef2ff; color: #3730a3; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; }
+        .vocab-table tr:nth-child(even) { background-color: #f8fafc; }
+        .vocab-table tr:hover { background-color: #f1f5f9; }
+        .vocab-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+        .vocab-table th { padding: 0.75rem 1rem; border-bottom: 2px solid #c7d2fe; text-align: left; }
+        .vocab-table { width: 100%; border-collapse: collapse; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); margin-bottom: 1.5rem; background-color: white;}
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased leading-relaxed">
+
+    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center space-x-3">
+                <!-- Brand / Title -->
+                <a href="#" class="text-xl font-bold tracking-wider hover:text-blue-300 transition">
+                Tesahoda
+                </a>
+            </div>
+            <!-- Desktop Menu -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="translator.html" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Translator</a>
+                    <a href="workbook.html" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Workbook</a>
+                    <a href="heyAI.md" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Hey AI</a>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="-mr-2 flex md:hidden">
+                <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
+                <span class="sr-only">Open main menu</span>
+                <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                </button>
+            </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-slate-800 shadow-inner">
+                <a href="translator.html" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Translator</a>
+                <a href="workbook.html" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Workbook</a>
+                <a href="heyAI.md" class="hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition">Hey AI</a>
+            </div>
+        </div>
+        </nav>
+
+    <div class="max-w-4xl mx-auto px-6 py-12 sm:px-10 bg-white shadow-xl min-h-screen">
+        
+        <!-- Header -->
+        <header class="text-center border-b pb-8 mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-700 tracking-tight mb-4">Tesahoda</h1>
+            <p class="text-xl md:text-2xl text-slate-500 font-light">The Threshold Language: A Foundation Guide</p>
+        </header>
+        
+        <!-- Introduction -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-indigo-900 mb-4">Introduction</h2>
+            <p class="mb-4">This guide contains the structural foundation of our family language. It is designed to be spoken natively by children, seamlessly adopted by adult friends, and strictly enforced at our front door.</p>
+            <p class="mb-4">The language operates on a flawless, exception-free logic system: words are built from simple consonant-vowel pairs, verbs never change their root forms, and vocabulary is constructed from practical, everyday use.</p>
+            
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-6 text-amber-900">
+                <h3 class="font-bold mb-1">Note on Proper Names:</h3>
+                <p>Proper names such as Olly, Karen, George, and Zola—bypass all language rules and are spoken exactly as they are in English.</p>
+            </div>
+        </section>
+
+        <!-- Table of Contents -->
+        <nav class="bg-slate-100 p-6 rounded-xl mb-12 border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 uppercase tracking-wider text-sm">Table of Contents</h2>
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <li><a href="#chapter-1" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">1. The Engine (Phonetics & Grammar)</a></li>
+                <li><a href="#chapter-2" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">2. The Threshold Vocabulary (Basic Memorization)</a></li>
+                <li><a href="#chapter-3" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">3. Numerals & Counting</a></li>
+                <li><a href="#chapter-4" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">4. Time, Dates & Weather</a></li>
+                <li><a href="#chapter-5" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">5. The Kitchen & Cooking (Fudoduka)</a></li>
+                <li><a href="#chapter-6" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">6. The Bathroom & Body (Wataduka a Bodi)</a></li>
+                <li><a href="#chapter-7" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">7. Entertainment & Tech (Kema a Pisi)</a></li>
+                <li><a href="#chapter-8" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">8. Visuals & Attributes (Kara, Sepa a Suwa)</a></li>
+                <li><a href="#chapter-9" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">9. Transportation & Travel (Mova a Tura)</a></li>
+                <li><a href="#chapter-10" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">10. Health & Safety (Heta a Safi)</a></li>
+            </ul>
+        </nav>
+
+        <!-- Chapter 1 -->
+        <section id="chapter-1" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 1: The Engine (Phonetics & Grammar)</h2>
+            
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.1 The Alphabet & Pronunciation</h3>
+            <p class="mb-3">The language uses a simplified alphabet designed to eliminate spelling confusion and ensure accessibility for developing speakers.</p>
+            <ul class="list-disc list-inside mb-4 pl-2 space-y-1">
+                <li><strong>The 5 Universal Vowels:</strong> A (ah), E (eh), I (ee), O (oh), U (oo).</li>
+                <li><strong>The 15 Consonants:</strong> B, D, F, H, J, K, M, N, P, R, S, T, V, W, Y.</li>
+            </ul>
+            <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-lg text-indigo-900 mb-6">
+                <strong>The Golden Rule of Speech:</strong> Every word must follow a strict CV (Consonant-Vowel) structure. Consonants never touch each other, and words never end in a consonant. The only exception is the word A (and).
+            </div>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.2 Sentence Structure</h3>
+            <p class="mb-3">Sentences are built using the Subject-Verb-Object (SVO) order.</p>
+            <ul class="list-disc list-inside mb-4 pl-2 space-y-2">
+                <li><strong>Rule:</strong> The actor comes first, the action comes second, the target comes third.
+                    <div class="bg-slate-100 p-3 rounded mt-2 ml-6 font-medium italic text-slate-700">Example: Olly wiyo titi. (Olly sees the baby.)</div>
+                </li>
+                <li><strong>Possession:</strong> Place pronouns directly after the noun.
+                    <ul class="list-circle list-inside ml-8 mt-2 space-y-1">
+                        <li>Doma nu (Our house).</li>
+                        <li>Bata tu (Your shoe).</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.3 The Verb Engine (Time)</h3>
+            <p class="mb-3">Verbs have no irregular forms. Time is indicated by adding a two-letter suffix to the root action.</p>
+            <ul class="list-disc list-inside mb-6 pl-2 space-y-1">
+                <li><strong>Present (Happening now):</strong> Root verb. → <span class="italic text-indigo-600">Moku (Eat).</span></li>
+                <li><strong>Past (Already happened):</strong> Add -pa. → <span class="italic text-indigo-600">Mokupa (Ate).</span></li>
+                <li><strong>Future (Will happen):</strong> Add -to. → <span class="italic text-indigo-600">Mokuto (Will eat).</span></li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.4 Plurals & Reduplication</h3>
+            <p class="mb-3">To indicate more than one of an object, simply double the word (reduplication).</p>
+            <ul class="list-disc list-inside mb-6 pl-2 space-y-1">
+                <li>Kobi (Cat) → <strong>Kobikobi</strong> (Cats)</li>
+                <li>Kupa (Cup) → <strong>Kupakupa</strong> (Cups)</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.5 Negation & Connectors</h3>
+            <ul class="list-disc list-inside mb-6 pl-2 space-y-2">
+                <li><strong>Negation:</strong> Place Na immediately before the verb. → <span class="italic text-indigo-600">Mi na kute. (I do not enter.)</span></li>
+                <li><strong>Connectors:</strong> Use the single vowel A for "and." → <span class="italic text-indigo-600">Bata a koto. (Shoe and coat.)</span></li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">1.6 Asking Questions</h3>
+            <p class="mb-3">Questions are formed without changing the sentence order (in-situ).</p>
+            <ul class="list-disc list-inside mb-4 pl-2 space-y-2">
+                <li><strong>Yes/No Questions:</strong> Add Ke to the very end of the sentence.
+                    <div class="bg-slate-100 p-3 rounded mt-2 ml-6 font-medium italic text-slate-700">Joseph kute ke? (Is Joseph entering?)</div>
+                </li>
+                <li><strong>W-Questions:</strong> Replace the target object with a Ke- word.
+                    <ul class="list-circle list-inside ml-8 mt-2 space-y-1">
+                        <li><strong>Words:</strong> Kemu (Who), Keka (What), Kera (Where), Keti (When), Kemo (Why), Kesu (How).</li>
+                    </ul>
+                    <div class="bg-slate-100 p-3 rounded mt-2 ml-6 font-medium italic text-slate-700">Example: Tu mokupa keka? (You ate what?)</div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Chapter 2 -->
+        <section id="chapter-2" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 2: The Threshold Vocabulary (Basic Memorization)</h2>
+            <p class="mb-6 text-lg">Mastering these core 50 words is required for basic household communication.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">Pronouns & People</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Mi</td><td>I / Me</td></tr>
+                            <tr><td>Tu</td><td>You</td></tr>
+                            <tr><td>Nu</td><td>We / Us</td></tr>
+                            <tr><td>Mu</td><td>They / Them</td></tr>
+                            <tr><td>Suwa</td><td>Partner</td></tr>
+                            <tr><td>Fami</td><td>Family</td></tr>
+                            <tr><td>Titi</td><td>Child / Baby</td></tr>
+                            <tr><td>Paba</td><td>Parent</td></tr>
+                            <tr><td>Mabo</td><td>Friend / Guest</td></tr>
+                            <tr><td>Kobi</td><td>Pet / Cat</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">The House & Objects</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Doma</td><td>House</td></tr>
+                            <tr><td>Duka</td><td>Room</td></tr>
+                            <tr><td>Poro</td><td>Door</td></tr>
+                            <tr><td>Bata</td><td>Shoe</td></tr>
+                            <tr><td>Tapa</td><td>Foot</td></tr>
+                            <tr><td>Koto</td><td>Coat</td></tr>
+                            <tr><td>Bako</td><td>Bag</td></tr>
+                            <tr><td>Sefa</td><td>Seat</td></tr>
+                            <tr><td>Tebu</td><td>Table</td></tr>
+                            <tr><td>Kupa</td><td>Cup</td></tr>
+                            <tr><td>Fudo</td><td>Food</td></tr>
+                            <tr><td>Wata</td><td>Water</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">Core Actions</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Miya</td><td>Hello / Welcome</td></tr>
+                            <tr><td>Nofa</td><td>Remove</td></tr>
+                            <tr><td>Kute</td><td>Enter</td></tr>
+                            <tr><td>Hato</td><td>Stop / Wait</td></tr>
+                            <tr><td>Sido</td><td>Sit</td></tr>
+                            <tr><td>Wako</td><td>Walk / Go</td></tr>
+                            <tr><td>Moku</td><td>Eat</td></tr>
+                            <tr><td>Nimi</td><td>Drink</td></tr>
+                            <tr><td>Wiyo</td><td>Look</td></tr>
+                            <tr><td>Hika</td><td>Listen</td></tr>
+                            <tr><td>Puye</td><td>Play</td></tr>
+                            <tr><td>Vutu</td><td>Give</td></tr>
+                            <tr><td>Taka</td><td>Take</td></tr>
+                            <tr><td>Kamo</td><td>Love</td></tr>
+                            <tr><td>Hoda</td><td>Hold</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">Descriptions & Manners</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Ya</td><td>Yes</td></tr>
+                            <tr><td>Na</td><td>No</td></tr>
+                            <tr><td>Hina</td><td>Here</td></tr>
+                            <tr><td>Tora</td><td>There</td></tr>
+                            <tr><td>Nawa</td><td>Now</td></tr>
+                            <tr><td>Hoka</td><td>Hot</td></tr>
+                            <tr><td>Kura</td><td>Cold</td></tr>
+                            <tr><td>Bika</td><td>Big</td></tr>
+                            <tr><td>Pito</td><td>Small</td></tr>
+                            <tr><td>Rapi</td><td>Happy / Good</td></tr>
+                            <tr><td>Budi</td><td>Upset / Bad</td></tr>
+                            <tr><td>Safi</td><td>Safe</td></tr>
+                            <tr><td>Tosi</td><td>Thank you</td></tr>
+                            <tr><td>Piri</td><td>Please</td></tr>
+                            <tr><td>Sori</td><td>Sorry</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 3 -->
+        <section id="chapter-3" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 3: Numerals & Counting</h2>
+            <p class="mb-6">The number system is built on unique CV syllables to allow for rapid counting.</p>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-6 mb-3">The Base Numbers (1-10)</h3>
+            <table class="vocab-table w-full sm:w-1/2">
+                <thead>
+                    <tr><th>Number Word</th><th>Number Word</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Pa (1)</td><td>Sa (6)</td></tr>
+                    <tr><td>Du (2)</td><td>Re (7)</td></tr>
+                    <tr><td>Ti (3)</td><td>Vo (8)</td></tr>
+                    <tr><td>Ko (4)</td><td>Ni (9)</td></tr>
+                    <tr><td>Ma (5)</td><td>Da (10)</td></tr>
+                </tbody>
+            </table>
+
+            <h3 class="text-xl font-semibold text-slate-800 mt-8 mb-3">Building Larger Numbers</h3>
+            <p class="mb-3">To create larger numbers, simply combine the place values exactly as they are spoken.</p>
+            
+            <ul class="list-disc list-inside mb-4 pl-2 space-y-2">
+                <li><strong>Tens:</strong> Combine the multiplier with Da (10).
+                    <ul class="list-circle list-inside ml-8 mt-1 space-y-1">
+                        <li>20 = Duda (Two-Ten)</li>
+                        <li>30 = Tida (Three-Ten)</li>
+                    </ul>
+                </li>
+                <li><strong>Compound Numbers:</strong>
+                    <ul class="list-circle list-inside ml-8 mt-1 space-y-1">
+                        <li>24 = Duda-Ko (Two-Ten Four)</li>
+                        <li>57 = Mada-Re (Five-Ten Seven)</li>
+                    </ul>
+                </li>
+                <li><strong>Hundreds:</strong> The word for 100 is Huna.
+                    <ul class="list-circle list-inside ml-8 mt-1 space-y-1">
+                        <li>100 = Pa-huna</li>
+                        <li>350 = Ti-huna Mada</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="bg-slate-100 p-4 rounded-lg mt-4 font-medium italic text-slate-700 border-l-4 border-slate-400">
+                Example Phrase: Vutu du kupa mi. (Give me two cups.)
+            </div>
+        </section>
+
+        <!-- Chapter 4 -->
+        <section id="chapter-4" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 4: Time, Dates & Weather</h2>
+            <p class="mb-6">This vocabulary governs how we describe the world outside the threshold.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">Cycles of Time</h3>
+                    <p class="mb-3 text-sm">By combining the root word for Day (Deya) with our tense markers (Pa/Nawa/To), we logically derive the days of the week.</p>
+                    <ul class="list-disc list-inside mb-4 pl-2 space-y-1">
+                        <li><strong>Deya:</strong> Day</li>
+                        <li><strong>Nati:</strong> Night</li>
+                        <li><strong>Wika:</strong> Week</li>
+                        <li><strong>Muna:</strong> Month</li>
+                        <li><strong>Yera:</strong> Year</li>
+                        <li class="mt-2 text-indigo-700"><strong>Nade:</strong> Today (Nawa + Deya)</li>
+                        <li class="text-indigo-700"><strong>Pade:</strong> Yesterday (Pa + Deya)</li>
+                        <li class="text-indigo-700"><strong>Tode:</strong> Tomorrow (To + Deya)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">The Weather (Wida)</h3>
+                    <ul class="list-disc list-inside mb-4 pl-2 space-y-1">
+                        <li><strong>Sona:</strong> Sun / Sunny</li>
+                        <li><strong>Reni:</strong> Rain / Raining</li>
+                        <li><strong>Niva:</strong> Snow / Snowing</li>
+                        <li><strong>Kudo:</strong> Cloud / Cloudy</li>
+                        <li><strong>Wida:</strong> Wind / Weather</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 border border-indigo-200 p-5 rounded-lg mt-6">
+                <h4 class="font-bold text-indigo-900 mb-2">Example Phrases:</h4>
+                <ul class="space-y-2 text-indigo-900 italic">
+                    <li>Wida hina Blackwood budi nade. <span class="text-slate-500 not-italic ml-2">(The weather here in Blackwood is bad today.)</span></li>
+                    <li>Tode, sona rapi. <span class="text-slate-500 not-italic ml-2">(Tomorrow, the sun is good.)</span></li>
+                    <li>Piri kute doma, reni tora. <span class="text-slate-500 not-italic ml-2">(Please enter the house, it is raining there.)</span></li>
+                    <li>Nu puyepa titi pade. <span class="text-slate-500 not-italic ml-2">(We played with the baby yesterday.)</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Chapter 5 -->
+        <section id="chapter-5" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 5: The Kitchen & Cooking (Fudoduka)</h2>
+            <p class="mb-6">By combining words we already know, we can instantly create new concepts without having to memorize anything new.</p>
+            
+            <ul class="list-disc list-inside mb-8 pl-2 space-y-2 font-medium bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <li><strong>Kitchen:</strong> Fudoduka (Food + Room)</li>
+                <li><strong>Refrigerator:</strong> Kurabako (Cold + Box/Container. Note: We are expanding 'Bako' to mean any bag, box, or container!)</li>
+                <li><strong>Stove/Oven:</strong> Hokabako (Hot + Box)</li>
+            </ul>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. Tools & Utensils</h3>
+                    <p class="mb-2 text-sm italic text-slate-500">Notice how these mimic English words but strictly obey the CV rule!</p>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Peta</td><td>Plate</td></tr>
+                            <tr><td>Kabo</td><td>Bowl (Cup-box)</td></tr>
+                            <tr><td>Foti</td><td>Fork</td></tr>
+                            <tr><td>Nafi</td><td>Knife</td></tr>
+                            <tr><td>Suna</td><td>Spoon</td></tr>
+                            <tr><td>Pato</td><td>Pot/Pan</td></tr>
+                            <tr><td>Sipo</td><td>Sink</td></tr>
+                            <tr><td>Ruso</td><td>Trash / Garbage</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Cooking Actions (Verbs)</h3>
+                    <table class="vocab-table mt-7">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Sato</td><td>Cook / Prepare</td></tr>
+                            <tr><td>Tiko</td><td>Cut / Chop</td></tr>
+                            <tr><td>Kafi</td><td>Clean / Wash</td></tr>
+                            <tr><td>Biro</td><td>Mix / Stir</td></tr>
+                            <tr><td>Poma</td><td>Pour</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Food & Ingredients</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Mito</td><td>Meat</td></tr>
+                            <tr><td>Veta</td><td>Vegetable / Plant</td></tr>
+                            <tr><td>Fura</td><td>Fruit</td></tr>
+                            <tr><td>Bomi</td><td>Bread / Grain</td></tr>
+                            <tr><td>Mika</td><td>Milk / Dairy</td></tr>
+                            <tr><td>Kori</td><td>Fire / Heat</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">4. Tastes & Modifiers</h3>
+                    <table class="vocab-table">
+                        <thead>
+                            <tr><th>Word</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Suta</td><td>Sweet</td></tr>
+                            <tr><td>Sati</td><td>Salty</td></tr>
+                            <tr><td>Pika</td><td>Spicy</td></tr>
+                            <tr><td>Dira</td><td>Dry</td></tr>
+                            <tr><td>Soki</td><td>Wet / Soupy</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Putting it into Practice (The Kitchen Flow)</h3>
+            <p class="mb-4">Because you have the grammar engine fully installed, your friends and family can now navigate making dinner, feeding the cats, and cleaning up—all without breaking the threshold rule.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Dinner Prep:</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><span class="italic text-indigo-900 block">Suwa, piri tiko veta a mito.</span><span class="text-slate-600 block">(Joseph, please cut the vegetables and meat.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Mi satoto fudo nawa.</span><span class="text-slate-600 block">(I will cook the food now.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Biro wata kura.</span><span class="text-slate-600 block">(Stir the cold water.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-emerald-800 mb-2 border-b border-emerald-200 pb-1">Eating:</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><span class="italic text-emerald-900 block">Miya fami! Moku fudo.</span><span class="text-slate-600 block">(Welcome family! Eat the food.)</span></li>
+                        <li><span class="italic text-emerald-900 block">Vutu peta a foti titi.</span><span class="text-slate-600 block">(Give a plate and fork to the baby.)</span></li>
+                        <li><span class="italic text-emerald-900 block">Bomi hina suta ke?</span><span class="text-slate-600 block">(Is the bread here sweet?)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-sky-50 border border-sky-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-sky-800 mb-2 border-b border-sky-200 pb-1">Cleaning Up:</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><span class="italic text-sky-900 block">Kemu kafito kupakupa?</span><span class="text-slate-600 block">(Who will wash the cups?)</span></li>
+                        <li><span class="italic text-sky-900 block">Piri vutu fudo budi ruso.</span><span class="text-slate-600 block">(Please give the bad food to the trash.)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 6 -->
+        <section id="chapter-6" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 6: The Bathroom & Body (Wataduka a Bodi)</h2>
+            <p class="mb-6 font-medium bg-slate-50 p-4 rounded-lg border border-slate-200 text-center">
+                We combine Wata (Water) and Duka (Room) to create the Bathroom: <strong>Wataduka</strong>.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. The Body (Bodi)</h3>
+                    <p class="mb-2 text-xs italic text-slate-500">Notice how many of these are crushed English words!</p>
+                    <table class="vocab-table text-sm">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Bodi</td><td>Body</td></tr>
+                            <tr><td>Hedo</td><td>Head</td></tr>
+                            <tr><td>Mata</td><td>Eye</td></tr>
+                            <tr><td>Yira</td><td>Ear</td></tr>
+                            <tr><td>Noso</td><td>Nose</td></tr>
+                            <tr><td>Moso</td><td>Mouth</td></tr>
+                            <tr><td>Tifa</td><td>Tooth / Teeth</td></tr>
+                            <tr><td>Hana</td><td>Hand</td></tr>
+                            <tr><td>Rama</td><td>Arm</td></tr>
+                            <tr><td>Reka</td><td>Leg</td></tr>
+                            <tr><td>Hera</td><td>Hair</td></tr>
+                            <tr><td>Tapa</td><td>Foot</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Bathroom & Bedroom</h3>
+                    <table class="vocab-table text-sm mt-7">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Beda</td><td>Bed</td></tr>
+                            <tr><td>Toya</td><td>Toilet</td></tr>
+                            <tr><td>Sawa</td><td>Shower/Bath</td></tr>
+                            <tr><td>Sopo</td><td>Soap</td></tr>
+                            <tr><td>Towa</td><td>Towel</td></tr>
+                            <tr><td>Pepa</td><td>Paper (Toilet paper)</td></tr>
+                            <tr><td>Buro</td><td>Brush</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Actions & Needs</h3>
+                    <table class="vocab-table text-sm mt-7">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Sipi</td><td>Sleep</td></tr>
+                            <tr><td>Weka</td><td>Wake / Wake up</td></tr>
+                            <tr><td>Kafi</td><td>Wash / Clean</td></tr>
+                            <tr><td>Pupu</td><td>Use the toilet</td></tr>
+                            <tr><td>Hura</td><td>Hurt / Feel pain</td></tr>
+                            <tr><td>Taya</td><td>Tired / Sleepy</td></tr>
+                            <tr><td>Doti</td><td>Dirty</td></tr>
+                            <tr><td>Kina</td><td>Clean</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Putting it into Practice (The Bed & Bath Flow)</h3>
+            <p class="mb-4">By pairing these new words with our pronouns, grammar engine, and questions, you can navigate the entire morning and bedtime routines without breaking the threshold rule.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-3 border-b border-indigo-200 pb-2">The Toddler Routine:</h4>
+                    <ul class="space-y-3">
+                        <li><span class="italic text-indigo-900 block">Titi doti nawa.</span><span class="text-slate-600 text-sm block">(The baby is dirty now.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Nu kafito hera a bodi.</span><span class="text-slate-600 text-sm block">(We will wash hair and body.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Piri vutu towa mi.</span><span class="text-slate-600 text-sm block">(Please give me the towel.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Titi, tu pupu keti?</span><span class="text-slate-600 text-sm block">(Baby, when do you use the toilet?)</span></li>
+                        <li><span class="italic text-indigo-900 block">Weka titi! Sona rapi nade.</span><span class="text-slate-600 text-sm block">(Wake up baby! The sun is good today.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-3 border-b border-indigo-200 pb-2">Expressing Needs:</h4>
+                    <ul class="space-y-3">
+                        <li><span class="italic text-indigo-900 block">Mabo, toya hina.</span><span class="text-slate-600 text-sm block">(Friend, the toilet is here.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Hedo mi hura.</span><span class="text-slate-600 text-sm block">(My head hurts.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Mi taya. Mi sipito nawa.</span><span class="text-slate-600 text-sm block">(I am tired. I will sleep now.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Tu kafi tifatifa tu ke?</span><span class="text-slate-600 text-sm block">(Did you wash your teeth?)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 7 -->
+        <section id="chapter-7" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 7: Entertainment & Tech (Kema a Pisi)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. Technology & Screens</h3>
+                    <p class="mb-2 text-xs italic text-slate-500">Notice how smoothly these English tech words slide into the strict CV rules!</p>
+                    <table class="vocab-table text-sm">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Tivi</td><td>TV/Screen/Monitor</td></tr>
+                            <tr><td>Fono</td><td>Phone</td></tr>
+                            <tr><td>Pisi</td><td>Computer / PC</td></tr>
+                            <tr><td>Rito</td><td>Light / Lamp</td></tr>
+                            <tr><td>Kema</td><td>Game</td></tr>
+                            <tr><td>Musi</td><td>Music</td></tr>
+                            <tr><td>Buko</td><td>Book</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Objects & Toys</h3>
+                    <table class="vocab-table text-sm mt-7">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Sofa</td><td>Couch / Sofa</td></tr>
+                            <tr><td>Foto</td><td>Picture / Photograph</td></tr>
+                            <tr><td>Puyeka</td><td>Toy (Puye + Ka)</td></tr>
+                            <tr><td>Kodo</td><td>Cord / Cable</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Entertainment Actions</h3>
+                    <table class="vocab-table text-sm mt-7">
+                        <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>Reso</td><td>Rest / Relax</td></tr>
+                            <tr><td>Rido</td><td>Read</td></tr>
+                            <tr><td>Sina</td><td>Make / Create / Code</td></tr>
+                            <tr><td>Mako</td><td>Sing</td></tr>
+                            <tr><td>Wina</td><td>Win</td></tr>
+                            <tr><td>Fero</td><td>Lose / Fail</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 p-5 rounded-lg mb-8">
+                <h3 class="text-lg font-bold text-amber-900 mb-2">⚡ The Compound Word Superpower</h3>
+                <p class="mb-3 text-amber-800">Whenever your friends lack a word, they can just smash two existing words together!</p>
+                <ul class="list-disc list-inside text-amber-900 font-medium ml-2 space-y-1">
+                    <li><strong>Video Game Controller:</strong> Kema-fono (Game phone)</li>
+                    <li><strong>Headphones:</strong> Yira-musi (Ear music)</li>
+                    <li><strong>Bookshelf:</strong> Buko-tebu (Book table)</li>
+                </ul>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Putting it into Practice (The Game Night Flow)</h3>
+            <p class="mb-6">Because you have the SVO grammar and question systems fully operational, you can easily host game nights, direct the TV, and manage screen time for a future child without ever reverting to English.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Hosting Game Night:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Miya mabomabo! Sido sofa, nu puyeto kema nawa.</span><span class="text-slate-600 block">(Welcome friends! Sit on the couch, we will play a game now.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Kemu winapa kema? Mi winapa!</span><span class="text-slate-600 block">(Who won the game? I won!)</span></li>
+                        <li><span class="italic text-indigo-900 block">Suwa, tu feropa.</span><span class="text-slate-600 block">(Joseph, you lost.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Piri vutu fono tu.</span><span class="text-slate-600 block">(Please give [me] your phone.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Media & Tech:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Mi makoto pisi nade.</span><span class="text-slate-600 block">(I will create/code on the computer today.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Piri nofa rito.</span><span class="text-slate-600 block">(Please remove/turn off the light.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Titi, wiyo tivi.</span><span class="text-slate-600 block">(Baby, watch the TV.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Nu hikato musi.</span><span class="text-slate-600 block">(We will listen to music.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Relaxing:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Mi taya. Mi resoto sofa.</span><span class="text-slate-600 block">(I am tired. I will rest on the couch.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Paba ridoto buko titi.</span><span class="text-slate-600 block">(The parent will read a book to the baby.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Kobi puyepa puyeka.</span><span class="text-slate-600 block">(The cat played with the toy.)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 8 -->
+        <section id="chapter-8" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 8: Visuals & Attributes (Kara, Sepa a Suwa)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. The Spectrum (Kara)</h3>
+                    <p class="mb-2 text-xs italic text-slate-500">Mirrors English for instant recognition.</p>
+                    <ul class="list-disc list-inside space-y-1 bg-white p-4 border rounded-lg">
+                        <li><span class="inline-block w-4 h-4 bg-red-500 rounded-full mr-1 align-middle"></span> <strong>Redo:</strong> Red</li>
+                        <li><span class="inline-block w-4 h-4 bg-blue-500 rounded-full mr-1 align-middle"></span> <strong>Buru:</strong> Blue</li>
+                        <li><span class="inline-block w-4 h-4 bg-yellow-400 rounded-full mr-1 align-middle"></span> <strong>Yero:</strong> Yellow</li>
+                        <li><span class="inline-block w-4 h-4 bg-green-500 rounded-full mr-1 align-middle"></span> <strong>Keri:</strong> Green</li>
+                        <li><span class="inline-block w-4 h-4 bg-white border border-gray-300 rounded-full mr-1 align-middle"></span> <strong>Wita:</strong> White</li>
+                        <li><span class="inline-block w-4 h-4 bg-black rounded-full mr-1 align-middle"></span> <strong>Dako:</strong> Black / Dark</li>
+                        <li><span class="inline-block w-4 h-4 bg-purple-500 rounded-full mr-1 align-middle"></span> <strong>Pupa:</strong> Purple</li>
+                        <li><span class="inline-block w-4 h-4 bg-pink-400 rounded-full mr-1 align-middle"></span> <strong>Piki:</strong> Pink</li>
+                        <li><span class="inline-block w-4 h-4 bg-amber-800 rounded-full mr-1 align-middle"></span> <strong>Bara:</strong> Brown</li>
+                        <li><span class="inline-block w-4 h-4 bg-orange-500 rounded-full mr-1 align-middle"></span> <strong>Rana:</strong> Orange</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Forms & Shapes (Sepa)</h3>
+                    <ul class="list-disc list-inside space-y-2 mt-7 bg-white p-4 border rounded-lg">
+                        <li><strong>Sepa:</strong> Shape</li>
+                        <li><strong>Rona:</strong> Circle / Round</li>
+                        <li><strong>Boka:</strong> Square / Container</li>
+                        <li><strong>Tira:</strong> Triangle (Tri-angle → Tira)</li>
+                        <li><strong>Rina:</strong> Line</li>
+                        <li><strong>Sata:</strong> Star</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Qualities</h3>
+                    <ul class="list-disc list-inside space-y-1 mt-7 bg-white p-4 border rounded-lg text-sm">
+                        <li><strong>Fasa:</strong> Fast</li>
+                        <li><strong>Suro:</strong> Slow</li>
+                        <li><strong>Hada:</strong> Hard / Complex</li>
+                        <li><strong>Sofi:</strong> Soft</li>
+                        <li><strong>Hevi:</strong> Heavy</li>
+                        <li><strong>Reta:</strong> Lightweight</li>
+                        <li><strong>Nuwa:</strong> New</li>
+                        <li><strong>Oda:</strong> Old</li>
+                        <li><strong>Peni:</strong> Full / Abundant</li>
+                        <li><strong>Peni:</strong> Plenty / Full</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-r-lg mb-8">
+                <h3 class="text-lg font-bold text-indigo-900 mb-2">Modifier Stacking Principles</h3>
+                <p class="mb-3 text-indigo-800">Because descriptor terms behave identically to ownership markers, multiple attributes attach sequentially without compromising structural logic.</p>
+                <ul class="list-disc list-inside text-indigo-900 font-medium ml-2 space-y-1">
+                    <li><strong>Kobi dako mi</strong> → Cat dark my (My black cat)</li>
+                    <li><strong>Kupa bika buru</strong> → Vessel large blue (The large blue cup)</li>
+                </ul>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Practical Applications (Descriptive Phrases)</h3>
+            <p class="mb-4">Positioning modifiers directly after their target allows the speaker to form rich, nuanced descriptions instantly.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="bg-white border shadow-sm p-4 rounded-lg">
+                    <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Guiding Young Speakers:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-700 block">Wiyo keka? Bata redo!</span><span class="text-slate-500 block">(Look at what? A red footwear!)</span></li>
+                        <li><span class="italic text-indigo-700 block">Titi puyeto sepa rona.</span><span class="text-slate-500 block">(The infant will interact with the circular object.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Kobi dako fasa!</span><span class="text-slate-500 block">(The dark feline moves quickly!)</span></li>
+                        <li><span class="italic text-indigo-700 block">Piri vutu fura yero titi.</span><span class="text-slate-500 block">(Kindly offer the yellow produce to the child.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white border shadow-sm p-4 rounded-lg">
+                    <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Locating Items:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-700 block">Mi hika musi nuwa.</span><span class="text-slate-500 block">(I listen to modern songs.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Piri kafi peta doti.</span><span class="text-slate-500 block">(Kindly sanitize the soiled dish.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Suwa, bako hina hevi.</span><span class="text-slate-500 block">(Partner, the sack here carries weight.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Tebu boka tora.</span><span class="text-slate-500 block">(The square surface sits over there.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white border shadow-sm p-4 rounded-lg">
+                    <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Sharing Perspectives:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-700 block">Beda nu sofi a rapi.</span><span class="text-slate-500 block">(Our sleeping area feels plush and pleasant.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Kema hina hada.</span><span class="text-slate-500 block">(This activity presents a challenge.)</span></li>
+                        <li><span class="italic text-indigo-700 block">Mabo, wida kura a dako nawa.</span><span class="text-slate-500 block">(Friend, conditions are chilly and dim currently.)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 9 -->
+        <section id="chapter-9" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 9: Transportation & Travel (Mova a Tura)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. Vehicles & Transport (Mota)</h3>
+                    <ul class="list-disc list-inside space-y-1 bg-white p-4 border rounded-lg">
+                        <li><strong>Mota:</strong> Car / Motor vehicle</li>
+                        <li><strong>Basa:</strong> Bus</li>
+                        <li><strong>Tura:</strong> Train / Tour (Shortened from TR-ain)</li>
+                        <li><strong>Pena:</strong> Plane (Adapted from P-L-A-N-E → Pena)</li>
+                        <li><strong>Bota:</strong> Boat / Ship</li>
+                        <li><strong>Peda:</strong> Bicycle (Derived from Pedal)</li>
+                        <li><strong>Wiro:</strong> Wheel / Tire</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Places Outside (Duka Ata)</h3>
+                    <ul class="list-disc list-inside space-y-1 bg-white p-4 border rounded-lg">
+                        <li><strong>Sopa:</strong> Store / Shop</li>
+                        <li><strong>Woka:</strong> Work / Job</li>
+                        <li><strong>Suku:</strong> School</li>
+                        <li><strong>Siti:</strong> City / Town</li>
+                        <li><strong>Paka:</strong> Park / Nature</li>
+                        <li><strong>Roda:</strong> Road / Street</li>
+                        <li><strong>Ata:</strong> Outside (Simplified from Out → Ata)</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Directions & Navigation (Weya)</h3>
+                    <p class="mb-2 text-sm italic text-slate-500">Essential tools when guiding a driver or assisting a child with spatial understanding!</p>
+                    <ul class="list-disc list-inside space-y-1 bg-white p-4 border rounded-lg">
+                        <li><strong>Weya:</strong> Way / Path / Direction</li>
+                        <li><strong>Refa:</strong> Left</li>
+                        <li><strong>Rata:</strong> Right</li>
+                        <li><strong>Tupa:</strong> Up / Top</li>
+                        <li><strong>Dona:</strong> Down</li>
+                        <li><strong>Fona:</strong> Front / Forward</li>
+                        <li><strong>Baka:</strong> Back / Behind <span class="text-xs text-slate-500 italic">(Note: Bako indicates Container, whereas Baka designates Rear!)</span></li>
+                        <li><strong>Nira:</strong> Near / Close</li>
+                        <li><strong>Fara:</strong> Far</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">4. Travel Actions (Verbs)</h3>
+                    <p class="mb-2 text-sm italic text-slate-500">Note: The system already incorporates Wako (Walk/Go) alongside Hato (Stop/Wait).</p>
+                    <ul class="list-disc list-inside space-y-1 bg-white p-4 border rounded-lg">
+                        <li><strong>Mova:</strong> Move / Drive</li>
+                        <li><strong>Tona:</strong> Turn</li>
+                        <li><strong>Riva:</strong> Arrive</li>
+                        <li><strong>Viwa:</strong> Leave / Depart <span class="text-xs text-slate-500 italic">(Adapted from View/Away... alternatively, Depa is used).</span></li>
+                        <li><strong>Depa:</strong> Depart / Leave</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-lg mb-8">
+                <h3 class="text-lg font-bold text-amber-900 mb-2">📍 The "Nesting" Trick for Locations</h3>
+                <p class="mb-3 text-amber-800">By leveraging our regular grammar system, speakers can stack positional terms to pinpoint exact locations without relying on extra prepositions (such as in, on, at).</p>
+                <ul class="list-disc list-inside text-amber-900 font-medium ml-2 space-y-1">
+                    <li><strong>In the car:</strong> Hina mota (Here vehicle)</li>
+                    <li><strong>On the table:</strong> Tupa tebu (Top table)</li>
+                    <li><strong>Under the bed:</strong> Dona beda (Down bed)</li>
+                    <li><strong>Outside the house:</strong> Ata doma (Outside home)</li>
+                </ul>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Putting it into Practice (The Travel Flow)</h3>
+            <p class="mb-6">Armed with these core terms, conversation transitions seamlessly from inside the house to the road.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">In the Car / Navigating:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Suwa, tona refa hina.</span><span class="text-slate-600 block">(Joseph, turn left here.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Sopa bika nira ke?</span><span class="text-slate-600 block">(Is the large shop nearby?)</span></li>
+                        <li><span class="italic text-indigo-900 block">Mova mota fasa!</span><span class="text-slate-600 block">(Drive the vehicle rapidly!)</span></li>
+                        <li><span class="italic text-indigo-900 block">Nu hato roda redo.</span><span class="text-slate-600 block">(We stop at the red signal.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Tona rata, woka tora.</span><span class="text-slate-600 block">(Turn right, work sits over there.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Running Errands & Plans:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Nu wakoto paka nade.</span><span class="text-slate-600 block">(We will head to the park today.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Kemu depato suku keti?</span><span class="text-slate-600 block">(Who leaves school at what time?)</span></li>
+                        <li><span class="italic text-indigo-900 block">Mi movato mota Siti.</span><span class="text-slate-600 block">(I will drive the car into town.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Titi wiyopa basa yero.</span><span class="text-slate-600 block">(The infant spotted the yellow bus.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-1">Spatial Awareness:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-indigo-900 block">Wiyo tupa! Pena bika tora.</span><span class="text-slate-600 block">(Look above! A large aircraft sits up there.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Titi, wako fona.</span><span class="text-slate-600 block">(Child, step forward.)</span></li>
+                        <li><span class="italic text-indigo-900 block">Bako tu baka sepa.</span><span class="text-slate-600 block">(Your container rests behind the object.)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 10 -->
+        <section id="chapter-10" class="mb-16 scroll-mt-10">
+            <h2 class="text-3xl font-bold text-indigo-700 border-b-2 border-indigo-100 pb-2 mb-6">Chapter 10: Health & Safety (Heta a Safi)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">1. Medical & Body (Heta)</h3>
+                    <ul class="list-disc list-inside space-y-2 bg-white p-4 border rounded-lg text-sm">
+                        <li><strong>Heta:</strong> Health</li>
+                        <li><strong>Sika:</strong> Sick / Ill</li>
+                        <li><strong>Bubu:</strong> Injury / Wound / "Boo-boo"</li>
+                        <li><strong>Bura:</strong> Blood</li>
+                        <li><strong>Mesi:</strong> Medicine / Pill</li>
+                        <li><strong>Doka:</strong> Doctor</li>
+                        <li><strong>Bada:</strong> Bandage / Band-aid</li>
+                        <li><strong>Hura:</strong> Hurt / Pain <span class="text-xs text-slate-500 italic">(from Ch. 6)</span></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">2. Safety & Alerts (Safi)</h3>
+                    <ul class="list-disc list-inside space-y-2 bg-white p-4 border rounded-lg text-sm">
+                        <li><strong>Safi:</strong> Safe / Safety <span class="text-xs text-slate-500 italic">(from Ch. 2)</span></li>
+                        <li><strong>Daja:</strong> Danger / Dangerous <span class="text-xs text-slate-500 italic">(Dan-ger → Da-ja)</span></li>
+                        <li><strong>Hepa:</strong> Help</li>
+                        <li><strong>Kero:</strong> Careful / Caution <span class="text-xs text-slate-500 italic">(Care)</span></li>
+                        <li><strong>Kori:</strong> Fire <span class="text-xs text-slate-500 italic">(from Ch. 5)</span></li>
+                        <li><strong>Hoka:</strong> Hot <span class="text-xs text-slate-500 italic">(from Ch. 2)</span></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-3">3. Actions & Reactions</h3>
+                    <ul class="list-disc list-inside space-y-2 bg-white p-4 border rounded-lg text-sm">
+                        <li><strong>Foda:</strong> Fall / Drop <span class="text-xs text-slate-500 italic">(Fall-down → Fo-da)</span></li>
+                        <li><strong>Bero:</strong> Break / Broken</li>
+                        <li><strong>Kira:</strong> Cry</li>
+                        <li><strong>Biri:</strong> Breathe</li>
+                        <li><strong>Hato:</strong> Stop <span class="text-xs text-slate-500 italic">(from Ch. 2 - an essential protective action!)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-lg mb-8">
+                <h3 class="text-lg font-bold text-red-900 mb-2">🚑 The Power of Compound Safety Words</h3>
+                <p class="mb-3 text-red-800">By combining Sika and Doma to form "Hospital," visitors can rapidly construct logical expressions during urgent moments using established roots:</p>
+                <ul class="list-disc list-inside text-red-900 font-medium ml-2 space-y-1">
+                    <li><strong>Fire Truck:</strong> Kori-mota (Fire vehicle)</li>
+                    <li><strong>Ambulance:</strong> Hepa-mota (Help vehicle) or Sika-mota (Sick vehicle)</li>
+                    <li><strong>First-aid kit:</strong> Heta-bako (Health container)</li>
+                </ul>
+            </div>
+
+            <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Putting it into Practice (The Safety Flow)</h3>
+            <p class="mb-6">Equipped with this toolkit, household members can address scraped joints or kitchen hazards entirely within the language rules.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-rose-50 border border-rose-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-rose-800 mb-2 border-b border-rose-200 pb-1">Tumbles & Injuries:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-rose-900 block">Titi fodapa!</span><span class="text-slate-600 block">(The baby collapsed!)</span></li>
+                        <li><span class="italic text-rose-900 block">Titi, tu hura ke?</span><span class="text-slate-600 block">(Child, do you feel pain?)</span></li>
+                        <li><span class="italic text-rose-900 block">Oh na, bubu tora. Bura hina.</span><span class="text-slate-600 block">(Oh no, a harm over there. Blood sits here.)</span></li>
+                        <li><span class="italic text-rose-900 block">Piri vutu bada a mesi mi.</span><span class="text-slate-600 block">(Kindly pass a bandage and remedy to me.)</span></li>
+                        <li><span class="italic text-rose-900 block">Na kira, titi. Tu safi nawa.</span><span class="text-slate-600 block">(Avoid weeping, little one. You remain secure currently.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 border border-orange-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-orange-800 mb-2 border-b border-orange-200 pb-1">Hazards & Warnings:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-orange-900 block">Hato! Tebu hina daja.</span><span class="text-slate-600 block">(Wait! The table here presents danger.)</span></li>
+                        <li><span class="italic text-orange-900 block">Kero, kupa hoka peni.</span><span class="text-slate-600 block">(Caution, the container stays extremely warm.)</span></li>
+                        <li><span class="italic text-orange-900 block">Na kute wataduka, toya beropa.</span><span class="text-slate-600 block">(Do not step inside the washroom, the toilet broke.)</span></li>
+                        <li><span class="italic text-orange-900 block">Suwa, wiyo titi. Bako daja tora.</span><span class="text-slate-600 block">(Partner, observe the infant. The container there carries risk.)</span></li>
+                    </ul>
+                </div>
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg">
+                    <h4 class="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-1">Requesting Support:</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="italic text-blue-900 block">Hepa! Mi sika nade.</span><span class="text-slate-600 block">(Assistance! I feel unwell today.)</span></li>
+                        <li><span class="italic text-blue-900 block">Hedo mi hura. Mi takato mesi.</span><span class="text-slate-600 block">(My head hurts. I shall consume remedy.)</span></li>
+                        <li><span class="italic text-blue-900 block">Nu movato sikadoma.</span><span class="text-slate-600 block">(We shall drive to the medical facility.)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="extended-vocabulary" class="mb-12">
+            <h2 class="text-3xl font-bold mb-4 border-b-2 border-slate-200 pb-2">Extended Vocabulary Appendix</h2>
+            
+            <div class="space-y-8">
+                <!-- 1. Emotions, Mental States & Personality -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">1. Emotions, Mental States & Personality</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Complements rapi (happy) and budi (upset).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Mada</td><td class="py-2 px-4">Mad / Angry</td><td class="py-2 px-4">Mad</td></tr>
+                        <tr><td class="py-2 px-4">Sada</td><td class="py-2 px-4">Sad / Unhappy</td><td class="py-2 px-4">Sad</td></tr>
+                        <tr><td class="py-2 px-4">Sike</td><td class="py-2 px-4">Scared/Afraid</td><td class="py-2 px-4">Scared</td></tr>
+                        <tr><td class="py-2 px-4">Pura</td><td class="py-2 px-4">Proud</td><td class="py-2 px-4">Proud</td></tr>
+                        <tr><td class="py-2 px-4">Kala</td><td class="py-2 px-4">Calm / Quiet</td><td class="py-2 px-4">Calm</td></tr>
+                        <tr><td class="py-2 px-4">Nosi</td><td class="py-2 px-4">Loud / Noisy</td><td class="py-2 px-4">Noisy</td></tr>
+                        <tr><td class="py-2 px-4">Foni</td><td class="py-2 px-4">Funny / Silly</td><td class="py-2 px-4">Funny</td></tr>
+                        <tr><td class="py-2 px-4">Bore</td><td class="py-2 px-4">Bored / Dull</td><td class="py-2 px-4">Bored</td></tr>
+                        <tr><td class="py-2 px-4">Kani</td><td class="py-2 px-4">Kind / Gentle</td><td class="py-2 px-4">Kind</td></tr>
+                        <tr><td class="py-2 px-4">Mina</td><td class="py-2 px-4">Mean / Rude</td><td class="py-2 px-4">Mean</td></tr>
+                        <tr><td class="py-2 px-4">Biba</td><td class="py-2 px-4">Busy / Occupied</td><td class="py-2 px-4">Busy</td></tr>
+                        <tr><td class="py-2 px-4">Kewa</td><td class="py-2 px-4">Curious / Inquisitive</td><td class="py-2 px-4">Curious</td></tr>
+                        <tr><td class="py-2 px-4">Taki</td><td class="py-2 px-4">Think / Thought</td><td class="py-2 px-4">Think</td></tr>
+                        <tr><td class="py-2 px-4">Hopo</td><td class="py-2 px-4">Hope / Wish</td><td class="py-2 px-4">Hope</td></tr>
+                        <tr><td class="py-2 px-4">Dori</td><td class="py-2 px-4">Dream / Imagine</td><td class="py-2 px-4">Dream</td></tr>
+                        <tr><td class="py-2 px-4">Meme</td><td class="py-2 px-4">Remember / Memory</td><td class="py-2 px-4">Memory</td></tr>
+                        <tr><td class="py-2 px-4">Foke</td><td class="py-2 px-4">Forget</td><td class="py-2 px-4">Forget</td></tr>
+                        <tr><td class="py-2 px-4">Noyo</td><td class="py-2 px-4">Know / Understand</td><td class="py-2 px-4">Know</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 2. Nature, Plants & The Outdoors -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">2. Nature, Plants & The Outdoors</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on wida (weather), veta (plant), and paka (park).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Tiri</td><td class="py-2 px-4">Tree</td><td class="py-2 px-4">Tree</td></tr>
+                        <tr><td class="py-2 px-4">Gisa</td><td class="py-2 px-4">Grass/Lawn</td><td class="py-2 px-4">Grass</td></tr>
+                        <tr><td class="py-2 px-4">Fawa</td><td class="py-2 px-4">Flower / Blossom</td><td class="py-2 px-4">Flower</td></tr>
+                        <tr><td class="py-2 px-4">Lifi</td><td class="py-2 px-4">Leaf</td><td class="py-2 px-4">Leaf</td></tr>
+                        <tr><td class="py-2 px-4">Sidi</td><td class="py-2 px-4">Seed / Nut</td><td class="py-2 px-4">Seed</td></tr>
+                        <tr><td class="py-2 px-4">Doti</td><td class="py-2 px-4">Dirt/Soil / Ground</td><td class="py-2 px-4">Dirt</td></tr>
+                        <tr><td class="py-2 px-4">Roka</td><td class="py-2 px-4">Rock / Stone</td><td class="py-2 px-4">Rock</td></tr>
+                        <tr><td class="py-2 px-4">Sada</td><td class="py-2 px-4">Sand</td><td class="py-2 px-4">Sand</td></tr>
+                        <tr><td class="py-2 px-4">Muni</td><td class="py-2 px-4">Mountain / Hill</td><td class="py-2 px-4">Mount</td></tr>
+                        <tr><td class="py-2 px-4">Riba</td><td class="py-2 px-4">River / Stream</td><td class="py-2 px-4">River</td></tr>
+                        <tr><td class="py-2 px-4">Leka</td><td class="py-2 px-4">Lake / Pond</td><td class="py-2 px-4">Lake</td></tr>
+                        <tr><td class="py-2 px-4">Sisi</td><td class="py-2 px-4">Sea / Ocean</td><td class="py-2 px-4">Sea</td></tr>
+                        <tr><td class="py-2 px-4">Bisi</td><td class="py-2 px-4">Beach / Shore</td><td class="py-2 px-4">Beach</td></tr>
+                        <tr><td class="py-2 px-4">Suka</td><td class="py-2 px-4">Sky</td><td class="py-2 px-4">Sky</td></tr>
+                        <tr><td class="py-2 px-4">Munu</td><td class="py-2 px-4">Moon</td><td class="py-2 px-4">Moon</td></tr>
+                        <tr><td class="py-2 px-4">Seta</td><td class="py-2 px-4">Star (Celestial body)</td><td class="py-2 px-4">Star</td></tr>
+                        <tr><td class="py-2 px-4">Fosa</td><td class="py-2 px-4">Forest/Woods</td><td class="py-2 px-4">Forest</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 3. Animals & Wildlife -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">3. Animals & Wildlife</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Complements kobi (pet/cat).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Dogo</td><td class="py-2 px-4">Dog / Canine</td><td class="py-2 px-4">Dog</td></tr>
+                        <tr><td class="py-2 px-4">Bodi</td><td class="py-2 px-4">Bird / Avian</td><td class="py-2 px-4">Bird</td></tr>
+                        <tr><td class="py-2 px-4">Fisi</td><td class="py-2 px-4">Fish / Aquatic creature</td><td class="py-2 px-4">Fish</td></tr>
+                        <tr><td class="py-2 px-4">Mawu</td><td class="py-2 px-4">Mouse / Small Rodent</td><td class="py-2 px-4">Mouse</td></tr>
+                        <tr><td class="py-2 px-4">Rabi</td><td class="py-2 px-4">Rabbit / Bunny</td><td class="py-2 px-4">Rabbit</td></tr>
+                        <tr><td class="py-2 px-4">Baga</td><td class="py-2 px-4">Bug / Insect</td><td class="py-2 px-4">Bug</td></tr>
+                        <tr><td class="py-2 px-4">Bisi</td><td class="py-2 px-4">Bee</td><td class="py-2 px-4">Bee</td></tr>
+                        <tr><td class="py-2 px-4">Kawa</td><td class="py-2 px-4">Cow / Cattle</td><td class="py-2 px-4">Cow</td></tr>
+                        <tr><td class="py-2 px-4">Piki</td><td class="py-2 px-4">Pig / Swine</td><td class="py-2 px-4">Pig</td></tr>
+                        <tr><td class="py-2 px-4">Sipi</td><td class="py-2 px-4">Sheep</td><td class="py-2 px-4">Sheep</td></tr>
+                        <tr><td class="py-2 px-4">Hosi</td><td class="py-2 px-4">Horse</td><td class="py-2 px-4">Horse</td></tr>
+                        <tr><td class="py-2 px-4">Daka</td><td class="py-2 px-4">Duck</td><td class="py-2 px-4">Duck</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 4. Clothing, Fabrics & Grooming -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">4. Clothing, Fabrics & Grooming</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on bata (shoe) and koto (coat).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Sati</td><td class="py-2 px-4">Shirt / Top</td><td class="py-2 px-4">Shirt</td></tr>
+                        <tr><td class="py-2 px-4">Pana</td><td class="py-2 px-4">Pants / Trousers</td><td class="py-2 px-4">Pants</td></tr>
+                        <tr><td class="py-2 px-4">Soka</td><td class="py-2 px-4">Sock</td><td class="py-2 px-4">Sock</td></tr>
+                        <tr><td class="py-2 px-4">Hata</td><td class="py-2 px-4">Hat / Cap</td><td class="py-2 px-4">Hat</td></tr>
+                        <tr><td class="py-2 px-4">Dira</td><td class="py-2 px-4">Dress / Robe</td><td class="py-2 px-4">Dress</td></tr>
+                        <tr><td class="py-2 px-4">Buro</td><td class="py-2 px-4">Bra / Underwear</td><td class="py-2 px-4">Bra</td></tr>
+                        <tr><td class="py-2 px-4">Bero</td><td class="py-2 px-4">Belt / Strap</td><td class="py-2 px-4">Belt</td></tr>
+                        <tr><td class="py-2 px-4">Rini</td><td class="py-2 px-4">Ring / Jewelry</td><td class="py-2 px-4">Ring</td></tr>
+                        <tr><td class="py-2 px-4">Wasa</td><td class="py-2 px-4">Watch/Clock</td><td class="py-2 px-4">Watch</td></tr>
+                        <tr><td class="py-2 px-4">Bota</td><td class="py-2 px-4">Boot</td><td class="py-2 px-4">Boot</td></tr>
+                        <tr><td class="py-2 px-4">Kuro</td><td class="py-2 px-4">Cloth / Fabric</td><td class="py-2 px-4">Cloth</td></tr>
+                        <tr><td class="py-2 px-4">Poko</td><td class="py-2 px-4">Pocket / Pouch</td><td class="py-2 px-4">Pocket</td></tr>
+                        <tr><td class="py-2 px-4">Fasi</td><td class="py-2 px-4">Fasten/Zip / Button</td><td class="py-2 px-4">Fasten</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 5. Household Rooms, Furniture & Fixtures -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">5. Household Rooms, Furniture & Fixtures</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on doma (house), tebu (table), and beda (bed).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Woro</td><td class="py-2 px-4">Wall</td><td class="py-2 px-4">Wall</td></tr>
+                        <tr><td class="py-2 px-4">Furo</td><td class="py-2 px-4">Floor / Ground inside</td><td class="py-2 px-4">Floor</td></tr>
+                        <tr><td class="py-2 px-4">Rufu</td><td class="py-2 px-4">Roof / Ceiling</td><td class="py-2 px-4">Roof</td></tr>
+                        <tr><td class="py-2 px-4">Wido</td><td class="py-2 px-4">Window</td><td class="py-2 px-4">Window</td></tr>
+                        <tr><td class="py-2 px-4">Kabi</td><td class="py-2 px-4">Cabinet / Cupboard</td><td class="py-2 px-4">Cabinet</td></tr>
+                        <tr><td class="py-2 px-4">Dori</td><td class="py-2 px-4">Drawer</td><td class="py-2 px-4">Drawer</td></tr>
+                        <tr><td class="py-2 px-4">Seha</td><td class="py-2 px-4">Shelf</td><td class="py-2 px-4">Shelf</td></tr>
+                        <tr><td class="py-2 px-4">Miro</td><td class="py-2 px-4">Mirror</td><td class="py-2 px-4">Mirror</td></tr>
+                        <tr><td class="py-2 px-4">Bira</td><td class="py-2 px-4">Blanket / Quilt</td><td class="py-2 px-4">Blanket</td></tr>
+                        <tr><td class="py-2 px-4">Piro</td><td class="py-2 px-4">Pillow / Cushion</td><td class="py-2 px-4">Pillow</td></tr>
+                        <tr><td class="py-2 px-4">Raga</td><td class="py-2 px-4">Rug / Carpet</td><td class="py-2 px-4">Rug</td></tr>
+                        <tr><td class="py-2 px-4">Dero</td><td class="py-2 px-4">Desk / Work table</td><td class="py-2 px-4">Desk</td></tr>
+                        <tr><td class="py-2 px-4">Yado</td><td class="py-2 px-4">Yard / Garden / Patio</td><td class="py-2 px-4">Yard</td></tr>
+                        <tr><td class="py-2 px-4">Gera</td><td class="py-2 px-4">Garage / Car house</td><td class="py-2 px-4">Garage</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 6. Tools, Materials & Hardware -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">6. Tools, Materials & Hardware</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Complements nafi (knife) and kodo (cord).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Hama</td><td class="py-2 px-4">Hammer</td><td class="py-2 px-4">Hammer</td></tr>
+                        <tr><td class="py-2 px-4">Siku</td><td class="py-2 px-4">Screw / Bolt</td><td class="py-2 px-4">Screw</td></tr>
+                        <tr><td class="py-2 px-4">Nera</td><td class="py-2 px-4">Nail / Pin</td><td class="py-2 px-4">Nail</td></tr>
+                        <tr><td class="py-2 px-4">Kuti</td><td class="py-2 px-4">Scissors / Shears</td><td class="py-2 px-4">Cut-tool</td></tr>
+                        <tr><td class="py-2 px-4">Tape</td><td class="py-2 px-4">Tape / Adhesive</td><td class="py-2 px-4">Tape</td></tr>
+                        <tr><td class="py-2 px-4">Gulu</td><td class="py-2 px-4">Glue / Paste</td><td class="py-2 px-4">Glue</td></tr>
+                        <tr><td class="py-2 px-4">Wuda</td><td class="py-2 px-4">Wood / Timber</td><td class="py-2 px-4">Wood</td></tr>
+                        <tr><td class="py-2 px-4">Meti</td><td class="py-2 px-4">Metal / Steel / Iron</td><td class="py-2 px-4">Metal</td></tr>
+                        <tr><td class="py-2 px-4">Pura</td><td class="py-2 px-4">Plastic</td><td class="py-2 px-4">Plastic</td></tr>
+                        <tr><td class="py-2 px-4">Gisa</td><td class="py-2 px-4">Glass (material)</td><td class="py-2 px-4">Glass</td></tr>
+                        <tr><td class="py-2 px-4">Kani</td><td class="py-2 px-4">Can / Tin container</td><td class="py-2 px-4">Can</td></tr>
+                        <tr><td class="py-2 px-4">Ropo</td><td class="py-2 px-4">Rope / String</td><td class="py-2 px-4">Rope</td></tr>
+                        <tr><td class="py-2 px-4">Boto</td><td class="py-2 px-4">Bottle / Flask</td><td class="py-2 px-4">Bottle</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 7. Actions: Household & Daily Routines -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">7. Actions: Household & Daily Routines</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on sido (sit), kafi (wash), and sato (cook).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Opi</td><td class="py-2 px-4">Open</td><td class="py-2 px-4">Open</td></tr>
+                        <tr><td class="py-2 px-4">Kuro</td><td class="py-2 px-4">Close / Shut</td><td class="py-2 px-4">Close</td></tr>
+                        <tr><td class="py-2 px-4">Pusu</td><td class="py-2 px-4">Push</td><td class="py-2 px-4">Push</td></tr>
+                        <tr><td class="py-2 px-4">Puru</td><td class="py-2 px-4">Pull</td><td class="py-2 px-4">Pull</td></tr>
+                        <tr><td class="py-2 px-4">Lifi</td><td class="py-2 px-4">Lift / Raise</td><td class="py-2 px-4">Lift</td></tr>
+                        <tr><td class="py-2 px-4">Doro</td><td class="py-2 px-4">Drop / Lower</td><td class="py-2 px-4">Drop</td></tr>
+                        <tr><td class="py-2 px-4">Hana</td><td class="py-2 px-4">Hang / Suspend</td><td class="py-2 px-4">Hang</td></tr>
+                        <tr><td class="py-2 px-4">Wipi</td><td class="py-2 px-4">Wipe / Scrub</td><td class="py-2 px-4">Wipe</td></tr>
+                        <tr><td class="py-2 px-4">Supa</td><td class="py-2 px-4">Sweep / Broom</td><td class="py-2 px-4">Sweep</td></tr>
+                        <tr><td class="py-2 px-4">Tawa</td><td class="py-2 px-4">Throw / Toss</td><td class="py-2 px-4">Throw</td></tr>
+                        <tr><td class="py-2 px-4">Kasi</td><td class="py-2 px-4">Catch / Snatch</td><td class="py-2 px-4">Catch</td></tr>
+                        <tr><td class="py-2 px-4">Fidi</td><td class="py-2 px-4">Feed / Provide food</td><td class="py-2 px-4">Feed</td></tr>
+                        <tr><td class="py-2 px-4">Bayo</td><td class="py-2 px-4">Buy / Purchase</td><td class="py-2 px-4">Buy</td></tr>
+                        <tr><td class="py-2 px-4">Paya</td><td class="py-2 px-4">Pay / Cost</td><td class="py-2 px-4">Pay</td></tr>
+                        <tr><td class="py-2 px-4">Seli</td><td class="py-2 px-4">Sell</td><td class="py-2 px-4">Sell</td></tr>
+                        <tr><td class="py-2 px-4">Pisi</td><td class="py-2 px-4">Pack / Store away</td><td class="py-2 px-4">Pack</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 8. Actions: Social, Communication & Play -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">8. Actions: Social, Communication & Play</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on hika (listen) and puye (play).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Toko</td><td class="py-2 px-4">Talk / Speak</td><td class="py-2 px-4">Talk</td></tr>
+                        <tr><td class="py-2 px-4">Sayo</td><td class="py-2 px-4">Say / Tell / State</td><td class="py-2 px-4">Say</td></tr>
+                        <tr><td class="py-2 px-4">Aski</td><td class="py-2 px-4">Ask / Inquire</td><td class="py-2 px-4">Ask</td></tr>
+                        <tr><td class="py-2 px-4">Aso</td><td class="py-2 px-4">Answer / Reply</td><td class="py-2 px-4">Answer</td></tr>
+                        <tr><td class="py-2 px-4">Kolo</td><td class="py-2 px-4">Call/Shout / Phone</td><td class="py-2 px-4">Call</td></tr>
+                        <tr><td class="py-2 px-4">Kisa</td><td class="py-2 px-4">Kiss</td><td class="py-2 px-4">Kiss</td></tr>
+                        <tr><td class="py-2 px-4">Hagu</td><td class="py-2 px-4">Hug / Embrace</td><td class="py-2 px-4">Hug</td></tr>
+                        <tr><td class="py-2 px-4">Sami</td><td class="py-2 px-4">Smile</td><td class="py-2 px-4">Smile</td></tr>
+                        <tr><td class="py-2 px-4">Lafa</td><td class="py-2 px-4">Laugh / Chuckle</td><td class="py-2 px-4">Laugh</td></tr>
+                        <tr><td class="py-2 px-4">Sera</td><td class="py-2 px-4">Share / Divide</td><td class="py-2 px-4">Share</td></tr>
+                        <tr><td class="py-2 px-4">Tisi</td><td class="py-2 px-4">Teach / Instruct</td><td class="py-2 px-4">Teach</td></tr>
+                        <tr><td class="py-2 px-4">Leno</td><td class="py-2 px-4">Learn / Study</td><td class="py-2 px-4">Learn</td></tr>
+                        <tr><td class="py-2 px-4">Kopi</td><td class="py-2 px-4">Copy / Mimic</td><td class="py-2 px-4">Copy</td></tr>
+                        <tr><td class="py-2 px-4">Fisi</td><td class="py-2 px-4">Fix / Repair</td><td class="py-2 px-4">Fix</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 9. Extended Food, Pantry & Dining -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">9. Extended Food, Pantry & Dining</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Complements fudo (food), mito (meat), and bomi (bread).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Rasi</td><td class="py-2 px-4">Rice / Grain dish</td><td class="py-2 px-4">Rice</td></tr>
+                        <tr><td class="py-2 px-4">Pasa</td><td class="py-2 px-4">Pasta / Noodle</td><td class="py-2 px-4">Pasta</td></tr>
+                        <tr><td class="py-2 px-4">Boto</td><td class="py-2 px-4">Butter/Oil/ Fat</td><td class="py-2 px-4">Butter</td></tr>
+                        <tr><td class="py-2 px-4">Sisi</td><td class="py-2 px-4">Cheese</td><td class="py-2 px-4">Cheese</td></tr>
+                        <tr><td class="py-2 px-4">Egi</td><td class="py-2 px-4">Egg</td><td class="py-2 px-4">Egg</td></tr>
+                        <tr><td class="py-2 px-4">Supa</td><td class="py-2 px-4">Soup / Broth</td><td class="py-2 px-4">Soup</td></tr>
+                        <tr><td class="py-2 px-4">Sara</td><td class="py-2 px-4">Salad/Greens</td><td class="py-2 px-4">Salad</td></tr>
+                        <tr><td class="py-2 px-4">Siki</td><td class="py-2 px-4">Beef / Steak</td><td class="py-2 px-4">Beef</td></tr>
+                        <tr><td class="py-2 px-4">Poko</td><td class="py-2 px-4">Chicken / Poultry</td><td class="py-2 px-4">Chicken</td></tr>
+                        <tr><td class="py-2 px-4">Bifi</td><td class="py-2 px-4">Pork / Bacon</td><td class="py-2 px-4">Pork</td></tr>
+                        <tr><td class="py-2 px-4">Suga</td><td class="py-2 px-4">Sugar / Sweetener</td><td class="py-2 px-4">Sugar</td></tr>
+                        <tr><td class="py-2 px-4">Pepo</td><td class="py-2 px-4">Pepper / Seasoning</td><td class="py-2 px-4">Pepper</td></tr>
+                        <tr><td class="py-2 px-4">Kofi</td><td class="py-2 px-4">Coffee</td><td class="py-2 px-4">Coffee</td></tr>
+                        <tr><td class="py-2 px-4">Tiya</td><td class="py-2 px-4">Tea</td><td class="py-2 px-4">Tea</td></tr>
+                        <tr><td class="py-2 px-4">Jusu</td><td class="py-2 px-4">Juice</td><td class="py-2 px-4">Juice</td></tr>
+                        <tr><td class="py-2 px-4">Sana</td><td class="py-2 px-4">Snack</td><td class="py-2 px-4">Snack</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+
+                <!-- 10. Abstract Relators, Spaces & Qualities -->
+                <div>
+                <h3 class="text-xl font-semibold mb-2 text-slate-800">10. Abstract Relators, Spaces & Qualities</h3>
+                <p class="text-sm text-slate-600 mb-3 italic">Expands on hina (here), tupa (up), and hada (hard).</p>
+                <div class="overflow-x-auto shadow-sm rounded-lg border border-slate-200">
+                    <table class="min-w-full bg-white text-sm">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                        <th class="py-3 px-4 text-left font-medium">Word</th>
+                        <th class="py-3 px-4 text-left font-medium">English Meaning</th>
+                        <th class="py-3 px-4 text-left font-medium">Phonetic Origin / Derivation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td class="py-2 px-4">Mido</td><td class="py-2 px-4">Middle / Center / Between</td><td class="py-2 px-4">Middle</td></tr>
+                        <tr><td class="py-2 px-4">Ina</td><td class="py-2 px-4">In/Inside / Interior</td><td class="py-2 px-4">In</td></tr>
+                        <tr><td class="py-2 px-4">Awo</td><td class="py-2 px-4">Out/Away/Gone</td><td class="py-2 px-4">Away</td></tr>
+                        <tr><td class="py-2 px-4">Sami</td><td class="py-2 px-4">Same / Equal/ Identical</td><td class="py-2 px-4">Same</td></tr>
+                        <tr><td class="py-2 px-4">Difa</td><td class="py-2 px-4">Different / Other</td><td class="py-2 px-4">Different</td></tr>
+                        <tr><td class="py-2 px-4">Kawa</td><td class="py-2 px-4">Clean / Pure / Clear</td><td class="py-2 px-4">Clear</td></tr>
+                        <tr><td class="py-2 px-4">Wura</td><td class="py-2 px-4">Warm / Cozy</td><td class="py-2 px-4">Warm</td></tr>
+                        <tr><td class="py-2 px-4">Kuru</td><td class="py-2 px-4">Cool / Chilly</td><td class="py-2 px-4">Cool</td></tr>
+                        <tr><td class="py-2 px-4">Buri</td><td class="py-2 px-4">Bright / Shiny</td><td class="py-2 px-4">Bright</td></tr>
+                        <tr><td class="py-2 px-4">Lura</td><td class="py-2 px-4">Low / Shallow</td><td class="py-2 px-4">Low</td></tr>
+                        <tr><td class="py-2 px-4">Toro</td><td class="py-2 px-4">Tall / High</td><td class="py-2 px-4">Tall</td></tr>
+                        <tr><td class="py-2 px-4">Soto</td><td class="py-2 px-4">Short / Brief</td><td class="py-2 px-4">Short</td></tr>
+                        <tr><td class="py-2 px-4">Wido</td><td class="py-2 px-4">Wide / Broad</td><td class="py-2 px-4">Wide</td></tr>
+                        <tr><td class="py-2 px-4">Nero</td><td class="py-2 px-4">Narrow / Thin</td><td class="py-2 px-4">Narrow</td></tr>
+                        <tr><td class="py-2 px-4">Fiti</td><td class="py-2 px-4">Fit/Proper / Ready</td><td class="py-2 px-4">Fit</td></tr>
+                        <tr><td class="py-2 px-4">Riti</td><td class="py-2 px-4">Right / Correct / True</td><td class="py-2 px-4">Right</td></tr>
+                        <tr><td class="py-2 px-4">Wano</td><td class="py-2 px-4">Wrong/False / Mistake</td><td class="py-2 px-4">Wrong</td></tr>
+                        <tr><td class="py-2 px-4">Masi</td><td class="py-2 px-4">Much / Many / More</td><td class="py-2 px-4">Much</td></tr>
+                        <tr><td class="py-2 px-4">Lesi</td><td class="py-2 px-4">Less / Fewer</td><td class="py-2 px-4"></td></tr>
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+            </section>
+
+        <footer class="mt-16 pt-8 border-t border-slate-200 text-center text-slate-500 text-sm">
+            <p>Tesahoda - The Threshold Language: A Foundation Guide</p>
+        </footer>
+
+    </div>
+</body>
+</html>
