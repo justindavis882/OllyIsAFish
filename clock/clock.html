@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedside Matrix OS - Kiosk v5</title>
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --off-color: #1f1f1f;
+            --on-color: #ff0055; /* Default Neon Red */
+            --scale-factor: 1; /* Dynamic Scale */
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            transition: background-color 0.5s;
+        }
+
+        /* --- LEFT SIDEBAR (Dismiss Button) --- */
+        .sidebar {
+            width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #222;
+            background: #000;
+            z-index: 50;
+            flex-shrink: 0;
+        }
+
+        #dismissBtn {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            background: transparent;
+            color: var(--on-color);
+            border: 2px solid var(--on-color);
+            padding: 40px 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            cursor: pointer;
+            opacity: 0.1; /* Dim when inactive */
+            pointer-events: none; /* Unclickable when inactive */
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0,0,0,0);
+        }
+
+        /* Active Alarm State */
+        body.alarm-ringing #dismissBtn {
+            opacity: 1;
+            pointer-events: all;
+            background: var(--on-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 50px var(--on-color);
+            animation: btnPulse 0.5s infinite alternate;
+        }
+
+        @keyframes btnPulse { 0% { opacity: 0.8; } 100% { opacity: 1; transform: scale(1.05); } }
+
+        /* --- FLASHING BG ANIMATION --- */
+        body.alarm-ringing {
+            animation: bodyFlash 0.8s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        body.alarm-ringing .main-display {
+            animation: contentInvert 0.8s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        @keyframes bodyFlash { 0% { background-color: var(--bg-color); } 100% { background-color: var(--on-color); } }
+        @keyframes contentInvert { 0% { filter: invert(0); } 100% { filter: invert(1) hue-rotate(180deg); } }
+
+
+        /* --- MAIN DISPLAY AREA --- */
+        .main-display {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden; 
+        }
+
+        .clock-wrapper {
+            transform: scale(var(--scale-factor));
+            transform-origin: center center;
+            transition: transform 0.1s linear; 
+        }
+
+        .clock-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 50px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 30px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+        }
+
+        /* --- 7-Segment Construction --- */
+        .digit { 
+            position: relative; 
+            width: 80px;  
+            height: 140px; 
+            margin: 0 8px; 
+        }
+        
+        .digit-mini { 
+            position: relative; 
+            width: 40px; 
+            height: 65px; 
+        }
+        
+        .segment {
+            position: absolute;
+            background-color: var(--off-color);
+            border-radius: 4px;
+            transition: background-color 0.1s;
+        }
+        .segment.on { background-color: var(--on-color); box-shadow: 0 0 25px var(--on-color); }
+
+        /* Segments Geometry */
+        .seg-a { top: 0; left: 10%; width: 80%; height: 11px; } 
+        .seg-b { top: 5%; right: 0; width: 11px; height: 45%; }
+        .seg-c { bottom: 5%; right: 0; width: 11px; height: 45%; }
+        .seg-d { bottom: 0; left: 10%; width: 80%; height: 11px; }
+        .seg-e { bottom: 5%; left: 0; width: 11px; height: 45%; }
+        .seg-f { top: 5%; left: 0; width: 11px; height: 45%; }
+        .seg-g { top: 46%; left: 10%; width: 80%; height: 11px; }
+
+        .digit-mini .seg-a, .digit-mini .seg-d, .digit-mini .seg-g { height: 6px; } 
+        .digit-mini .seg-b, .digit-mini .seg-c, .digit-mini .seg-e, .digit-mini .seg-f { width: 6px; } 
+
+        /* Colon */
+        .colon { display: flex; flex-direction: column; gap: 40px; margin: 0 15px; }
+        .dot { width: 16px; height: 16px; background-color: var(--off-color); border-radius: 50%; } 
+        .dot.flash { background-color: var(--on-color); box-shadow: 0 0 20px var(--on-color); }
+        .colon.off .dot { background-color: var(--off-color) !important; box-shadow: none !important; }
+
+        /* Quadrant */
+        .quad-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 12px;
+            margin-left: 20px;
+            padding-left: 25px;
+            border-left: 3px solid #333;
+        }
+
+        /* --- SETTINGS BUTTON (Fixed Position) --- */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--on-color);
+            color: var(--on-color);
+            padding: 10px 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 5px;
+            z-index: 60; 
+            backdrop-filter: blur(5px);
+        }
+        .settings-btn:hover { background: var(--on-color); color: black; }
+
+        /* --- COMMAND CENTER (Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            display: none;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-window {
+            width: 500px;
+            max-height: 80vh;
+            background: #111;
+            border: 2px solid var(--on-color);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .modal-tabs { display: flex; border-bottom: 1px solid #333; }
+        .tab-btn {
+            flex: 1; padding: 15px; background: #1a1a1a; color: #888; border: none;
+            cursor: pointer; text-transform: uppercase; font-weight: bold;
+        }
+        .tab-btn.active { background: var(--on-color); color: black; }
+
+        .modal-content { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .list-item {
+            background: #222; padding: 10px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 3px solid var(--on-color);
+        }
+        .list-item span { font-size: 0.9rem; }
+        .list-controls button {
+            background: #444; border: none; color: white; padding: 5px 10px; cursor: pointer; margin-left: 5px;
+        }
+        .list-controls button.delete { background: #ff3333; }
+        
+        input, select { padding: 8px; background: #000; border: 1px solid #444; color: var(--on-color); width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        
+        /* SLIDER STYLING */
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            outline: none;
+            opacity: 0.7;
+            transition: .2s;
+            margin: 10px 0 20px 0;
+        }
+        input[type="range"]:hover { opacity: 1; }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: var(--on-color);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .btn-primary { width: 100%; padding: 10px; background: #333; color: white; border: 1px solid #555; cursor: pointer; text-transform: uppercase; }
+        .btn-primary:hover { background: var(--on-color); color: black; border-color: var(--on-color); }
+
+        h3 { margin-top: 0; color: var(--on-color); border-bottom: 1px solid #333; padding-bottom: 5px;}
+        
+        /* Modal Footer Actions */
+        .modal-footer {
+            display: flex;
+            border-top: 1px solid #333;
+        }
+        .footer-btn {
+            flex: 1;
+            padding: 20px;
+            background: #000;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .footer-btn:hover { color: white; background: #111; }
+        .footer-btn.fs-btn { border-right: 1px solid #333; color: var(--on-color); }
+        .footer-btn.fs-btn:hover { background: var(--on-color); color: black; }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <button id="dismissBtn" onclick="dismissAlarm()">DISMISS</button>
+    </div>
+
+    <button class="settings-btn" onclick="toggleModal()">Command Center</button>
+
+    <div class="main-display">
+        <div class="clock-wrapper" id="clockWrapper">
+            <div class="clock-container">
+                <div class="digit" id="h1"></div>
+                <div class="digit" id="h2"></div>
+                <div class="colon" id="colon">
+                    <div class="dot" id="dot1"></div>
+                    <div class="dot" id="dot2"></div>
+                </div>
+                <div class="digit" id="m1"></div>
+                <div class="digit" id="m2"></div>
+                <div class="quad-container">
+                    <div class="digit-mini" id="s1"></div>
+                    <div class="digit-mini" id="topRight"></div> 
+                    <div class="digit-mini" id="s2"></div>
+                    <div class="digit-mini" id="ampm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-window">
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-clock')">Clock</button>
+                <button class="tab-btn" onclick="switchTab('tab-alarms')">Alarms</button>
+                <button class="tab-btn" onclick="switchTab('tab-timers')">Timers</button>
+                <button class="tab-btn" onclick="switchTab('tab-stopwatch')">Stopwatch</button>
+            </div>
+
+            <div class="modal-content">
+                <div id="tab-clock" class="tab-pane active">
+                    <h3>Visuals</h3>
+                    <label>Theme Color</label>
+                    <select id="themeSelector" onchange="updateTheme()">
+                        <option value="#ff0055">Neon Red</option>
+                        <option value="#00ffcc">Cyber Cyan</option>
+                        <option value="#ccff00">Toxic Green</option>
+                        <option value="#ff9900">Deep Amber</option>
+                        <option value="#bd00ff">Ultraviolet</option>
+                        <option value="#ffffff">White Phosphor</option>
+                    </select>
+                    <label>Clock Size (Scale: <span id="scaleVal">1.0</span>x)</label>
+                    <input type="range" id="scaleSlider" min="0.5" max="2.5" step="0.1" value="1" oninput="updateScale()">
+                    <label>Time Format</label>
+                    <select id="modeSelector" onchange="saveData()">
+                        <option value="12">12 Hour</option>
+                        <option value="24">24 Hour</option>
+                    </select>
+                </div>
+
+                <div id="tab-alarms" class="tab-pane">
+                    <h3>Create Alarm</h3>
+                    <input type="text" id="newAlarmLabel" placeholder="Alarm Name">
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="newAlarmH" placeholder="HH (24h)" min="0" max="23">
+                        <input type="number" id="newAlarmM" placeholder="MM" min="0" max="59">
+                    </div>
+                    <label>Repeat?</label>
+                    <select id="newAlarmType">
+                        <option value="once">One Time</option>
+                        <option value="daily">Daily</option>
+                    </select>
+                    <button class="btn-primary" onclick="addAlarm()">Add Alarm</button>
+                    <h3>Active Alarms</h3>
+                    <div id="alarmList"></div>
+                </div>
+
+                <div id="tab-timers" class="tab-pane">
+                    <h3>Create Timer</h3>
+                    <input type="text" id="newTimerLabel" placeholder="Timer Name">
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="newTimerMin" placeholder="Minutes">
+                        <input type="number" id="newTimerSec" placeholder="Seconds">
+                    </div>
+                    <label>Type</label>
+                    <select id="newTimerType">
+                        <option value="once">Stop at 0</option>
+                        <option value="repeat">Auto-Restart (Loop)</option>
+                    </select>
+                    <button class="btn-primary" onclick="addTimer()">Start Timer</button>
+                    <h3>Running Timers</h3>
+                    <div id="timerList"></div>
+                </div>
+
+                <div id="tab-stopwatch" class="tab-pane">
+                    <h3>Stopwatch</h3>
+                    <button class="btn-primary" id="swToggleBtn" onclick="toggleStopwatch()">START STOPWATCH</button>
+                    <button class="btn-primary" onclick="resetStopwatch()" style="margin-top:10px; background:#444;">RESET</button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="footer-btn fs-btn" onclick="toggleFullscreen()">Fullscreen On/Off</button>
+                <button class="footer-btn" onclick="toggleModal()">Close Center</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- AGGRESSIVE KEYBOARD LOCK ---
+        document.addEventListener('keydown', function(e) {
+            // 1. Allow inputs so users can type alarm names
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                return;
+            }
+            
+            // 2. Explicitly target F11 and Escape
+            // Note: Modern browsers may strictly enforce Esc for security, but we try anyway.
+            if (e.key === 'F11' || e.key === 'Escape' || e.code === 'F11' || e.code === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+
+            // 3. Prevent everything else (navigation, etc)
+            e.preventDefault();
+        });
+
+        // --- FULLSCREEN LOGIC ---
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => {
+                    console.log(`Error attempting to enable full-screen mode: ${e.message} (${e.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // --- DATA & STATE ---
+        let appState = {
+            mode: 'CLOCK', 
+            alarms: [],
+            timers: [],
+            stopwatch: { running: false, startTime: 0, elapsed: 0 },
+            activeAlarm: null,
+            marqueeOffset: 0
+        };
+
+        // --- 7-SEGMENT MAPPING ---
+        const digitMap = {
+            '0':[1,1,1,1,1,1,0], '1':[0,1,1,0,0,0,0], '2':[1,1,0,1,1,0,1],
+            '3':[1,1,1,1,0,0,1], '4':[0,1,1,0,0,1,1], '5':[1,0,1,1,0,1,1],
+            '6':[1,0,1,1,1,1,1], '7':[1,1,1,0,0,0,0], '8':[1,1,1,1,1,1,1],
+            '9':[1,1,1,1,0,1,1], 'A':[1,1,1,0,1,1,1], 'B':[0,0,1,1,1,1,1], 
+            'C':[1,0,0,1,1,1,0], 'D':[0,1,1,1,1,0,1], 'E':[1,0,0,1,1,1,1], 
+            'F':[1,0,0,0,1,1,1], 'G':[1,0,1,1,1,1,0], 'H':[0,1,1,0,1,1,1], 
+            'I':[0,1,1,0,0,0,0], 'J':[0,1,1,1,1,0,0], 'K':[0,1,1,0,1,1,1], 
+            'L':[0,0,0,1,1,1,0], 'M':[1,0,1,0,1,0,0], 'N':[0,0,1,0,1,0,1], 
+            'O':[1,1,1,1,1,1,0], 'P':[1,1,0,0,1,1,1], 'Q':[1,1,1,0,0,1,1], 
+            'R':[0,0,0,0,1,0,1], 'S':[1,0,1,1,0,1,1], 'T':[0,0,0,1,1,1,1], 
+            'U':[0,1,1,1,1,1,0], 'V':[0,1,1,1,1,1,0], 'W':[0,1,0,1,0,1,0], 
+            'X':[0,1,1,0,1,1,1], 'Y':[0,1,1,1,0,1,1], 'Z':[1,1,0,1,1,0,1],
+            ' ':[0,0,0,0,0,0,0], '-':[0,0,0,0,0,0,1], '!':[0,1,0,0,0,0,1] 
+        };
+
+        // --- INIT ---
+        window.onload = function() {
+            buildSegments();
+            loadData();
+            setInterval(gameLoop, 100); 
+            setInterval(oneSecondLoop, 1000); 
+        };
+
+        function buildSegments() {
+            const segClasses = ['seg-a', 'seg-b', 'seg-c', 'seg-d', 'seg-e', 'seg-f', 'seg-g'];
+            document.querySelectorAll('.digit, .digit-mini').forEach(el => {
+                segClasses.forEach(cls => {
+                    const d = document.createElement('div');
+                    d.className = 'segment ' + cls;
+                    el.appendChild(d);
+                });
+            });
+        }
+
+        // --- CORE LOOPS ---
+        function oneSecondLoop() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+
+            if (!appState.activeAlarm) {
+                appState.alarms.forEach(al => {
+                    if (!al.enabled) return;
+                    if (parseInt(al.h) === h && parseInt(al.m) === m && s === 0) {
+                        triggerAlarm(al);
+                    }
+                });
+            }
+
+            appState.timers.forEach((t, index) => {
+                if (t.remaining > 0) {
+                    t.remaining--;
+                } else {
+                    if (t.type === 'repeat') {
+                        t.remaining = t.duration; 
+                        triggerAlarm({ label: t.label, isTimer: true });
+                    } else if (!t.finished) {
+                        t.finished = true;
+                        triggerAlarm({ label: t.label, isTimer: true });
+                        removeTimer(index); 
+                    }
+                }
+            });
+            renderTimersList(); 
+        }
+
+        function gameLoop() {
+            if (appState.activeAlarm) {
+                renderAlarmState();
+            } else if (appState.mode === 'STOPWATCH') {
+                renderStopwatch();
+            } else {
+                renderClock();
+            }
+        }
+
+        // --- RENDERING MODES ---
+        function renderClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            let s = now.getSeconds();
+            const is12 = document.getElementById('modeSelector').value === '12';
+            let ampm = h >= 12 ? 'P' : 'A';
+
+            if (is12) { h = h % 12 || 12; }
+
+            setDigit('h1', Math.floor(h/10));
+            setDigit('h2', h%10);
+            setDigit('m1', Math.floor(m/10));
+            setDigit('m2', m%10);
+            
+            setDigit('s1', Math.floor(s/10));
+            setDigit('s2', s%10);
+            setDigit('topRight', ' ');
+            setDigit('ampm', is12 ? ampm : ' ');
+
+            const col = document.getElementById('colon');
+            if (s % 2 === 0) col.classList.remove('off');
+            else col.classList.add('off');
+        }
+
+        function renderStopwatch() {
+            let diff = appState.stopwatch.elapsed;
+            if (appState.stopwatch.running) {
+                diff = Date.now() - appState.stopwatch.startTime + appState.stopwatch.elapsed;
+            }
+
+            const totSecs = Math.floor(diff / 1000);
+            const ms = Math.floor((diff % 1000) / 10);
+            const mins = Math.floor(totSecs / 60);
+            const secs = totSecs % 60;
+
+            setDigit('h1', Math.floor(mins/10));
+            setDigit('h2', mins%10);
+            setDigit('m1', Math.floor(secs/10));
+            setDigit('m2', secs%10);
+            setDigit('s1', Math.floor(ms/10));
+            setDigit('s2', ms%10);
+            setDigit('ampm', ' ');
+            document.getElementById('colon').classList.remove('off');
+        }
+
+        function renderAlarmState() {
+            const text = (appState.activeAlarm.label || "ALARM").toUpperCase() + "   ";
+            if (!appState.scrollFrame) appState.scrollFrame = 0;
+            appState.scrollFrame++;
+            
+            if (appState.scrollFrame > 3) {
+                appState.marqueeOffset++;
+                appState.scrollFrame = 0;
+            }
+            if (appState.marqueeOffset >= text.length) appState.marqueeOffset = 0;
+
+            let d1 = text[(appState.marqueeOffset) % text.length];
+            let d2 = text[(appState.marqueeOffset + 1) % text.length];
+            let d3 = text[(appState.marqueeOffset + 2) % text.length];
+            let d4 = text[(appState.marqueeOffset + 3) % text.length];
+
+            setDigit('h1', d1);
+            setDigit('h2', d2);
+            setDigit('m1', d3);
+            setDigit('m2', d4);
+            setDigit('s1', ' ');
+            setDigit('s2', ' ');
+            setDigit('ampm', '!');
+            document.getElementById('colon').classList.add('off');
+        }
+
+        function setDigit(id, val) {
+            val = val.toString();
+            const map = digitMap[val] || digitMap[' '];
+            const el = document.getElementById(id);
+            const segs = el.querySelectorAll('.segment');
+            segs.forEach((s, i) => {
+                if(map[i]) s.classList.add('on');
+                else s.classList.remove('on');
+            });
+        }
+
+        // --- AUDIO ---
+        let audioCtx;
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function triggerAlarm(alarmObj) {
+            if (appState.activeAlarm) return; 
+            
+            appState.activeAlarm = alarmObj;
+            appState.marqueeOffset = 0;
+            document.body.classList.add('alarm-ringing');
+            
+            initAudio();
+            playAlarmSound();
+            appState.audioInterval = setInterval(playAlarmSound, 1000);
+
+            if (alarmObj.type === 'once' && !alarmObj.isTimer) {
+                alarmObj.enabled = false;
+                renderAlarmList();
+                saveData();
+            }
+        }
+
+        function playAlarmSound() {
+            if(!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(800, t);
+            osc.frequency.setValueAtTime(1200, t + 0.1);
+            g.gain.value = 0.2;
+            g.gain.linearRampToValueAtTime(0, t+0.3);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t+0.3);
+        }
+
+        function dismissAlarm() {
+            appState.activeAlarm = null;
+            document.body.classList.remove('alarm-ringing');
+            clearInterval(appState.audioInterval);
+        }
+
+        // --- UI & DATA ---
+        function toggleModal() {
+            const m = document.getElementById('modalOverlay');
+            m.classList.toggle('active');
+            renderAlarmList();
+            renderTimersList();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateScale() {
+            const val = document.getElementById('scaleSlider').value;
+            document.documentElement.style.setProperty('--scale-factor', val);
+            document.getElementById('scaleVal').innerText = val;
+            saveData();
+        }
+
+        function updateTheme() {
+            const c = document.getElementById('themeSelector').value;
+            document.documentElement.style.setProperty('--on-color', c);
+            saveData();
+        }
+
+        function addAlarm() {
+            const label = document.getElementById('newAlarmLabel').value || "Alarm";
+            const h = document.getElementById('newAlarmH').value;
+            const m = document.getElementById('newAlarmM').value;
+            const type = document.getElementById('newAlarmType').value;
+            if(h==="" || m==="") return;
+            appState.alarms.push({ id: Date.now(), h: h, m: m, label: label, type: type, enabled: true });
+            saveData();
+            renderAlarmList();
+        }
+
+        function renderAlarmList() {
+            const container = document.getElementById('alarmList');
+            container.innerHTML = '';
+            appState.alarms.forEach((al, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `<span>${al.label} (${al.h.toString().padStart(2,'0')}:${al.m.toString().padStart(2,'0')}) - ${al.type}</span> <div class="list-controls"><button onclick="deleteAlarm(${idx})" class="delete">DEL</button></div>`;
+                container.appendChild(div);
+            });
+        }
+        function deleteAlarm(idx) { appState.alarms.splice(idx, 1); saveData(); renderAlarmList(); }
+
+        function addTimer() {
+            const label = document.getElementById('newTimerLabel').value || "Timer";
+            const mm = parseInt(document.getElementById('newTimerMin').value) || 0;
+            const ss = parseInt(document.getElementById('newTimerSec').value) || 0;
+            const type = document.getElementById('newTimerType').value;
+            const totalSec = (mm * 60) + ss;
+            if (totalSec <= 0) return;
+            appState.timers.push({ id: Date.now(), duration: totalSec, remaining: totalSec, label: label, type: type, finished: false });
+            saveData();
+            renderTimersList();
+        }
+        function renderTimersList() {
+            const container = document.getElementById('timerList');
+            container.innerHTML = '';
+            appState.timers.forEach((t, idx) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                const mm = Math.floor(t.remaining / 60);
+                const ss = t.remaining % 60;
+                div.innerHTML = `<span>${t.label}: ${mm}m ${ss}s (${t.type})</span> <div class="list-controls"><button onclick="deleteTimer(${idx})" class="delete">STOP</button></div>`;
+                container.appendChild(div);
+            });
+        }
+        function deleteTimer(idx) { appState.timers.splice(idx, 1); saveData(); renderTimersList(); }
+
+        function toggleStopwatch() {
+            initAudio(); 
+            if (appState.mode === 'CLOCK') {
+                appState.mode = 'STOPWATCH';
+                appState.stopwatch.running = true;
+                appState.stopwatch.startTime = Date.now();
+                document.getElementById('swToggleBtn').innerText = "PAUSE";
+            } else if (appState.mode === 'STOPWATCH') {
+                if (appState.stopwatch.running) {
+                    appState.stopwatch.running = false;
+                    appState.stopwatch.elapsed += Date.now() - appState.stopwatch.startTime;
+                    document.getElementById('swToggleBtn').innerText = "RESUME";
+                } else {
+                    appState.stopwatch.running = true;
+                    appState.stopwatch.startTime = Date.now();
+                    document.getElementById('swToggleBtn').innerText = "PAUSE";
+                }
+            }
+        }
+        function resetStopwatch() {
+            appState.stopwatch.running = false;
+            appState.stopwatch.elapsed = 0;
+            appState.mode = 'CLOCK'; 
+            document.getElementById('swToggleBtn').innerText = "START STOPWATCH";
+        }
+
+        function saveData() {
+            const s = {
+                alarms: appState.alarms,
+                timers: appState.timers, 
+                theme: document.getElementById('themeSelector').value,
+                mode: document.getElementById('modeSelector').value,
+                scale: document.getElementById('scaleSlider').value
+            };
+            localStorage.setItem('matrixOS_v2', JSON.stringify(s));
+        }
+
+        function loadData() {
+            const d = localStorage.getItem('matrixOS_v2');
+            if(d) {
+                const s = JSON.parse(d);
+                if(s.alarms) appState.alarms = s.alarms;
+                if(s.theme) { document.getElementById('themeSelector').value = s.theme; updateTheme(); }
+                if(s.mode) document.getElementById('modeSelector').value = s.mode;
+                if(s.scale) { 
+                    document.getElementById('scaleSlider').value = s.scale; 
+                    updateScale(); 
+                }
+            }
+        }
+    </script>
+</body>
+</html>

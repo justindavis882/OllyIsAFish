@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RetroDrive - Hybrid Edition</title>
+    <style>
+        :root {
+            --theme-color: #ff0000; 
+            --theme-dim: #4b0000;
+            --display-bg: #1a0505;
+            --plastic-black: #121212;
+            --knob-size: 70px;
+            --knob-small: 45px;
+        }
+
+        .theme-blue { --theme-color: #00f7ff; --display-bg: #051a1a; }
+        .theme-green { --theme-color: #33ff00; --display-bg: #0a1a05; }
+        .theme-amber { --theme-color: #ffaa00; --display-bg: #1a1505; }
+
+        body {
+            background: #2a2a2a; display: flex; justify-content: center;
+            align-items: center; height: 100vh; margin: 0;
+            font-family: 'Courier New', Courier, monospace; user-select: none;
+        }
+
+        .radio-frame {
+            width: 760px; background: var(--plastic-black); padding: 40px;
+            border-radius: 12px; box-shadow: inset 2px 2px 3px #333, inset -2px -2px 3px #000, 20px 20px 40px #000;
+            border: 2px solid #000; position: relative;
+        }
+
+        /* CD SLOT */
+        .cd-group { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .cd-slot {
+            flex-grow: 1; height: 12px; background: #050505; border-radius: 6px;
+            border-bottom: 1px solid #333; box-shadow: inset 2px 2px 5px #000; position: relative;
+        }
+        .cd-slot::after { content: ""; position: absolute; top: 1px; bottom: 1px; left: 10px; right: 10px; background: #111; border-radius: 4px; }
+        .cd-slot.flash { animation: slot-pulse 0.2s infinite alternate; }
+        @keyframes slot-pulse { from { box-shadow: 0 0 2px var(--theme-color); } to { box-shadow: 0 0 15px var(--theme-color); } }
+        .eject-btn, .load-btn { background: #1a1a1a; color: #666; border: 1px solid #333; font-size: 0.6rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 2px 2px 0 #000; }
+        .eject-btn:active, .load-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 0 #000; color: var(--theme-color); }
+
+        /* DISPLAY */
+        .display-panel {
+            background: var(--display-bg); height: 140px; margin-bottom: 25px;
+            border: 8px solid #080808; box-shadow: inset 0 0 25px #000;
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 0 25px; color: var(--theme-color); text-shadow: 0 0 10px var(--theme-color);
+            position: relative; overflow: hidden; transition: 0.3s;
+        }
+
+        /* PRESETS */
+        .preset-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .preset-btn {
+            background: #1a1a1a; color: #555; border: 1px solid #333; border-radius: 4px; width: 60px; height: 35px;
+            font-weight: bold; font-size: 0.9rem; box-shadow: 2px 2px 0 #000; cursor: pointer; transition: 0.2s;
+        }
+        .preset-btn.active { color: var(--theme-color); border-color: var(--theme-color); box-shadow: inset 0 0 5px var(--theme-color); text-shadow: 0 0 5px var(--theme-color); }
+        .preset-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 0 #000; }
+
+        /* CONTROLS */
+        .controls-row { display: flex; justify-content: space-between; align-items: center; }
+        .transport-group { display: flex; gap: 8px; align-items: center; }
+        .btn {
+            background: linear-gradient(145deg, #252525, #0a0a0a); color: #aaa; border: 1px solid #000; padding: 15px 15px;
+            border-radius: 6px; box-shadow: 4px 4px 0px #000; cursor: pointer; font-weight: 800; font-size: 0.7rem;
+        }
+        .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; color: var(--theme-color); }
+        .power-btn { width: 60px; height: 60px; border-radius: 50%; color: #333; }
+        .power-btn.on { color: var(--theme-color); text-shadow: 0 0 10px var(--theme-color); }
+        #src-btn { color: #88ff88; border-color: #225522; }
+
+        /* KNOBS */
+        .knob-group { display: flex; gap: 15px; align-items: flex-end; }
+        .knob-stack { display: flex; flex-direction: column; align-items: center; }
+        .knob-label { color: #555; font-size: 0.5rem; margin-top: 8px; font-weight: bold; }
+        .knob-wrapper { position: relative; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #333, #000); box-shadow: 0 5px 10px #000; cursor: grab; }
+        .knob-indicator { position: absolute; top: 10%; left: 50%; width: 3px; height: 30%; background: var(--theme-color); transform: translateX(-50%); box-shadow: 0 0 5px var(--theme-color); pointer-events: none; }
+        .vol-size { width: var(--knob-size); height: var(--knob-size); }
+        .eq-size { width: var(--knob-small); height: var(--knob-small); }
+
+        /* VIZ & TEXT */
+        .viz-container { display: flex; align-items: flex-end; gap: 4px; height: 40px; position: absolute; bottom: 15px; right: 25px; }
+        .bar { width: 8px; background: var(--theme-color); height: 2px; transition: height 0.1s; }
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; margin-top: -15px; }
+        #track-name { display: inline-block; font-weight: bold; font-size: 1.8rem; letter-spacing: 2px; }
+        .meta-info { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem; text-transform: uppercase; }
+        @keyframes marquee { 0% { transform: translateX(0); } 10% { transform: translateX(0); } 90% { transform: translateX(-100%); } 100% { transform: translateX(-100%); } }
+        .scrolling { animation: marquee 8s linear infinite alternate; }
+    </style>
+</head>
+<body>
+
+    <h1 style="position:absolute; top:10px; left:10px; color:#888; font-size:0.8rem;"><strong>RetroDrive - Hybrid Edition</strong></h1>
+    <p style="position:absolute; top:30px; left: 10px; color:#888; font-size:0.8rem;">To use Local Player, insert the music by clicking the LOAD button. Select a song to play.<br>Use the bottom-left knobs to adjust the equalizer settings.<br>To save the song as a preset, click and hold the preset button.<br>Spotify integration is currently limited. <br>Once working, you will be able to connect your Spotify account and connect this player as a speaker device.</p>
+
+<div class="radio-frame" id="main-chassis">
+    <div class="cd-group">
+        <button class="load-btn" id="cd-load">&#9650; LOAD</button>
+        <div class="cd-slot" id="cd-slot"></div>
+        <button class="eject-btn" id="cd-eject">&#9167; EJECT</button>
+    </div>
+
+    <div class="display-panel" id="screen">
+        <div class="marquee-container"><div id="track-name">NO DISC</div></div>
+        <div class="meta-info">
+            <div id="status-bar">INSERT DISC</div>
+            <div id="timer">--:--</div>
+        </div>
+        <div class="viz-container">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div>
+        </div>
+    </div>
+
+    <div class="preset-container">
+        <button class="preset-btn" data-slot="1">1</button>
+        <button class="preset-btn" data-slot="2">2</button>
+        <button class="preset-btn" data-slot="3">3</button>
+        <button class="preset-btn" data-slot="4">4</button>
+        <button class="preset-btn" data-slot="5">5</button>
+        <button class="preset-btn" data-slot="6">6</button>
+    </div>
+
+    <div class="controls-row">
+        <div class="knob-group">
+            <div class="knob-stack"><div class="knob-wrapper eq-size" id="bass-knob"><div class="knob-indicator"></div></div><div class="knob-label">BASS</div></div>
+            <div class="knob-stack"><div class="knob-wrapper eq-size" id="treble-knob"><div class="knob-indicator"></div></div><div class="knob-label">TREB</div></div>
+            <div class="knob-stack"><div class="knob-wrapper eq-size" id="bal-knob"><div class="knob-indicator"></div></div><div class="knob-label">BAL</div></div>
+        </div>
+
+        <div class="transport-group">
+            <button class="btn power-btn" id="power">PWR</button>
+            <button class="btn" id="src-btn">SRC</button>
+            <button class="btn" id="tuner">TUNE</button>
+            <button class="btn" id="prev">|&lt;</button>
+            <button class="btn" id="play-pause">PLAY</button>
+            <button class="btn" id="next">&gt;|</button>
+        </div>
+
+        <div class="knob-stack"><div class="knob-wrapper vol-size" id="vol-knob"><div class="knob-indicator"></div></div><div class="knob-label">VOL</div></div>
+    </div>
+</div>
+
+<input type="file" id="folder-input" webkitdirectory directory multiple style="display:none">
+
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+<script>
+
+    alert("Warning: The Spotify integration requires a valid Premium token. At the moment, Spotify is currently limiting access to tokens. For the time being, the Spotify functions are not active. Please use the local audio features instead.");
+    
+    // --- IMPORTANT: SPOTIFY AUTH ---
+    // You must generate a temporary token from: https://developer.spotify.com/documentation/web-playback-sdk
+    const SPOTIFY_TOKEN = 'PASTE_YOUR_PREMIUM_TOKEN_HERE'; 
+    
+    // --- STATE ---
+    let currentMode = 'CD'; // 'CD' or 'SPOTIFY'
+    let isPowerOn = false;
+    let localPlaylist = [], currentDirHandle = null, currentIndex = 0;
+    let themes = ['default', 'theme-blue', 'theme-green', 'theme-amber'];
+    let currentThemeIndex = 0;
+
+    // --- AUDIO ENGINES ---
+    const audioPlayer = new Audio();
+    audioPlayer.crossOrigin = "anonymous";
+    let audioContext, analyser, bassFilter, trebleFilter, stereoPanner, source;
+    let spotifyPlayer = null;
+    let spotifyDeviceId = null;
+    let spotifyIsPlaying = false;
+    let spotifyCurrentTrack = null;
+
+    // --- DOM ---
+    const trackDisplay = document.getElementById('track-name');
+    const statusText = document.getElementById('status-bar');
+    const timerText = document.getElementById('timer');
+    const cdSlot = document.getElementById('cd-slot');
+    const bars = document.querySelectorAll('.bar');
+
+    // --- SPOTIFY INIT ---
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        spotifyPlayer = new Spotify.Player({
+            name: 'RetroDrive Audio',
+            getOAuthToken: cb => { cb(SPOTIFY_TOKEN); },
+            volume: 0.5
+        });
+
+        spotifyPlayer.addListener('ready', ({ device_id }) => {
+            console.log('Spotify Ready - Device ID:', device_id);
+            spotifyDeviceId = device_id;
+        });
+
+        spotifyPlayer.addListener('not_ready', ({ device_id }) => {
+            console.log('Device ID has gone offline', device_id);
+        });
+
+        spotifyPlayer.addListener('player_state_changed', state => {
+            if (!state) return;
+            spotifyIsPlaying = !state.paused;
+            spotifyCurrentTrack = state.track_window.current_track;
+            if (currentMode === 'SPOTIFY' && isPowerOn) updateSpotifyUI(state);
+        });
+
+        spotifyPlayer.connect();
+    };
+
+    // --- SOURCE SWITCHING ---
+    document.getElementById('src-btn').onclick = () => {
+        if (!isPowerOn) return;
+        
+        if (currentMode === 'CD') {
+            currentMode = 'SPOTIFY';
+            audioPlayer.pause();
+            statusText.innerText = "CONNECTING STREAM...";
+            trackDisplay.innerText = "SPOTIFY LINK";
+            document.getElementById('src-btn').style.color = "#1DB954"; // Spotify Green
+            
+            // Auto-transfer playback to this device (requires REST API call normally, 
+            // but we'll just wait for the user to hit play or select it in the Spotify App)
+            setTimeout(() => {
+                if(spotifyCurrentTrack) updateSpotifyUI();
+                else statusText.innerText = "READY (SELECT DEVICE IN APP)";
+            }, 1000);
+
+        } else {
+            currentMode = 'CD';
+            if(spotifyPlayer) spotifyPlayer.pause();
+            document.getElementById('src-btn').style.color = "#88ff88";
+            updateLocalUI();
+        }
+    };
+
+    // --- UI UPDATERS ---
+    function updateSpotifyUI(state) {
+        if (!spotifyCurrentTrack) return;
+        trackDisplay.innerText = spotifyCurrentTrack.name.toUpperCase() + " - " + spotifyCurrentTrack.artists[0].name.toUpperCase();
+        statusText.innerText = spotifyIsPlaying ? "SPOTIFY [PLAY]" : "SPOTIFY [PAUSE]";
+        
+        // Handle Marquee
+        trackDisplay.parentElement.classList.remove('scrolling'); trackDisplay.classList.remove('scrolling'); 
+        if(trackDisplay.offsetWidth > trackDisplay.parentElement.offsetWidth) trackDisplay.classList.add('scrolling');
+    }
+
+    function updateLocalUI() {
+        const f = localPlaylist[currentIndex];
+        trackDisplay.innerText = f ? f.name.replace(/\.[^/.]+$/, "").toUpperCase() : "NO DISC";
+        statusText.innerText = f ? `LOCAL TRK ${currentIndex+1}/${localPlaylist.length}` : "INSERT DISC";
+        
+        trackDisplay.parentElement.classList.remove('scrolling'); trackDisplay.classList.remove('scrolling'); 
+        if(trackDisplay.offsetWidth > trackDisplay.parentElement.offsetWidth) trackDisplay.classList.add('scrolling');
+    }
+
+    // --- PLAYBACK CONTROLS (HYBRID) ---
+    document.getElementById('play-pause').onclick = () => {
+        if (!isPowerOn) return;
+        initLocalAudio();
+
+        if (currentMode === 'SPOTIFY') {
+            if(spotifyPlayer) spotifyPlayer.togglePlay();
+        } else {
+            if (localPlaylist.length > 0) {
+                audioPlayer.paused ? audioPlayer.play() : audioPlayer.pause();
+                updateLocalUI();
+            }
+        }
+    };
+
+    document.getElementById('next').onclick = () => {
+        if (!isPowerOn) return;
+        if (currentMode === 'SPOTIFY') {
+            if(spotifyPlayer) spotifyPlayer.nextTrack();
+        } else {
+            if (localPlaylist.length === 0) return;
+            currentIndex = (currentIndex + 1) % localPlaylist.length;
+            audioPlayer.src = URL.createObjectURL(localPlaylist[currentIndex]);
+            audioPlayer.play(); updateLocalUI();
+        }
+    };
+
+    document.getElementById('prev').onclick = () => {
+        if (!isPowerOn) return;
+        if (currentMode === 'SPOTIFY') {
+            if(spotifyPlayer) spotifyPlayer.previousTrack();
+        } else {
+            if (localPlaylist.length === 0) return;
+            currentIndex = (currentIndex - 1 + localPlaylist.length) % localPlaylist.length;
+            audioPlayer.src = URL.createObjectURL(localPlaylist[currentIndex]);
+            audioPlayer.play(); updateLocalUI();
+        }
+    };
+
+    document.getElementById('tuner').onclick = () => {
+        if(!isPowerOn) return;
+        
+        if (currentMode === 'SPOTIFY') {
+            statusText.innerText = "SKIPPING...";
+            if(spotifyPlayer) spotifyPlayer.nextTrack(); // Simple skip for Spotify Tuner
+        } else {
+            // Local Randomizer Logic (From Previous Version)
+            statusText.innerText = "SCANNING...";
+            cdSlot.classList.add('flash');
+            setTimeout(() => {
+                if(localPlaylist.length > 0) {
+                    currentIndex = Math.floor(Math.random() * localPlaylist.length);
+                    audioPlayer.src = URL.createObjectURL(localPlaylist[currentIndex]);
+                    audioPlayer.play(); updateLocalUI();
+                } else {
+                    trackDisplay.innerText = "STATIC"; statusText.innerText = "NO SIGNAL";
+                }
+                cdSlot.classList.remove('flash');
+            }, 800);
+        }
+    };
+
+    // --- LOCAL AUDIO & VIZ ENGINE ---
+    function initLocalAudio() {
+        if(audioContext) return;
+        audioContext = new (window.AudioContext||window.webkitAudioContext)();
+        bassFilter = audioContext.createBiquadFilter(); bassFilter.type="lowshelf"; bassFilter.frequency.value=200;
+        trebleFilter = audioContext.createBiquadFilter(); trebleFilter.type="highshelf"; trebleFilter.frequency.value=3000;
+        stereoPanner = audioContext.createStereoPanner(); 
+        analyser = audioContext.createAnalyser(); analyser.fftSize=64;
+        source = audioContext.createMediaElementSource(audioPlayer);
+        source.connect(bassFilter).connect(trebleFilter).connect(stereoPanner).connect(analyser).connect(audioContext.destination);
+        renderFrame();
+    }
+
+    function renderFrame() {
+        requestAnimationFrame(renderFrame);
+        if (!isPowerOn) { bars.forEach(b=>b.style.height='2px'); return; }
+
+        if (currentMode === 'SPOTIFY') {
+            // FAKE VISUALIZER FOR SPOTIFY (Due to DRM Web Audio block)
+            if (spotifyIsPlaying) {
+                bars.forEach(b => {
+                    const randomHeight = Math.max(2, Math.random() * 35);
+                    b.style.height = randomHeight + 'px';
+                });
+            } else {
+                bars.forEach(b=>b.style.height='2px');
+            }
+        } else {
+            // REAL VISUALIZER FOR LOCAL AUDIO
+            if(audioPlayer.paused) { bars.forEach(b=>b.style.height='2px'); return; }
+            const data=new Uint8Array(32); analyser.getByteFrequencyData(data);
+            bars.forEach((b,i)=>b.style.height=Math.max(2,(data[i*2]/255)*40)+'px');
+        }
+    }
+
+    // --- KNOBS (Hybrid routing) ---
+    function setupKnob(id, min, max, cb) {
+        const k = document.getElementById(id);
+        let drag=false;
+        k.addEventListener('mousedown', (e)=>{ drag=true; upd(e); });
+        window.addEventListener('mouseup', ()=>drag=false);
+        window.addEventListener('mousemove', (e)=>{ if(drag) upd(e); });
+        function upd(e) {
+            const rect=k.getBoundingClientRect();
+            let ang = Math.atan2(e.clientY-(rect.top+rect.height/2), e.clientX-(rect.left+rect.width/2)) * (180/Math.PI);
+            ang+=90; if(ang>180)ang-=360;
+            if(ang<min)ang=min; if(ang>max)ang=max;
+            k.style.transform=`rotate(${ang}deg)`;
+            cb((ang-min)/(max-min));
+        }
+    }
+    
+    // Volume controls both engines
+    setupKnob('vol-knob', -140, 140, (v)=>{ 
+        audioPlayer.volume=v; 
+        if(spotifyPlayer) spotifyPlayer.setVolume(v); 
+    });
+    
+    // EQ only works on Local Audio
+    setupKnob('bass-knob', -140, 140, (v)=>{ if(bassFilter) bassFilter.gain.value=(v*20)-10; });
+    setupKnob('treble-knob', -140, 140, (v)=>{ if(trebleFilter) trebleFilter.gain.value=(v*20)-10; });
+    setupKnob('bal-knob', -140, 140, (v)=>{ if(stereoPanner) stereoPanner.pan.value=(v*2)-1; });
+
+    // --- POWER & CD LOAD ---
+    document.getElementById('power').onclick = function() {
+        initLocalAudio(); isPowerOn=!isPowerOn; this.classList.toggle('on');
+        if(!isPowerOn) { 
+            audioPlayer.pause(); if(spotifyPlayer) spotifyPlayer.pause();
+            trackDisplay.innerText="OFF"; statusText.innerText=""; timerText.innerText=""; 
+        } else { 
+            currentMode === 'CD' ? updateLocalUI() : updateSpotifyUI();
+        }
+    };
+
+    document.getElementById('cd-load').onclick = () => {
+        if(!isPowerOn || currentMode === 'SPOTIFY') return; 
+        document.getElementById('folder-input').click(); 
+    };
+
+    document.getElementById('folder-input').addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        localPlaylist = files.filter(f => f.type.startsWith('audio/'));
+        if(localPlaylist.length>0) { currentIndex=0; audioPlayer.src = URL.createObjectURL(localPlaylist[0]); updateLocalUI(); }
+    });
+
+</script>
+</body>
+</html>
