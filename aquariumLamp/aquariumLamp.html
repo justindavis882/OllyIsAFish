@@ -137,6 +137,12 @@
         <div class="w-full max-w-[820px] h-12 md:h-16 bg-gradient-to-b from-zinc-200 via-zinc-400 to-zinc-600 rounded-t-[40px] md:rounded-t-[60px] shadow-lg border-t border-x border-zinc-400 relative z-20 overflow-hidden flex items-end justify-center">
             <!-- Cap Highlights / Gloss -->
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-40 translate-x-[-15%] pointer-events-none"></div>
+            
+            <!-- Branding Label -->
+            <div id="branding-label" class="absolute top-3 bg-zinc-300 text-zinc-600 border-b-2 border-r-2 border-t border-l border-zinc-100 border-b-zinc-400 border-r-zinc-400 text-[10px] md:text-xs px-4 py-1 rounded-sm shadow-inner tracking-[0.2em] font-extrabold uppercase mb-2 transition-all">
+                Ocean Motion
+            </div>
+            
             <!-- Vents (Aesthetic) -->
             <div class="flex gap-4 mb-2 opacity-50">
                 <div class="w-12 h-1 bg-zinc-800 rounded-full"></div>
@@ -151,8 +157,9 @@
             <!-- Dark State Overlay -->
             <div class="darken-overlay"></div>
 
-            <!-- Deep Water Base Gradient -->
-            <div class="absolute inset-0 bg-gradient-to-b from-cyan-400 via-blue-600 to-blue-900 opacity-90"></div>
+            <!-- Deep Water Base / Desert Base Gradients -->
+            <div id="ocean-bg" class="absolute inset-0 bg-gradient-to-b from-cyan-400 via-blue-600 to-blue-900 opacity-90 transition-opacity duration-1000"></div>
+            <div id="desert-bg" class="absolute inset-0 bg-gradient-to-b from-amber-300 via-orange-500 to-orange-900 opacity-0 transition-opacity duration-1000"></div>
 
             <!-- Sunbeams -->
             <div class="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-white/30 to-transparent pointer-events-none z-0"></div>
@@ -172,20 +179,23 @@
 
         <!-- Bottom Plastic Base -->
         <div class="w-[102%] max-w-[840px] h-28 md:h-36 bg-gradient-to-t from-zinc-600 via-zinc-300 to-zinc-400 rounded-b-[40px] md:rounded-b-[60px] shadow-[0_25px_50px_rgba(0,0,0,0.9)] border-b border-x border-zinc-400 relative z-20 flex flex-col items-center justify-center border-t-[10px] md:border-t-[15px] border-t-zinc-800">
-            
-            <!-- Branding Label -->
-            <div class="absolute top-3 bg-zinc-300 text-zinc-600 border-b-2 border-r-2 border-t border-l border-zinc-100 border-b-zinc-400 border-r-zinc-400 text-[10px] md:text-xs px-4 py-1 rounded-sm shadow-inner tracking-[0.2em] font-extrabold uppercase mb-2">
-                Ocean Motion
-            </div>
 
             <!-- Base Highlights -->
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 pointer-events-none rounded-b-[60px]"></div>
             
-            <!-- Power / Audio Control Button -->
-            <button id="toggle-btn" class="mt-4 relative z-30 bg-zinc-200 border-b-4 border-zinc-400 shadow-lg rounded-full px-6 py-2 md:px-8 md:py-3 flex items-center gap-3 hover:bg-white transition-colors text-zinc-800 font-bold text-sm md:text-lg btn-press">
-                <i id="play-icon" class="fa-solid fa-power-off text-red-500 transition-colors duration-300"></i>
-                <span id="play-btn-text">Power & Lofi</span>
-            </button>
+            <div class="flex flex-col items-center gap-2 mt-2 relative z-30">
+                <!-- Theme Toggle Button -->
+                <button id="theme-btn" class="bg-zinc-200 border-b-4 border-zinc-400 shadow-lg rounded-full px-5 py-1.5 md:px-6 md:py-2 flex items-center gap-2 hover:bg-white transition-colors text-zinc-800 font-bold text-xs md:text-sm btn-press">
+                    <i class="fa-solid fa-exchange-alt text-zinc-600"></i>
+                    <span id="theme-btn-text">Theme: Ocean</span>
+                </button>
+
+                <!-- Power / Audio Control Button -->
+                <button id="toggle-btn" class="bg-zinc-200 border-b-4 border-zinc-400 shadow-lg rounded-full px-6 py-2 md:px-8 md:py-3 flex items-center gap-3 hover:bg-white transition-colors text-zinc-800 font-bold text-sm md:text-lg btn-press">
+                    <i id="play-icon" class="fa-solid fa-power-off text-red-500 transition-colors duration-300"></i>
+                    <span id="play-btn-text">Power & Lofi</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -250,26 +260,79 @@
             </div>
         `;
 
-        // Inject into the DOM wrapper
-        const scrollWrapper = document.getElementById('scroll-wrapper');
-        scrollWrapper.innerHTML = `
-            <!-- Distant Layer (Slow) -->
-            <div class="scroll-container scroll-back">
-                <div class="panel">${backPanelHTML}</div>
-                <div class="panel">${backPanelHTML}</div>
-            </div>
-            <!-- Foreground Layer (Fast) -->
-            <div class="scroll-container scroll-front">
-                <div class="panel">${frontPanelHTML}</div>
-                <div class="panel">${frontPanelHTML}</div>
+        // --- DESERT THEME PANELS ---
+        const desertFrontPanelHTML = `
+            <div class="relative w-full h-full">
+                <!-- SVG Vector Scenery (Sand Dunes & Cacti) -->
+                <svg width="100%" height="100%" viewBox="0 0 1000 400" preserveAspectRatio="none" class="absolute inset-0 pointer-events-none">
+                    <!-- Sand Dunes -->
+                    <path d="M0 350 Q250 280 500 360 T1000 340 L1000 400 L0 400 Z" fill="#d97706" opacity="0.95"/>
+                    <path d="M0 380 Q250 320 500 385 T1000 360 L1000 400 L0 400 Z" fill="#b45309" opacity="0.95"/>
+                    
+                    <!-- Cacti Silhouettes -->
+                    <path d="M120 400 L120 250 A10 10 0 0 1 140 250 L140 400" fill="#064e3b" />
+                    <path d="M140 320 L160 320 A10 10 0 0 0 170 310 L170 280 A10 10 0 0 0 150 280 L150 310 L140 310" fill="#064e3b" />
+                    
+                    <path d="M850 400 L850 200 A15 15 0 0 1 880 200 L880 400" fill="#064e3b" />
+                    <path d="M850 280 L820 280 A10 10 0 0 1 810 270 L810 230 A10 10 0 0 1 830 230 L830 260 L850 260" fill="#064e3b" />
+                </svg>
+
+                <!-- Novelty Desert Emojis -->
+                <div class="emoji-fish" style="top: 70%; left: 15%; font-size: clamp(2rem, 4vw, 3.5rem); transform: scaleX(-1);">🐫</div>
+                <div class="emoji-fish" style="top: 85%; left: 45%; font-size: clamp(1.5rem, 3vw, 2.5rem);">🦂</div>
+                <div class="emoji-fish" style="top: 75%; left: 75%; font-size: clamp(2rem, 4vw, 3rem); transform: scaleX(-1);">🐍</div>
+                <div class="emoji-fish" style="top: 55%; left: 85%; font-size: clamp(2.5rem, 5vw, 4rem);">🌵</div>
+                <div class="emoji-fish" style="top: 65%; left: 30%; font-size: clamp(1.5rem, 3vw, 2.5rem);">🦎</div>
             </div>
         `;
+
+        const desertBackPanelHTML = `
+            <div class="relative w-full h-full opacity-60">
+                <!-- Distant blurry elements for parallax depth -->
+                <div class="emoji-fish blur-[1px]" style="top: 20%; left: 60%; font-size: clamp(2rem, 4vw, 3.5rem);">🦅</div>
+                <div class="emoji-fish blur-[2px]" style="top: 15%; left: 25%; font-size: clamp(3rem, 6vw, 5rem);">☀️</div>
+                <div class="emoji-fish blur-[3px]" style="top: 55%; left: 80%; font-size: clamp(1.5rem, 3vw, 2.5rem);">🐪</div>
+                
+                <!-- Distant Pyramids / Dunes -->
+                <svg width="100%" height="100%" viewBox="0 0 1000 400" preserveAspectRatio="none" class="absolute inset-0 pointer-events-none">
+                    <polygon points="200,400 350,220 500,400" fill="#92400e" opacity="0.6" />
+                    <polygon points="400,400 600,150 800,400" fill="#92400e" opacity="0.4" />
+                </svg>
+            </div>
+        `;
+
+        let currentTheme = 'ocean';
+
+        function renderThemePanels() {
+            const scrollWrapper = document.getElementById('scroll-wrapper');
+            const isOcean = currentTheme === 'ocean';
+            const front = isOcean ? frontPanelHTML : desertFrontPanelHTML;
+            const back = isOcean ? backPanelHTML : desertBackPanelHTML;
+
+            scrollWrapper.innerHTML = `
+                <!-- Distant Layer (Slow) -->
+                <div class="scroll-container scroll-back">
+                    <div class="panel">${back}</div>
+                    <div class="panel">${back}</div>
+                </div>
+                <!-- Foreground Layer (Fast) -->
+                <div class="scroll-container scroll-front">
+                    <div class="panel">${front}</div>
+                    <div class="panel">${front}</div>
+                </div>
+            `;
+        }
+
+        // Initial Render
+        renderThemePanels();
 
         // --- 2. PROCEDURAL BUBBLE GENERATOR ---
         const bubbleContainer = document.getElementById('bubbles-container');
         let bubbleInterval;
 
         function createBubble() {
+            if (currentTheme !== 'ocean') return; // No bubbles in desert
+            
             const bubble = document.createElement('div');
             bubble.classList.add('bubble');
             const size = Math.random() * 12 + 6; // 6px to 18px
@@ -299,7 +362,7 @@
             const masterCompressor = new Tone.Compressor({ threshold: -24, ratio: 4 }).toDestination();
             const freeverb = new Tone.Freeverb({ roomSize: 0.85, dampening: 2000 }).connect(masterCompressor);
 
-            // 3.1 Ocean Wave Synthesizer (Pink Noise + Sweeping Filter)
+            // 3.1 Ambient Noise Synthesizer (Ocean/Wind)
             oceanNoise = new Tone.Noise("pink");
             const oceanFilter = new Tone.AutoFilter({
                 frequency: "6m",    // Very slow sweep
@@ -310,6 +373,10 @@
             }).connect(freeverb).start();
             oceanNoise.connect(oceanFilter);
             oceanNoise.volume.value = -22; // Subtle background ambience
+
+            // Expose filter to global scope for theme switching
+            window.ambientNoise = oceanNoise;
+            window.ambientFilter = oceanFilter;
 
             // 3.2 Lofi Pad Synth
             const padSynth = new Tone.PolySynth(Tone.Synth, {
@@ -356,6 +423,19 @@
             audioSetup = true;
         }
 
+        function updateAudioTheme() {
+            if (!audioSetup) return;
+            if (currentTheme === 'ocean') {
+                window.ambientNoise.type = "pink";
+                window.ambientFilter.set({ min: 150, max: 700, frequency: "6m" });
+                Tone.Transport.bpm.rampTo(65, 2); // Relaxed
+            } else {
+                window.ambientNoise.type = "brown"; // Deeper, wind-like
+                window.ambientFilter.set({ min: 200, max: 1500, frequency: "2m" }); // Faster, wider sweep for wind
+                Tone.Transport.bpm.rampTo(75, 2); // Slightly more upbeat/warm
+            }
+        }
+
         async function toggleLamp() {
             const lamp = document.getElementById('lamp');
             const playIcon = document.getElementById('play-icon');
@@ -365,6 +445,7 @@
             if (!audioSetup) {
                 // Must be initialized on first user click to satisfy browser audio policies
                 await initAudio();
+                updateAudioTheme(); // Apply initial theme settings to audio
             }
 
             if (!isPlaying) {
@@ -407,8 +488,38 @@
             }
         }
 
-        // Event Listener
+        function toggleTheme() {
+            currentTheme = currentTheme === 'ocean' ? 'desert' : 'ocean';
+            
+            // Update UI Button
+            const themeBtnText = document.getElementById('theme-btn-text');
+            themeBtnText.innerText = `Theme: ${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)}`;
+            
+            // Update Branding Label
+            const brandingLabel = document.getElementById('branding-label');
+            if(brandingLabel) brandingLabel.innerText = currentTheme === 'ocean' ? 'Ocean Motion' : 'Desert Drift';
+
+            // Update Background Crossfade
+            const oceanBg = document.getElementById('ocean-bg');
+            const desertBg = document.getElementById('desert-bg');
+            if (currentTheme === 'ocean') {
+                oceanBg.classList.replace('opacity-0', 'opacity-90');
+                desertBg.classList.replace('opacity-90', 'opacity-0');
+            } else {
+                oceanBg.classList.replace('opacity-90', 'opacity-0');
+                desertBg.classList.replace('opacity-0', 'opacity-90');
+            }
+
+            // Re-render panels (this will snap the animation, but acts like a scene change)
+            renderThemePanels();
+            
+            // Update audio if running
+            updateAudioTheme();
+        }
+
+        // Event Listeners
         document.getElementById('toggle-btn').addEventListener('click', toggleLamp);
+        document.getElementById('theme-btn').addEventListener('click', toggleTheme);
 
     </script>
 </body>
