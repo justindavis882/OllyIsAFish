@@ -283,8 +283,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, where, getDocs, or } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         // ==========================================
         // 1. Configuration & Rules Compliance
         // ==========================================
@@ -525,14 +524,18 @@
             if (!currentUser) return;
             if (unsubscribeConnections) unsubscribeConnections();
 
-            // Fetch ALL data from collection, then filter in memory (Rule 2 Compliance)
-            unsubscribeConnections = onSnapshot(getConnectionsCollectionRef(), (snapshot) => {
+            const connectionsRef = getConnectionsCollectionRef();
+            
+            // This query explicitly matches your security rules so Firestore allows it
+            const q = query(connectionsRef, or(
+                where("uid1", "==", currentUser.uid),
+                where("uid2", "==", currentUser.uid)
+            ));
+
+            unsubscribeConnections = onSnapshot(q, (snapshot) => {
                 const connections = [];
                 snapshot.forEach(docSnap => {
-                    // Check if I am part of this connection
-                    if (docSnap.id.includes(currentUser.uid)) {
-                        connections.push({ id: docSnap.id, ...docSnap.data() });
-                    }
+                    connections.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 renderMates(connections);
             }, (error) => {
@@ -838,7 +841,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(() => console.log('Pulse PWA registered'))
                     .catch(err => console.log('PWA registration failed: ', err));
             });
