@@ -100,6 +100,30 @@
             color: var(--canvas-white);
         }
 
+        .pulse {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: #030712;
+            border-top: 2px solid rgb(217, 70, 239, 0.7);
+            border-bottom: 2px solid rgb(217, 70, 239, 0.7);
+        }
+
+        .pulse a {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: rgb(217, 70, 239);
+            color: var(--canvas-white);
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
         .tagline {
             font-size: 1.25rem;
             max-width: 600px;
@@ -329,9 +353,17 @@
         <a href="TidesOfRodentia.html">The Tides of Rodentia</a>
         <!--  <a href="tesahoda/index.html">Tesahoda</a> -->
         <a href="digital.html">Digital Projects</a>
-        <a href="author.html">Meet the Author</a>
+        <a href="author.html">Meet Olly</a>
         <a style="border: white 4px solid; background-color: white; color: var(--pitch-black);" href="contact.html">Get In Touch</a>
     </nav>
+
+    <section class="pulse">
+        <h1 class="text-5xl font-extrabold tracking-tighter neon-text-fuchsia text-fuchsia-500 flex items-center justify-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-heartbeat"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            PULSE MATES
+        </h1>
+        <a href="pulsemates/index.html">Let's Go</a>
+    </section>
 
     <main>
         <section class="hero">

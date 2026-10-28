@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Mates - Connect with your Mates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d946ef">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f9fafb;
+            overflow-x: hidden;
+        }
+
+        /* Neon Glow Effects */
+        .neon-text-fuchsia {
+            text-shadow: 0 0 10px rgba(217, 70, 239, 0.7), 0 0 20px rgba(217, 70, 239, 0.5);
+        }
+        
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.7), 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+
+        .neon-border-fuchsia {
+            box-shadow: 0 0 10px rgba(217, 70, 239, 0.5), inset 0 0 10px rgba(217, 70, 239, 0.5);
+        }
+
+        .neon-btn {
+            transition: all 0.3s ease;
+        }
+
+        .neon-btn:hover {
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.8), 0 0 30px rgba(217, 70, 239, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Pulse Animation */
+        @keyframes heartbeat {
+            0% { transform: scale(1); filter: brightness(1); }
+            14% { transform: scale(1.3); filter: brightness(1.3); }
+            28% { transform: scale(1); filter: brightness(1); }
+            42% { transform: scale(1.3); filter: brightness(1.3); }
+            70% { transform: scale(1); filter: brightness(1); }
+        }
+
+        .animate-heartbeat {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        .pulse-action-anim {
+            animation: heartbeat 0.5s ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d946ef; 
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #d946ef;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <!-- Background decorative elements -->
+    <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-fuchsia-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 z-[-1]"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-cyan-600 rounded-full mix-blend-screen filter blur-[120px] opacity-20 z-[-1]"></div>
+
+    <!-- App Container -->
+    <div class="w-full max-w-md p-4 pt-10 flex flex-col min-h-screen relative z-10">
+        
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-extrabold tracking-tighter neon-text-fuchsia text-fuchsia-500 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-heartbeat"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                PULSE MATES
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm uppercase tracking-widest font-semibold">Stay connected in a heartbeat</p>
+        </header>
+
+        <!-- Loading State -->
+        <div id="global-loader" class="flex flex-col items-center justify-center flex-1 hidden">
+            <div class="loader mb-4 w-12 h-12"></div>
+            <p class="text-fuchsia-400 animate-pulse">Initializing...</p>
+        </div>
+
+        <!-- Auth Screen -->
+        <div id="auth-screen" class="flex-1 flex flex-col justify-center hidden">
+            
+            <h1 class="text-3xl font-bold text-center text-white mb-4">Welcome to Pulse Mates</h1>
+            <h3 class="text-gray-400 text-center mb-6">Connect with your community in real-time. Enter friend code and send a pulse!</h3>
+            <h3 class="text-gray-400 text-center mb-6">Your Pulse Code is your unique identifier. Share it with friends to connect!</h3>
+
+            
+            <div class="bg-gray-900/80 backdrop-blur-md p-8 rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
+                
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-fuchsia-500"></div>
+                
+                <h2 id="auth-title" class="text-2xl font-bold mb-6 text-center text-white">Access Your Pulse</h2>
+                
+                <form id="auth-form" class="space-y-4">
+                    <div id="name-field" class="hidden">
+                        <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">Display Name</label>
+                        <input type="text" id="auth-name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-fuchsia-500 focus:ring-1 focus:ring-fuchsia-500 transition-all placeholder-gray-500" placeholder="e.g. Neon Rider">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">Email</label>
+                        <input type="email" id="auth-email" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-500" placeholder="you@example.com">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wide">Password</label>
+                        <input type="password" id="auth-password" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-fuchsia-500 focus:ring-1 focus:ring-fuchsia-500 transition-all placeholder-gray-500" placeholder="••••••••">
+                    </div>
+                    
+                    <button type="submit" id="auth-submit" class="w-full bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 hover:from-fuchsia-500 hover:to-fuchsia-400 text-white font-bold py-3 px-4 rounded-lg neon-btn mt-6 flex justify-center items-center">
+                        <span>Authenticate</span>
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <button id="toggle-auth-mode" class="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Need an account? Sign up</button>
+                </div>
+            </div>
+
+            <h3 class="text-gray-400 text-center mb-6">All data is public and anonymous. No personal info is stored.</h3>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-screen" class="flex-1 flex-col hidden space-y-6">
+            
+            <!-- User Info Card -->
+            <div class="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-2xl p-5 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl"></div>
+                <div class="flex items-center gap-4">
+                    <div class="relative group cursor-pointer" id="avatar-selector-btn" title="Change Avatar">
+                        <div id="current-user-avatar" class="w-14 h-14 rounded-full bg-gray-800 border-2 border-cyan-500 flex items-center justify-center text-3xl group-hover:border-fuchsia-500 transition-colors shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:shadow-[0_0_15px_rgba(217,70,239,0.8)]">
+                            👾
+                        </div>
+                        <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="text-[10px] uppercase font-bold text-white tracking-wider">Edit</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Welcome back</p>
+                        <h2 id="user-display-name" class="text-2xl font-bold text-white mt-1 neon-text-cyan">...</h2>
+                    </div>
+                    <div class="ml-auto">
+                        <button id="logout-btn" class="text-gray-500 hover:text-red-400 p-2 transition-colors" title="Log out">
+                            Sign out
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col space-y-2 mt-4">
+                    <span class="text-xs text-fuchsia-400 font-semibold uppercase tracking-wider">Your Pulse Code</span>
+                    <div class="flex items-center justify-between bg-gray-800/50 rounded-lg p-2 pl-3">
+                        <code id="user-pulse-code" class="text-sm font-mono text-gray-200 select-all truncate mr-2">...</code>
+                        <button id="copy-code-btn" class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-md transition-colors" title="Copy Code">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Mate Card -->
+            <div class="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-2xl p-5">
+                <h3 class="text-sm font-bold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Add a Pulse Mate
+                </h3>
+                <form id="add-mate-form" class="flex gap-2">
+                    <input type="text" id="mate-code-input" required class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-500" placeholder="Enter Pulse Code">
+                    <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+                        Add
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pulse Mates List -->
+            <div class="flex-1 flex flex-col">
+                <h3 class="text-sm font-bold text-white mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="text-fuchsia-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Your Mates
+                </h3>
+                
+                <div id="mates-container" class="space-y-3 pb-8">
+                    <!-- Connections will be injected here -->
+                    <div id="empty-mates-state" class="text-center py-10 text-gray-500 bg-gray-900/30 rounded-2xl border border-gray-800 border-dashed hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" class="mx-auto mb-3 opacity-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        <p>No mates yet. Add their code above!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="w-full mt-auto pt-8 pb-2 text-center flex flex-col items-center justify-center opacity-75 hover:opacity-100 transition-opacity">
+            <p class="text-xs text-gray-500 font-semibold tracking-wide">
+                &copy; 2026 <a href="https://ollyisafish.com" target="_blank" rel="noopener noreferrer" class="text-fuchsia-400 hover:text-fuchsia-300 transition-colors neon-text-fuchsia">OllyIsAFish.com</a>
+            </p>
+            <a href="https://ollyisafish.com/contact.html" target="_blank" rel="noopener noreferrer" class="mt-2 text-xs text-gray-400 hover:text-cyan-400 transition-colors flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Help & Contact
+            </a>
+        </footer>
+    </div>
+
+    <!-- Custom Modal (replaces alert) -->
+    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+            <h3 id="modal-title" class="text-xl font-bold text-white mb-2">Message</h3>
+            <p id="modal-message" class="text-gray-300 mb-6 leading-relaxed">...</p>
+            <button id="modal-close" class="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                Okay
+            </button>
+        </div>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatar-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="avatar-modal-content">
+            <h3 class="text-xl font-bold text-white mb-4 text-center neon-text-cyan">Select Avatar</h3>
+            <div id="avatar-grid" class="grid grid-cols-4 gap-4 mb-6">
+                <!-- Avatars injected here by JS -->
+            </div>
+            <button id="avatar-modal-close" class="w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="mate-card-template">
+        <div class="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-xl p-4 flex items-center justify-between hover:border-gray-700 transition-colors group">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-2xl mate-avatar shadow-inner">
+                        👾
+                    </div>
+                    <!-- Streak badge -->
+                    <div class="absolute -bottom-1 -right-1 bg-gray-950 border border-gray-700 rounded-full px-1.5 py-0.5 flex items-center gap-1 text-[10px] font-bold text-orange-400 streak-badge hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                        <span class="streak-count">0</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-100 mate-name">Name</h4>
+                    <p class="text-xs text-gray-500 mt-0.5 mate-status">Waiting for pulse...</p>
+                </div>
+            </div>
+            
+            <button class="pulse-btn w-12 h-12 rounded-full bg-gray-800/50 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-fuchsia-500 hover:border-fuchsia-500 hover:shadow-[0_0_15px_rgba(217,70,239,0.3)] transition-all flex-shrink-0" title="Send Pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+        </div>
+    </template>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. Configuration & Rules Compliance
+        // ==========================================
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pulse-app-demo';
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVtI9VpDQf1RBv10-g3lrdE623KbjKGy8",
+            authDomain: "family-chat-82143.firebaseapp.com",
+            projectId: "family-chat-82143",
+            storageBucket: "family-chat-82143.firebasestorage.app",
+            messagingSenderId: "158108171954",
+            appId: "1:158108171954:web:1f5b7745324837518113ab",
+            measurementId: "G-13GG9GJJVM"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // State
+        let currentUser = null;
+        let isLoginMode = true;
+        let unsubscribeConnections = null;
+
+        // ==========================================
+        // 2. UI Utility Functions
+        // ==========================================
+        const DOM = {
+            loader: document.getElementById('global-loader'),
+            authScreen: document.getElementById('auth-screen'),
+            dashboardScreen: document.getElementById('dashboard-screen'),
+            authForm: document.getElementById('auth-form'),
+            authTitle: document.getElementById('auth-title'),
+            authSubmitBtn: document.getElementById('auth-submit'),
+            authSubmitText: document.getElementById('auth-submit').querySelector('span'),
+            nameField: document.getElementById('name-field'),
+            nameInput: document.getElementById('auth-name'),
+            emailInput: document.getElementById('auth-email'),
+            passwordInput: document.getElementById('auth-password'),
+            toggleAuthModeBtn: document.getElementById('toggle-auth-mode'),
+            userDisplayName: document.getElementById('user-display-name'),
+            userPulseCode: document.getElementById('user-pulse-code'),
+            copyCodeBtn: document.getElementById('copy-code-btn'),
+            logoutBtn: document.getElementById('logout-btn'),
+            addMateForm: document.getElementById('add-mate-form'),
+            mateCodeInput: document.getElementById('mate-code-input'),
+            matesContainer: document.getElementById('mates-container'),
+            emptyMatesState: document.getElementById('empty-mates-state'),
+            modal: document.getElementById('custom-modal'),
+            modalContent: document.getElementById('modal-content'),
+            modalTitle: document.getElementById('modal-title'),
+            modalMessage: document.getElementById('modal-message'),
+            modalCloseBtn: document.getElementById('modal-close'),
+            mateCardTemplate: document.getElementById('mate-card-template')
+        };
+
+        const AVAILABLE_AVATARS = ['👾', '🦊', '🦉', '🐉', '🤖', '🐙', '🐸', '🐯', '🦄', '💀', '👻', '👽'];
+        
+        // Add new DOM elements to your DOM object
+        Object.assign(DOM, {
+            avatarSelectorBtn: document.getElementById('avatar-selector-btn'),
+            currentUserAvatar: document.getElementById('current-user-avatar'),
+            avatarModal: document.getElementById('avatar-modal'),
+            avatarModalContent: document.getElementById('avatar-modal-content'),
+            avatarGrid: document.getElementById('avatar-grid'),
+            avatarModalCloseBtn: document.getElementById('avatar-modal-close')
+        });
+
+        // Initialize Avatar Grid UI
+        AVAILABLE_AVATARS.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.className = 'text-3xl p-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-cyan-500 transition-all hover:scale-110';
+            btn.textContent = emoji;
+            btn.onclick = () => updateAvatar(emoji);
+            DOM.avatarGrid.appendChild(btn);
+        });
+
+        DOM.avatarSelectorBtn.addEventListener('click', () => {
+            DOM.avatarModal.classList.remove('hidden');
+            setTimeout(() => {
+                DOM.avatarModalContent.classList.remove('scale-95', 'opacity-0');
+                DOM.avatarModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+
+        DOM.avatarModalCloseBtn.addEventListener('click', () => {
+            DOM.avatarModalContent.classList.remove('scale-100', 'opacity-100');
+            DOM.avatarModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => DOM.avatarModal.classList.add('hidden'), 300);
+        });
+
+        const updateAvatar = async (emoji) => {
+            if (!currentUser) return;
+            currentUser.avatar = emoji;
+            DOM.currentUserAvatar.textContent = emoji;
+            DOM.avatarModalCloseBtn.click();
+            
+            try {
+                // Save to public profile
+                await setDoc(getPublicUserRef(currentUser.uid), { avatar: emoji }, { merge: true });
+                
+                // Update all existing connections
+                const connectionsRef = getConnectionsCollectionRef();
+                const q1 = query(connectionsRef, where("uid1", "==", currentUser.uid));
+                const q2 = query(connectionsRef, where("uid2", "==", currentUser.uid));
+                
+                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                
+                snap1.forEach(d => updateDoc(d.ref, { uid1Avatar: emoji }));
+                snap2.forEach(d => updateDoc(d.ref, { uid2Avatar: emoji }));
+            } catch (e) {
+                console.error("Failed to update avatar", e);
+                showModal('Error', 'Could not save your new avatar.');
+            }
+        };
+
+        const showView = (viewId) => {
+            DOM.loader.classList.add('hidden');
+            DOM.authScreen.classList.add('hidden');
+            DOM.dashboardScreen.classList.add('hidden');
+            if (viewId) document.getElementById(viewId).classList.remove('hidden');
+        };
+
+        const showModal = (title, message) => {
+            DOM.modalTitle.textContent = title;
+            DOM.modalMessage.textContent = message;
+            DOM.modal.classList.remove('hidden');
+            // Animate in
+            setTimeout(() => {
+                DOM.modalContent.classList.remove('scale-95', 'opacity-0');
+                DOM.modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            DOM.modalContent.classList.remove('scale-100', 'opacity-100');
+            DOM.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => DOM.modal.classList.add('hidden'), 300);
+        };
+        DOM.modalCloseBtn.addEventListener('click', closeModal);
+
+        const toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            DOM.authTitle.textContent = isLoginMode ? 'Access Your Pulse' : 'Join the Pulse';
+            DOM.authSubmitText.textContent = isLoginMode ? 'Authenticate' : 'Create Account';
+            DOM.toggleAuthModeBtn.textContent = isLoginMode ? 'Need an account? Sign up' : 'Already have an account? Log in';
+            
+            if (isLoginMode) {
+                DOM.nameField.classList.add('hidden');
+                DOM.nameInput.required = false;
+            } else {
+                DOM.nameField.classList.remove('hidden');
+                DOM.nameInput.required = true;
+            }
+        };
+        DOM.toggleAuthModeBtn.addEventListener('click', toggleAuthMode);
+
+        const copyToClipboard = (text) => {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showModal('Success', 'Pulse Code copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        };
+
+        const fallbackCopyTextToClipboard = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showModal('Success', 'Pulse Code copied to clipboard!');
+            } catch (err) {
+                showModal('Error', 'Failed to copy text.');
+            }
+            document.body.removeChild(textArea);
+        };
+        
+        DOM.copyCodeBtn.addEventListener('click', () => copyToClipboard(currentUser.uid));
+
+        // ==========================================
+        // 3. Database Helpers
+        // ==========================================
+        // Path Strict Rules compliance
+        const getPublicUserRef = (uid) => doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+        const getConnectionsCollectionRef = () => collection(db, 'artifacts', appId, 'public', 'data', 'connections');
+        const getConnectionRef = (connId) => doc(db, 'artifacts', appId, 'public', 'data', 'connections', connId);
+        
+        const generateConnectionId = (uid1, uid2) => {
+            return [uid1, uid2].sort().join('_');
+        };
+
+        const getTodayString = () => new Date().toDateString();
+        const getYesterdayString = () => {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            return date.toDateString();
+        };
+
+        // ==========================================
+        // 4. Core Logic
+        // ==========================================
+        
+        const initUserDashboard = async (user) => {
+            currentUser = user;
+            DOM.userDisplayName.textContent = user.displayName || 'Unknown Pulse';
+            DOM.userPulseCode.textContent = user.uid;
+            
+            try {
+                const userDoc = await getDoc(getPublicUserRef(user.uid));
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                currentUser.avatar = userData.avatar || '👾';
+                DOM.currentUserAvatar.textContent = currentUser.avatar;
+
+                await setDoc(getPublicUserRef(user.uid), {
+                    displayName: user.displayName || 'Anonymous',
+                    uid: user.uid,
+                    avatar: currentUser.avatar,
+                    lastSeen: Date.now()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Failed to update profile", e);
+            }
+
+            listenToConnections();
+            showView('dashboard-screen');
+        };
+
+        const listenToConnections = () => {
+            if (!currentUser) return;
+            if (unsubscribeConnections) unsubscribeConnections();
+
+            // Fetch ALL data from collection, then filter in memory (Rule 2 Compliance)
+            unsubscribeConnections = onSnapshot(getConnectionsCollectionRef(), (snapshot) => {
+                const connections = [];
+                snapshot.forEach(docSnap => {
+                    // Check if I am part of this connection
+                    if (docSnap.id.includes(currentUser.uid)) {
+                        connections.push({ id: docSnap.id, ...docSnap.data() });
+                    }
+                });
+                renderMates(connections);
+            }, (error) => {
+                console.error("Snapshot error:", error);
+                showModal('Connection Error', 'Lost sync with the Pulse network.');
+            });
+        };
+
+        const addMate = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const mateCode = DOM.mateCodeInput.value.trim();
+            if (!mateCode) return;
+
+            if (mateCode === currentUser.uid) {
+                showModal('Hold up!', "You can't add yourself as a mate.");
+                return;
+            }
+
+            const btn = DOM.addMateForm.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = '...';
+            btn.disabled = true;
+
+            try {
+                // Check if user exists
+                const mateDoc = await getDoc(getPublicUserRef(mateCode));
+                
+                if (!mateDoc.exists()) {
+                    showModal('Not Found', "We couldn't find a Pulse mate with that code.");
+                    return;
+                }
+
+                const mateData = mateDoc.data();
+                const connId = generateConnectionId(currentUser.uid, mateCode);
+                const isUser1 = currentUser.uid < mateCode;
+
+                // Create or ensure connection doc exists
+                const connRef = getConnectionRef(connId);
+                const connSnap = await getDoc(connRef);
+
+                // (Inside addMate, updating the setDoc portion)
+                if (!connSnap.exists()) {
+                    await setDoc(connRef, {
+                        uid1: isUser1 ? currentUser.uid : mateCode,
+                        uid2: isUser1 ? mateCode : currentUser.uid,
+                        uid1Name: isUser1 ? currentUser.displayName : mateData.displayName,
+                        uid2Name: isUser1 ? mateData.displayName : currentUser.displayName,
+                        uid1Avatar: isUser1 ? currentUser.avatar : (mateData.avatar || '👾'),
+                        uid2Avatar: isUser1 ? (mateData.avatar || '👾') : currentUser.avatar,
+                        uid1PulseDay: null,
+                        uid2PulseDay: null,
+                        uid1LastPulse: null,
+                        uid2LastPulse: null,
+                        streak: 0,
+                        streakDay: null,
+                        createdAt: Date.now()
+                    });
+                    DOM.mateCodeInput.value = '';
+                    showModal('Connected!', `You are now linked with ${mateData.displayName}.`);
+                } else {
+                    showModal('Already Linked', `You're already connected to ${mateData.displayName}.`);
+                }
+
+            } catch (error) {
+                console.error("Error adding mate:", error);
+                showModal('Error', 'Something went wrong while connecting.');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        };
+        DOM.addMateForm.addEventListener('submit', addMate);
+
+        const sendPulse = async (conn) => {
+            if (!currentUser) return;
+            
+            const connRef = getConnectionRef(conn.id);
+            const isUser1 = currentUser.uid === conn.uid1;
+            const todayStr = getTodayString();
+            const yesterdayStr = getYesterdayString();
+
+            const updates = {};
+            
+            // Set my pulse stats
+            updates[isUser1 ? 'uid1LastPulse' : 'uid2LastPulse'] = Date.now();
+            updates[isUser1 ? 'uid1PulseDay' : 'uid2PulseDay'] = todayStr;
+
+            // Check mate's pulse state for streak calculation
+            const matePulseDay = isUser1 ? conn.uid2PulseDay : conn.uid1PulseDay;
+            
+            if (matePulseDay === todayStr) {
+                // Mate already pulsed today. Have we incremented the streak today?
+                if (conn.streakDay !== todayStr) {
+                    // Check if the previous streak day was yesterday to continue streak
+                    if (conn.streakDay === yesterdayStr) {
+                        updates.streak = (conn.streak || 0) + 1;
+                    } else {
+                        // Streak broken or new, start at 1 mutual day
+                        updates.streak = 1;
+                    }
+                    updates.streakDay = todayStr;
+                }
+            }
+
+            try {
+                await updateDoc(connRef, updates);
+            } catch (e) {
+                console.error("Error sending pulse:", e);
+                showModal("Error", "Failed to send pulse.");
+            }
+        };
+
+        const renderMates = (connections) => {
+            // Clear existing except empty state
+            Array.from(DOM.matesContainer.children).forEach(child => {
+                if (child.id !== 'empty-mates-state') child.remove();
+            });
+
+            if (connections.length === 0) {
+                DOM.emptyMatesState.classList.remove('hidden');
+                return;
+            }
+            
+            DOM.emptyMatesState.classList.add('hidden');
+
+            // Sort by recent activity
+            connections.sort((a, b) => {
+                const aTime = Math.max(a.uid1LastPulse || 0, a.uid2LastPulse || 0);
+                const bTime = Math.max(b.uid1LastPulse || 0, b.uid2LastPulse || 0);
+                return bTime - aTime;
+            });
+
+            connections.forEach(conn => {
+                const isUser1 = currentUser.uid === conn.uid1;
+                const mateName = isUser1 ? conn.uid2Name : conn.uid1Name;
+                const mateId = isUser1 ? conn.uid2 : conn.uid1;
+                
+                const myLastPulse = isUser1 ? conn.uid1LastPulse : conn.uid2LastPulse;
+                const mateLastPulse = isUser1 ? conn.uid2LastPulse : conn.uid1LastPulse;
+                const myPulseDay = isUser1 ? conn.uid1PulseDay : conn.uid2PulseDay;
+                const matePulseDay = isUser1 ? conn.uid2PulseDay : conn.uid1PulseDay;
+                
+                const today = getTodayString();
+                const iPulsedToday = myPulseDay === today;
+                const theyPulsedToday = matePulseDay === today;
+
+                const clone = DOM.mateCardTemplate.content.cloneNode(true);
+                const mateAvatar = isUser1 ? (conn.uid2Avatar || '👾') : (conn.uid1Avatar || '👾');
+                const avatarEl = clone.querySelector('.mate-avatar');
+                const card = clone.querySelector('div');
+                const nameEl = clone.querySelector('.mate-name');
+                const statusEl = clone.querySelector('.mate-status');
+                const pulseBtn = clone.querySelector('.pulse-btn');
+                const heartIcon = clone.querySelector('.heart-icon');
+                const streakBadge = clone.querySelector('.streak-badge');
+                const streakCount = clone.querySelector('.streak-count');
+
+                avatarEl.textContent = mateAvatar;
+                nameEl.textContent = mateName;
+
+                // Setup Streak display
+                if (conn.streak > 0) {
+                    streakBadge.classList.remove('hidden');
+                    streakCount.textContent = conn.streak;
+                }
+
+                // Determine Status and Styling
+                if (iPulsedToday && theyPulsedToday) {
+                    statusEl.textContent = "Mutual pulse today! 🔥";
+                    statusEl.classList.add('text-orange-400');
+                    pulseBtn.classList.add('bg-fuchsia-900/40', 'border-fuchsia-500', 'text-fuchsia-400');
+                    pulseBtn.title = "Pulse sent today";
+                } else if (theyPulsedToday && !iPulsedToday) {
+                    statusEl.textContent = "Pulsed you today! Send back!";
+                    statusEl.classList.add('text-cyan-400');
+                    pulseBtn.classList.add('animate-pulse', 'border-cyan-500', 'text-cyan-400');
+                } else if (iPulsedToday && !theyPulsedToday) {
+                    statusEl.textContent = "Pulse sent. Waiting on them...";
+                    statusEl.classList.add('text-gray-400');
+                    pulseBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    if (mateLastPulse) {
+                        const date = new Date(mateLastPulse).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                        statusEl.textContent = `Last pulse: ${date}`;
+                    }
+                }
+
+                // Pulse Action
+                pulseBtn.addEventListener('click', (e) => {
+                    if (iPulsedToday && theyPulsedToday) {
+                        showModal('Chill out!', 'You both already pulsed today. Come back tomorrow to build your streak!');
+                        return;
+                    }
+                    if (iPulsedToday) {
+                        showModal('Already Sent', 'You already sent a pulse today. Wait for them to pulse back!');
+                        return;
+                    }
+
+                    // Visual feedback instantly
+                    heartIcon.classList.add('pulse-action-anim');
+                    pulseBtn.classList.add('text-fuchsia-500', 'border-fuchsia-500');
+                    setTimeout(() => heartIcon.classList.remove('pulse-action-anim'), 500);
+                    
+                    sendPulse(conn);
+                });
+
+                DOM.matesContainer.appendChild(clone);
+            });
+        };
+
+        // ==========================================
+        // 5. Auth Flow Implementation
+        // ==========================================
+        
+        const handleAuthSubmit = async (e) => {
+            e.preventDefault();
+            const email = DOM.emailInput.value.trim();
+            const password = DOM.passwordInput.value;
+            const name = DOM.nameInput.value.trim();
+            
+            const btn = DOM.authSubmitBtn;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<div class="loader w-5 h-5 mx-auto"></div>`;
+            btn.disabled = true;
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(userCredential.user, { displayName: name });
+                    // Refresh user profile in app
+                    await userCredential.user.reload();
+                }
+            } catch (error) {
+                console.error("Auth error", error);
+                let msg = "Authentication failed.";
+                if (error.code === 'auth/email-already-in-use') msg = "Email already in use.";
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') msg = "Invalid email or password.";
+                if (error.code === 'auth/weak-password') msg = "Password is too weak.";
+                showModal('Authentication Error', msg);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        };
+        DOM.authForm.addEventListener('submit', handleAuthSubmit);
+
+        DOM.logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                // Unsubscribe from real-time listeners
+                if (unsubscribeConnections) {
+                    unsubscribeConnections();
+                    unsubscribeConnections = null;
+                }
+                
+                // Clear current user state
+                currentUser = null;
+                
+                // Sign out of Firebase
+                await signOut(auth);
+                
+                // Clear input fields for a clean state on next login
+                DOM.emailInput.value = '';
+                DOM.passwordInput.value = '';
+                DOM.nameInput.value = '';
+                DOM.mateCodeInput.value = '';
+                
+                // Return to auth screen
+                showView('auth-screen');
+            } catch (error) {
+                console.error("Logout error", error);
+                showModal('Error', 'Failed to log out properly.');
+            }
+        });
+
+        // Rule 3: Guard auth flow and token init
+        const initializeAppAuth = async () => {
+            showView('global-loader');
+
+            // Handle strict requirement for custom token if present
+            if (initialAuthToken) {
+                try {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } catch (e) {
+                    console.error("Custom token failed, falling back", e);
+                }
+            }
+
+            // Setup auth listener
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    initUserDashboard(user);
+                } else {
+                    currentUser = null;
+                    showView('auth-screen');
+                }
+            });
+        };
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => console.log('Pulse PWA registered'))
+                    .catch(err => console.log('PWA registration failed: ', err));
+            });
+        }
+
+        // Boot
+        initializeAppAuth();
+
+    </script>
+</body>
+</html>
