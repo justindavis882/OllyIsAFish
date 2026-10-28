@@ -309,7 +309,7 @@
         let isLoginMode = true;
         let unsubscribeConnections = null;
         let knownConnections = new Map();
-        let isIntialLoad = true;
+        let isInitialLoad = true;
 
         // ==========================================
         // 2. UI Utility Functions
@@ -541,9 +541,6 @@
             }
 
             requestNotificationPermission();
-            listenToConnections();
-            showView('dashboard-screen');
-
             listenToConnections();
             showView('dashboard-screen');
         };
