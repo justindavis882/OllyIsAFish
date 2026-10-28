@@ -308,6 +308,8 @@
         let currentUser = null;
         let isLoginMode = true;
         let unsubscribeConnections = null;
+        let knownConnections = new Map();
+        let isIntialLoad = true;
 
         // ==========================================
         // 2. UI Utility Functions
@@ -375,6 +377,28 @@
             DOM.avatarModalContent.classList.add('scale-95', 'opacity-0');
             setTimeout(() => DOM.avatarModal.classList.add('hidden'), 300);
         });
+
+        const requestNotificationPermission = () => {
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+        };
+
+        const sendLocalNotification = (title, body) => {
+            if ("Notification" in window && Notification.permission === "granted") {
+                // Route through the Service Worker for better PWA integration
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, {
+                        body: body,
+                        icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Black_heart_symbol.svg/192px-Black_heart_symbol.svg.png',
+                        vibrate: [200, 100, 200]
+                    });
+                }).catch(() => {
+                    // Fallback if SW isn't ready
+                    new Notification(title, { body });
+                });
+            }
+        };
 
         const updateAvatar = async (emoji) => {
             if (!currentUser) return;
@@ -516,6 +540,10 @@
                 console.error("Failed to update profile", e);
             }
 
+            requestNotificationPermission();
+            listenToConnections();
+            showView('dashboard-screen');
+
             listenToConnections();
             showView('dashboard-screen');
         };
@@ -525,19 +553,45 @@
             if (unsubscribeConnections) unsubscribeConnections();
 
             const connectionsRef = getConnectionsCollectionRef();
-            
-            // This query explicitly matches your security rules so Firestore allows it
             const q = query(connectionsRef, or(
                 where("uid1", "==", currentUser.uid),
                 where("uid2", "==", currentUser.uid)
             ));
 
             unsubscribeConnections = onSnapshot(q, (snapshot) => {
-                const connections = [];
+                const newConnections = [];
+                
                 snapshot.forEach(docSnap => {
-                    connections.push({ id: docSnap.id, ...docSnap.data() });
+                    const data = docSnap.data();
+                    const connId = docSnap.id;
+                    newConnections.push({ id: connId, ...data });
+
+                    // Only trigger notifications after the initial data load
+                    if (!isInitialLoad) {
+                        const oldData = knownConnections.get(connId);
+                        const isUser1 = currentUser.uid === data.uid1;
+                        const mateName = isUser1 ? data.uid2Name : data.uid1Name;
+
+                        if (!oldData) {
+                            // New connection detected
+                            sendLocalNotification("New Pulse Mate!", `${mateName} connected with you.`);
+                        } else {
+                            // Existing connection: check if their pulse timestamp increased
+                            const mateLastPulse = isUser1 ? data.uid2LastPulse : data.uid1LastPulse;
+                            const oldMateLastPulse = isUser1 ? oldData.uid2LastPulse : oldData.uid1LastPulse;
+                            
+                            if (mateLastPulse && mateLastPulse > (oldMateLastPulse || 0)) {
+                                sendLocalNotification("Pulse Received! 💖", `${mateName} just sent you a pulse.`);
+                            }
+                        }
+                    }
+                    
+                    // Update our tracking map
+                    knownConnections.set(connId, data);
                 });
-                renderMates(connections);
+                
+                isInitialLoad = false;
+                renderMates(newConnections);
             }, (error) => {
                 console.error("Snapshot error:", error);
                 showModal('Connection Error', 'Lost sync with the Pulse network.');
@@ -797,6 +851,8 @@
                 
                 // Clear current user state
                 currentUser = null;
+                knownConnections.clear();
+                isInitialLoad = true;
                 
                 // Sign out of Firebase
                 await signOut(auth);
