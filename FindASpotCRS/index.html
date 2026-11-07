@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Campground Name] Find A Spot CRS</title>
+    <!-- Google Fonts: Inter for modern readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+
+    <!-- Tailwind CSS for layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration for easy branding swaps -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // 70s Retro Color Palette - Change these for different clients
+                        brand: {
+                            cream: '#F4EFE6',   // Background
+                            yellow: '#ECA72C',  // Accents / Buttons
+                            orange: '#D36135',  // Highlights / Secondary Buttons
+                            green: '#7A8B55',   // Primary actions / Success
+                            brown: '#38220F'    // Text / Deep backgrounds
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        // Hard shadows for a retro-modern feel
+                        'retro': '4px 4px 0px rgba(56, 34, 15, 1)',
+                        'retro-hover': '2px 2px 0px rgba(56, 34, 15, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @media print {
+            /* Hide all text/elements on the page */
+            body * {
+                visibility: hidden;
+            }
+            
+            /* Make the receipt and its children visible */
+            #printable-receipt, #printable-receipt * {
+                visibility: visible;
+            }
+            
+            /* Pull the receipt out of the layout and stick it to the top left */
+            #printable-receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                color: black !important;
+            }
+            
+            /* THE FIX: Stop the hidden website from creating blank pages */
+            html, body {
+                height: 100vh;
+                overflow: hidden !important;
+                margin: 0;
+                padding: 0;
+            }
+            
+            /* Hide action buttons on the printed paper */
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-brand-cream/95 backdrop-blur border-b-4 border-brand-brown">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Branding -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#" class="text-3xl font-extrabold text-brand-orange tracking-tight flex items-center gap-2">
+                        <svg class="w-8 h-8 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/>
+                            <path d="M12 10l-3 6h6l-3-6z"/>
+                        </svg>
+                        [Campground] <span class="text-brand-brown">[Name]</span>
+                    </a>
+                </div>
+                <!-- Staff Login Button -->
+                <div>
+                    <a href="admin.html" class="btn-retro inline-flex items-center justify-center px-4 py-2 border-2 border-brand-brown text-sm font-bold rounded-lg text-brand-cream bg-brand-brown shadow-retro hover:bg-opacity-90">
+                        Staff Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <!-- Welcome / Hero Section -->
+        <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 flex flex-col lg:flex-row items-center gap-12">
+            <div class="flex-1 text-center lg:text-left z-10">
+                <h1 class="text-5xl lg:text-7xl font-extrabold text-brand-brown mb-6 leading-tight">
+                    Disconnect to <br>
+                    <span class="text-brand-orange inline-block transform -rotate-2">Reconnect.</span>
+                </h1>
+                <p class="text-xl text-brand-brown/80 mb-8 max-w-2xl mx-auto lg:mx-0 font-medium">
+                    Welcome to the great outdoors. Reserve your perfect campsite instantly, whether you're bringing an RV, pitching a tent, or looking for a cozy cabin.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <a href="#search-spot" class="btn-retro px-8 py-4 bg-brand-green text-brand-cream border-2 border-brand-brown font-bold text-lg rounded-xl shadow-retro">
+                        Book a Site
+                    </a>
+                    <a href="#about" class="btn-retro px-8 py-4 bg-brand-yellow text-brand-brown border-2 border-brand-brown font-bold text-lg rounded-xl shadow-retro">
+                        Explore Park
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Hero Decorative Graphic -->
+            <div class="flex-1 relative w-full max-w-lg aspect-square">
+                <!-- Abstract 70s geometric shapes -->
+                <div class="absolute inset-0 bg-brand-orange rounded-full mix-blend-multiply opacity-90 animate-pulse border-4 border-brand-brown shadow-retro"></div>
+                <div class="absolute top-10 left-10 right-10 bottom-10 bg-brand-yellow rounded-full mix-blend-multiply opacity-90 border-4 border-brand-brown"></div>
+                <div class="absolute top-20 left-20 right-20 bottom-20 bg-brand-green rounded-full mix-blend-multiply opacity-90 flex items-center justify-center border-4 border-brand-brown">
+                    <svg class="w-32 h-32 text-brand-cream" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4.5l-8 7.5h2v7h12v-7h2l-8-7.5zm-2 11.5v-3h4v3h-4z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Campground Map Section -->
+            <!--
+            <div class="flex-1 relative w-full max-w-lg aspect-square">
+                <img src="" alt="Campground Map">
+            </div>
+
+            -->
+        </section>
+
+        <!-- Find A Spot Section -->
+        <section id="booking-section" class="bg-brand-cream py-16">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl md:text-5xl font-black text-brand-green uppercase tracking-widest mb-10 text-center drop-shadow-md">
+                    Find A Spot
+                </h2>
+
+                <!-- Step 1: Date Selection -->
+                <div class="bg-brand-green p-8 rounded-3xl border-4 border-brand-orange shadow-xl mb-12 flex flex-col md:flex-row gap-6 justify-center items-end">
+                    <div class="w-full md:w-auto">
+                        <label class="block text-brand-cream text-sm uppercase font-bold tracking-widest mb-2">Check-in</label>
+                        <input type="date" id="checkInDate" class="w-full bg-brand-cream text-brand-brown border-4 border-brand-brown p-3 rounded-xl font-bold focus:outline-none focus:border-brand-orange">
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <label class="block text-brand-cream text-sm uppercase font-bold tracking-widest mb-2">Check-out</label>
+                        <input type="date" id="checkOutDate" class="w-full bg-brand-cream text-brand-brown border-4 border-brand-brown p-3 rounded-xl font-bold focus:outline-none focus:border-brand-orange">
+                    </div>
+                    <button id="searchBtn" class="w-full md:w-auto bg-brand-orange hover:bg-brand-brown text-brand-cream font-black uppercase tracking-widest py-4 px-8 rounded-xl border-4 border-brand-cream transition-colors">
+                        Search Map
+                    </button>
+                </div>
+
+                <!-- Step 2: Interactive Map -->
+                <div id="map-container" class="hidden">
+                    <h3 class="text-2xl font-black text-brand-brown uppercase tracking-wider mb-6 border-b-4 border-brand-green inline-block pb-1">Campground Map</h3>
+                    
+                    <!-- Updated Grid: Wider columns for more text -->
+                    <div id="site-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- Javascript will inject the detailed site cards here -->
+                    </div>
+                </div>
+
+                <!-- Step 3: Booking Form Modal -->
+                <div id="checkout-modal" class="hidden fixed inset-0 bg-brand-brown/90 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-orange shadow-2xl relative my-8">
+                        <button id="closeModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                        <h3 class="text-3xl font-black text-brand-green uppercase tracking-widest mb-2">Secure Site <span id="selectedSiteLabel"></span></h3>
+                        
+                        <!-- NEW: Site Details & Total Pricing Injector -->
+                        <div id="checkout-site-details" class="bg-brand-brown/5 border-4 border-brand-green/30 p-5 rounded-2xl mb-6">
+                            <!-- Javascript will inject dates, specs, and price here -->
+                        </div>
+                        
+                        <form id="bookingForm" class="space-y-4">
+                            <input type="hidden" id="bookingSiteId">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Full Name</label>
+                                <input type="text" id="guestName" class="w-full bg-white border-4 border-brand-green p-3 rounded-xl focus:outline-none focus:border-brand-orange" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Vehicle / Camper Plate</label>
+                                <input type="text" id="vehiclePlate" class="w-full bg-white border-4 border-brand-green p-3 rounded-xl focus:outline-none focus:border-brand-orange" required>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-6">
+                                Confirm Reservation
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Step 4: Receipt Modal (Hidden until success) -->
+        <div id="receipt-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+            <div id="printable-receipt" class="bg-brand-cream w-full max-w-md p-8 rounded-3xl border-8 border-brand-green shadow-2xl relative my-8">
+                
+                <!-- Receipt Header -->
+                <div class="text-center border-b-4 border-brand-orange pb-6 mb-6">
+                    <h2 class="text-3xl font-black text-brand-green uppercase tracking-widest mb-1">[Campground Name]</h2>
+                    <p class="text-brand-brown font-bold text-sm uppercase tracking-widest opacity-70">Reservation Confirmed</p>
+                </div>
+
+                <!-- Dynamic Receipt Details -->
+                <div class="space-y-4 text-brand-brown font-medium mb-8">
+                    <div class="flex justify-between items-end border-b-2 border-brand-brown/20 pb-2">
+                        <span class="text-xs uppercase tracking-widest opacity-70">Conf #</span>
+                        <span id="receiptConfNum" class="font-bold text-sm"></span>
+                    </div>
+                    <div class="flex justify-between items-end border-b-2 border-brand-brown/20 pb-2">
+                        <span class="text-xs uppercase tracking-widest opacity-70">Guest Name</span>
+                        <span id="receiptName" class="font-bold text-lg uppercase"></span>
+                    </div>
+                    <div class="flex justify-between items-end border-b-2 border-brand-brown/20 pb-2">
+                        <span class="text-xs uppercase tracking-widest opacity-70">Site</span>
+                        <span id="receiptSite" class="font-black text-2xl text-brand-green"></span>
+                    </div>
+                    <div class="flex justify-between items-end border-b-2 border-brand-brown/20 pb-2">
+                        <span class="text-xs uppercase tracking-widest opacity-70">Check-in</span>
+                        <span id="receiptIn" class="font-bold"></span>
+                    </div>
+                    <div class="flex justify-between items-end border-b-2 border-brand-brown/20 pb-2">
+                        <span class="text-xs uppercase tracking-widest opacity-70">Check-out</span>
+                        <span id="receiptOut" class="font-bold"></span>
+                    </div>
+                    <div class="flex justify-between items-end pt-2">
+                        <span class="text-sm font-black uppercase tracking-widest text-brand-green">Total Paid</span>
+                        <span id="receiptTotal" class="font-black text-2xl text-brand-orange"></span>
+                    </div>
+                </div>
+
+                <!-- Footer & Action Buttons (Buttons hidden during print) -->
+                <div class="text-center border-t-4 border-brand-orange pt-6">
+                    <p class="text-xs text-brand-brown/70 font-bold mb-6">Powered by Find A Spot CRS</p>
+                    
+                    <div class="flex flex-col gap-3 no-print">
+                        <button onclick="window.print()" class="w-full bg-brand-orange hover:bg-brand-brown text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream transition-colors">
+                            Print Receipt
+                        </button>
+                        <button id="closeReceiptBtn" class="w-full bg-brand-cream hover:bg-brand-green hover:text-brand-cream text-brand-brown font-black uppercase tracking-widest py-3 rounded-xl border-4 border-brand-brown transition-colors">
+                            Return to Map
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About the Campground Section -->
+        <section id="about" class="bg-brand-brown text-brand-cream py-24 mt-16 border-t-8 border-brand-yellow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <div class="inline-block px-4 py-1 bg-brand-green text-brand-cream font-bold rounded-full mb-4 border-2 border-brand-cream">
+                            Est. 1974
+                        </div>
+                        <h2 class="text-4xl lg:text-5xl font-extrabold mb-6">Nature's Best Kept Secret.</h2>
+                        <div class="space-y-6 text-lg text-brand-cream/90 font-medium leading-relaxed">
+                            <p>
+                                Nestled in the heart of the valley, our campground offers a retreat from the hustle of modern life. With over 200 acres of pristine woodlands, natural springs, and hiking trails, there is an adventure waiting for everyone.
+                            </p>
+                            <p>
+                                Whether you're pulling up in a vintage Airstream, setting up a family tent, or renting one of our newly renovated A-frame cabins, you'll find modern amenities beautifully blended with rustic charm.
+                            </p>
+                        </div>
+                        
+                        <div class="mt-8 grid grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-orange rounded-full flex items-center justify-center border-2 border-brand-cream">
+                                    <svg class="w-5 h-5 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="font-bold">Full RV Hookups</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-orange rounded-full flex items-center justify-center border-2 border-brand-cream">
+                                    <svg class="w-5 h-5 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="font-bold">Hot Showers</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-orange rounded-full flex items-center justify-center border-2 border-brand-cream">
+                                    <svg class="w-5 h-5 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="font-bold">Camp Store</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-orange rounded-full flex items-center justify-center border-2 border-brand-cream">
+                                    <svg class="w-5 h-5 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="font-bold">Hiking Trails</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Placeholder Area -->
+                    <div class="relative">
+                        <!-- Decorative offset background -->
+                        <div class="absolute inset-0 bg-brand-yellow rounded-2xl transform translate-x-4 translate-y-4 border-4 border-brand-brown"></div>
+                        <div class="relative bg-brand-cream rounded-2xl border-4 border-brand-brown overflow-hidden aspect-[4/3] flex items-center justify-center">
+                            <!-- In a real app, an img tag goes here. Using a placeholder for now -->
+                            <div class="text-brand-brown/40 flex flex-col items-center">
+                                <svg class="w-24 h-24 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                </svg>
+                                <span class="font-bold text-xl uppercase tracking-widest">Campground Photo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-brand-green py-16 border-t-8 border-brand-cream">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-5xl font-black text-brand-cream uppercase tracking-widest mb-10 drop-shadow-md">
+                    Let's Chat
+                </h2>
+                
+                <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 bg-brand-cream/10 p-8 rounded-3xl border-4 border-brand-cream/30">
+                    <div class="flex flex-col items-center">
+                        <span class="text-brand-cream/60 text-sm uppercase font-bold tracking-widest mb-2">Address</span>
+                        <p class="text-brand-cream font-medium text-lg lg:text-xl">[Campground Address]</p>
+                    </div>
+                    
+                    <!-- Chunky Retro Divider -->
+                    <div class="hidden md:block w-1.5 h-16 bg-brand-cream/30 rounded-full"></div>
+                    
+                    <div class="flex flex-col items-center">
+                        <span class="text-brand-cream/60 text-sm uppercase font-bold tracking-widest mb-2">Email</span>
+                        <p class="text-brand-cream font-medium text-lg lg:text-xl">[Campground Email]</p>
+                    </div>
+                    
+                    <!-- Chunky Retro Divider -->
+                    <div class="hidden md:block w-1.5 h-16 bg-brand-cream/30 rounded-full"></div>
+                    
+                    <div class="flex flex-col items-center">
+                        <span class="text-brand-cream/60 text-sm uppercase font-bold tracking-widest mb-2">Phone</span>
+                        <p class="text-brand-cream font-medium text-lg lg:text-xl">[Campground Phone]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-brown text-brand-cream py-8 border-t-2 border-brand-cream/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="font-bold">
+                &copy; <script>document.write(new Date().getFullYear())</script> [Campground Name] 
+                <br>Powered by: Find A Spot CRS. All rights reserved.
+            </div>
+            <div class="flex gap-6 text-sm font-medium">
+                <a href="privacy.html" class="hover:text-brand-yellow transition-colors">Privacy Policy</a>
+                <a href="terms.html" class="hover:text-brand-yellow transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+<script>
+        const { Client, Databases, ID } = Appwrite;
+
+        const client = new Client()
+            .setEndpoint('https://nyc.cloud.appwrite.io/v1') // Your specific NYC endpoint
+            .setProject('6aee43d7000c5c15d646'); 
+
+        const databases = new Databases(client);
+        const DATABASE_ID = '6aee44370034812491a3'; 
+        const SITES_COLLECTION_ID = '6aee446300389441a49c'; 
+        const RES_COLLECTION_ID = '6aee4505002bebaa8808'; 
+
+        // UI Elements
+        const searchBtn = document.getElementById('searchBtn');
+        const mapContainer = document.getElementById('map-container');
+        const siteGrid = document.getElementById('site-grid');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const bookingForm = document.getElementById('bookingForm');
+        
+        let allSites = [];
+        let requestedCheckIn = 0;
+        let requestedCheckOut = 0;
+
+        // Fetch static inventory on load
+        const loadInventory = async () => {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, SITES_COLLECTION_ID);
+                allSites = response.documents;
+            } catch (error) {
+                console.error("Failed to load map data.", error);
+            }
+        };
+        loadInventory();
+
+        // Handle Search & Date Math
+        searchBtn.addEventListener('click', async () => {
+            const inDate = document.getElementById('checkInDate').value;
+            const outDate = document.getElementById('checkOutDate').value;
+
+            if (!inDate || !outDate) return alert("Please select both dates.");
+
+            // Convert to Unix Timestamps (milliseconds) for easy math
+            requestedCheckIn = new Date(inDate).getTime();
+            requestedCheckOut = new Date(outDate).getTime();
+
+            if (requestedCheckOut <= requestedCheckIn) {
+                return alert("Check-out must be after check-in.");
+            }
+
+            searchBtn.innerText = "SEARCHING...";
+            searchBtn.disabled = true;
+
+            try {
+                // Fetch ALL active reservations
+                const resResponse = await databases.listDocuments(DATABASE_ID, RES_COLLECTION_ID);
+                const allReservations = resResponse.documents;
+
+                // Vanilla JS Overlap Math
+                // Two date ranges overlap if: (Start A < End B) AND (End A > Start B)
+                const bookedSiteIds = allReservations
+                    .filter(res => (res.check_in < requestedCheckOut) && (res.check_out > requestedCheckIn))
+                    .map(res => res.site_id);
+
+                renderMap(bookedSiteIds);
+                mapContainer.classList.remove('hidden');
+
+            } catch (error) {
+                alert("Error checking availability.");
+            } finally {
+                searchBtn.innerText = "SEARCH MAP";
+                searchBtn.disabled = false;
+            }
+        });
+
+        // Render the Detailed CSS Grid Map
+        const renderMap = (bookedSiteIds) => {
+            siteGrid.innerHTML = allSites.map(site => {
+                const isBooked = bookedSiteIds.includes(site.site_number);
+                
+                const bgClass = isBooked ? 'bg-brand-brown/20' : 'bg-brand-green hover:-translate-y-1 hover:shadow-xl cursor-pointer';
+                const borderClass = isBooked ? 'border-brand-brown/30' : 'border-brand-brown';
+                const textClass = isBooked ? 'text-brand-brown/40' : 'text-brand-cream';
+                const badgeClass = isBooked ? 'bg-brand-brown/30 text-brand-brown/60 border-brand-brown/30' : 'bg-brand-orange text-brand-cream border-brand-brown';
+                
+                // Build the Water/Sewer pill badges
+                let utilitiesHTML = '';
+                if (site.water) utilitiesHTML += `<span class="inline-block px-2 py-1 rounded bg-brand-cream/20 text-xs font-bold border-2 border-brand-cream/30 mr-1">💧 Water</span>`;
+                if (site.sewer) utilitiesHTML += `<span class="inline-block px-2 py-1 rounded bg-brand-cream/20 text-xs font-bold border-2 border-brand-cream/30">⚡ Sewer</span>`;
+                if (!site.water && !site.sewer) utilitiesHTML += `<span class="text-xs italic opacity-70">No Utilities (Dry)</span>`;
+
+                return `
+                    <div 
+                        class="${bgClass} border-4 ${borderClass} rounded-3xl p-6 flex flex-col justify-between transition-all duration-200"
+                        ${isBooked ? '' : `onclick="openCheckout('${site.site_number}')"`}
+                    >
+                        <!-- Header: Site Num & Price -->
+                        <div class="flex justify-between items-start mb-6 border-b-2 ${isBooked ? 'border-brand-brown/20' : 'border-brand-cream/20'} pb-4">
+                            <span class="${textClass} font-black text-4xl leading-none">${site.site_number}</span>
+                            <span class="${badgeClass} text-sm font-black uppercase tracking-widest px-3 py-1 rounded-xl border-4">
+                                ${isBooked ? 'BOOKED' : '$' + site.daily_rate + '/NT'}
+                            </span>
+                        </div>
+                        
+                        <!-- Details Matrix -->
+                        <div class="space-y-2 ${textClass} font-medium">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs uppercase tracking-widest opacity-70">Type</span>
+                                <span class="font-bold">${site.type}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs uppercase tracking-widest opacity-70">Max Length</span>
+                                <span class="font-bold">${site.max_length}ft</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs uppercase tracking-widest opacity-70">Power</span>
+                                <span class="font-bold">${site.amps}A</span>
+                            </div>
+                            
+                            <!-- Utilities Box -->
+                            <div class="pt-4 mt-2">
+                                ${utilitiesHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // Open the Booking Form & Calculate Totals
+        window.openCheckout = (siteNumber) => {
+            // Find the specific site data
+            const site = allSites.find(s => s.site_number === siteNumber);
+            
+            document.getElementById('selectedSiteLabel').innerText = siteNumber;
+            document.getElementById('bookingSiteId').value = siteNumber;
+            
+            // Format dates
+            const inStr = new Date(requestedCheckIn).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            const outStr = new Date(requestedCheckOut).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            // Calculate the number of nights
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const nights = Math.round((requestedCheckOut - requestedCheckIn) / msPerDay);
+            
+            // Calculate the total cost
+            const totalCost = (nights * site.daily_rate).toFixed(2);
+
+            // Inject the summary block
+            document.getElementById('checkout-site-details').innerHTML = `
+                <div class="flex justify-between items-end border-b-4 border-brand-green/20 pb-3 mb-4">
+                    <div class="text-brand-brown font-bold text-sm">
+                        <p class="uppercase tracking-widest opacity-70 text-xs mb-1">Stay Dates</p>
+                        <p>${inStr} &rarr; ${outStr}</p>
+                        <p class="text-brand-orange mt-1">${nights} Night${nights > 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 text-sm font-bold text-brand-brown mb-5">
+                    <p><span class="opacity-70 font-normal">Type:</span> ${site.type}</p>
+                    <p><span class="opacity-70 font-normal">Length:</span> ${site.max_length}ft</p>
+                    <p><span class="opacity-70 font-normal">Power:</span> ${site.amps}A</p>
+                    <p><span class="opacity-70 font-normal">Water:</span> ${site.water ? 'Yes' : 'No'}</p>
+                    <p><span class="opacity-70 font-normal">Sewer:</span> ${site.sewer ? 'Yes' : 'No'}</p>
+                </div>
+
+                <div class="bg-brand-green text-brand-cream p-4 rounded-xl border-4 border-brand-brown flex justify-between items-center">
+                    <span class="font-black uppercase tracking-widest">Total Rate</span>
+                    <span class="font-black text-2xl tracking-wider">$${totalCost}</span>
+                </div>
+            `;
+            
+            checkoutModal.classList.remove('hidden');
+        };
+
+        // Close Modal
+        document.getElementById('closeModal').addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+        });
+
+        // Submit Reservation to Appwrite
+        bookingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = bookingForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "CONFIRMING...";
+            submitBtn.disabled = true;
+
+            const payload = {
+                site_id: document.getElementById('bookingSiteId').value,
+                guest_name: document.getElementById('guestName').value,
+                vehicle_plate: document.getElementById('vehiclePlate').value,
+                check_in: requestedCheckIn,
+                check_out: requestedCheckOut,
+                status: 'pending' // Admin sees this as pending until paid/checked-in
+            };
+
+            try {
+                // Appwrite returns the created document, which includes the unique $id
+                const reservationDoc = await databases.createDocument(
+                    DATABASE_ID, 
+                    RES_COLLECTION_ID, 
+                    ID.unique(), 
+                    payload
+                );
+                
+                // Calculate total for the receipt
+                const site = allSites.find(s => s.site_number === payload.site_id);
+                const nights = Math.round((requestedCheckOut - requestedCheckIn) / (1000 * 60 * 60 * 24));
+                const totalCost = (nights * site.daily_rate).toFixed(2);
+
+                // Populate the Receipt UI
+                document.getElementById('receiptConfNum').innerText = reservationDoc.$id.toUpperCase().substring(0, 8); // Shorten ID for clean look
+                document.getElementById('receiptName').innerText = payload.guest_name;
+                document.getElementById('receiptSite').innerText = payload.site_id;
+                document.getElementById('receiptIn').innerText = new Date(requestedCheckIn).toLocaleDateString();
+                document.getElementById('receiptOut').innerText = new Date(requestedCheckOut).toLocaleDateString();
+                document.getElementById('receiptTotal').innerText = '$' + totalCost;
+
+                // Swap the Modals
+                checkoutModal.classList.add('hidden');
+                document.getElementById('receipt-modal').classList.remove('hidden');
+                
+                bookingForm.reset();
+                searchBtn.click(); // Auto-refresh the map in the background
+
+            } catch (error) {
+                alert("Failed to submit reservation: " + error.message);
+            } finally {
+                submitBtn.innerText = "CONFIRM RESERVATION";
+                submitBtn.disabled = false;
+            }
+        });
+        document.getElementById('closeReceiptBtn').addEventListener('click', () => {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

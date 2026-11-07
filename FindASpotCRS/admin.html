@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Find A Spot CRS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Appwrite Web SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-green': '#2e4b31',
+                        'brand-cream': '#f4e5c2',
+                        'brand-orange': '#d96c42',
+                        'brand-brown': '#3e2723'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
+    <style>
+        /* Hide all print templates on screens */
+        @media screen {
+            .print-template { display: none !important; }
+        }
+        
+        @media print {
+            /* Force structural parents to be static blocks so absolute positioning maps to the page */
+            html, body, #dashboard-section, main, section {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* 1. Set physical paper size and exact 1-inch safe margins */
+            @page {
+                size: 8.5in 11in; 
+                margin: .5in;    
+            }
+            
+            body * { visibility: hidden; }
+            .print-active, .print-active * { visibility: visible !important; }
+            
+            /* 2. Standard Block layout - NO FLEXBOX - allows 100% width to work */
+            .print-active {
+                display: block !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                background: white !important;
+                color: black !important;
+                z-index: 9999;
+            }
+
+            /* 3. Force the report container and table to stretch fully */
+            #printable-report.print-active > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+            }
+            
+            #printable-report.print-active table {
+                width: 100% !important;
+                min-width: 100% !important;
+                table-layout: auto !important;
+            }
+
+            /* 4. Kill scrollbars and allow it to flow naturally down the page */
+            #printable-report.print-active * {
+                overflow: visible !important; 
+                height: auto !important;      
+            }
+
+            /* 5. Prevent rows from splitting cleanly across page breaks */
+            #printable-report.print-active tr {
+                page-break-inside: avoid !important;
+            }
+
+            /* 6. Allow the hidden body to stretch so long reports don't cut off */
+            html, body {
+                height: auto !important; 
+                min-height: 100vh;
+                overflow: visible !important;
+                margin: 0;
+                padding: 0;
+                background: white !important; 
+            }
+            
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-brand-brown text-brand-cream h-screen font-sans overflow-hidden flex">
+
+    <!-- Login Section (Fills screen, hides when authenticated) -->
+    <div id="login-section" class="absolute inset-0 z-50 bg-brand-brown flex items-center justify-center">
+        <div class="max-w-md w-full mx-auto bg-brand-cream/10 p-8 rounded-3xl border-4 border-brand-cream/30 shadow-2xl">
+            <h2 class="text-3xl font-black uppercase tracking-wider mb-6 text-center border-b-4 border-brand-orange pb-2 inline-block w-full">Staff Access</h2>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm uppercase font-bold tracking-widest text-brand-cream/60 mb-2">Email</label>
+                    <input type="email" id="email" class="w-full bg-brand-brown border-2 border-brand-green p-3 rounded text-brand-cream focus:outline-none focus:border-brand-orange" required>
+                </div>
+                <div>
+                    <label class="block text-sm uppercase font-bold tracking-widest text-brand-cream/60 mb-2">Password</label>
+                    <input type="password" id="password" class="w-full bg-brand-brown border-2 border-brand-green p-3 rounded text-brand-cream focus:outline-none focus:border-brand-orange" required>
+                </div>
+                <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream/20 transition-colors mt-4">
+                    Authenticate
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Authenticated App Shell -->
+    <div id="dashboard-section" class="hidden w-full h-full flex">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-brand-green border-r-8 border-brand-orange flex flex-col justify-between h-full shrink-0">
+            <div>
+                <div class="p-6 border-b-4 border-brand-orange/30">
+                    <h1 class="text-xl font-black uppercase tracking-widest text-brand-cream drop-shadow-md">CRS Admin</h1>
+                    <p class="text-xs font-bold uppercase tracking-widest text-brand-cream/60 mt-1">[Campground Name]</p>
+                </div>
+                
+                <nav class="flex flex-col mt-4 gap-1 px-4 overflow-y-auto" id="sidebar-nav">
+                    <button data-target="view-dashboard" class="nav-btn active text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Dashboard</button>
+                    <button data-target="view-reservations" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Reservations</button>
+                    <button data-target="view-pos" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Camp Store POS</button>
+                    <button data-target="view-sites" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Manage Sites</button>
+                    <button data-target="view-financials" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Financials</button>
+                    <button data-target="view-printing" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Print Tags</button>
+                    <button data-target="view-reports" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Reports</button>
+                    <button data-target="view-staff" class="nav-btn text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-brand-brown transition-colors">Staff</button>
+                </nav>
+            </div>
+            
+            <!-- Bottom Sidebar Actions -->
+            <div class="p-4 border-t-4 border-brand-orange/30">
+                <button data-target="view-support" class="nav-btn w-full text-left px-4 py-3 mb-4 rounded-xl font-bold uppercase tracking-wider bg-brand-cream/10 hover:bg-brand-cream hover:text-brand-brown transition-colors">
+                    Dev Support
+                </button>
+                <a href="index.html" class="block text-center w-full bg-brand-brown text-brand-cream font-bold px-4 py-3 mb-2 rounded-xl uppercase tracking-wider border-2 border-brand-cream/20 hover:bg-brand-cream hover:text-brand-brown transition-colors">
+                    Back to Site
+                </a>
+                <button id="logoutBtn" class="w-full bg-brand-orange text-brand-brown font-black px-4 py-3 rounded-xl uppercase tracking-wider hover:bg-brand-cream transition-colors">
+                    Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 h-full overflow-y-auto p-8 relative bg-brand-brown">
+            
+            <section id="view-dashboard" class="app-view">
+                <h2 class="text-3xl font-black uppercase tracking-widest mb-8 border-b-4 border-brand-orange inline-block pb-2">Control Center</h2>
+                
+                <!-- Row 1: KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-brand-green p-6 rounded-2xl border-4 border-brand-orange text-brand-cream text-center shadow-lg">
+                        <p class="text-xs uppercase font-bold tracking-widest opacity-80 mb-2">Today's Arrivals</p>
+                        <p class="text-4xl font-black" id="dash-arrivals">0</p>
+                    </div>
+                    <div class="bg-brand-cream/10 p-6 rounded-2xl border-4 border-brand-green text-brand-brown text-center">
+                        <p class="text-xs uppercase font-bold tracking-widest opacity-80 mb-2">Pending Departures</p>
+                        <p class="text-4xl font-black text-brand-orange" id="dash-departures">0</p>
+                    </div>
+                    <div class="bg-brand-cream/10 p-6 rounded-2xl border-4 border-brand-green text-brand-brown text-center">
+                        <p class="text-xs uppercase font-bold tracking-widest opacity-80 mb-2">Occupancy</p>
+                        <p class="text-4xl font-black text-brand-green" id="dash-occupancy">0%</p>
+                    </div>
+                    <div class="bg-brand-orange p-6 rounded-2xl border-4 border-brand-brown text-brand-brown text-center shadow-lg">
+                        <p class="text-xs uppercase font-bold tracking-widest opacity-80 mb-2">POS Revenue</p>
+                        <p class="text-4xl font-black" id="dash-revenue">$0.00</p>
+                    </div>
+                </div>
+
+                <!-- Row 2: Action Center -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Left: Movement Ledger -->
+                    <div class="lg:col-span-2 bg-brand-cream/5 p-6 rounded-2xl border-4 border-brand-green/50 flex flex-col h-96">
+                        <div class="flex justify-between items-center mb-6 border-b-2 border-brand-green pb-2">
+                            <h3 class="text-xl font-black uppercase tracking-widest text-brand-brown">Front Desk Queue</h3>
+                            <div class="flex gap-2">
+                                <button class="bg-brand-green text-brand-cream px-3 py-1 rounded text-xs font-bold uppercase tracking-widest">Arrivals</button>
+                                <button class="bg-brand-cream/20 text-brand-brown px-3 py-1 rounded text-xs font-bold uppercase tracking-widest hover:bg-brand-orange transition-colors">Departures</button>
+                            </div>
+                        </div>
+                        <div id="dash-queue-list" class="overflow-y-auto flex-1 space-y-2 pr-2">
+                            <p class="text-brand-cream/50 italic text-center mt-10">Syncing today's movement...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Commands & Alerts -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-brand-brown p-6 rounded-2xl border-4 border-brand-orange">
+                            <h3 class="font-bold uppercase tracking-wider text-brand-cream mb-4 border-b-2 border-brand-orange pb-2">Quick Actions</h3>
+                            <button id="btn-quick-walkin" class="w-full bg-brand-green text-brand-cream font-black py-4 rounded-xl mb-3 hover:bg-brand-orange transition-colors border-2 border-brand-cream/20 uppercase tracking-widest shadow-md">Walk-In Booking</button>
+                            <button id="btn-quick-pos" class="w-full bg-brand-cream text-brand-brown font-black py-4 rounded-xl mb-3 hover:bg-brand-green hover:text-brand-cream transition-colors border-2 border-brand-brown uppercase tracking-widest shadow-md">Store Quick Sale</button>
+                            <button id="btn-quick-visitor" class="w-full bg-brand-cream/10 text-brand-cream font-black py-4 rounded-xl hover:bg-brand-orange hover:text-brand-brown transition-colors border-2 border-brand-cream/20 uppercase tracking-widest">Issue Visitor Tag</button>
+                        </div>
+
+                        <!-- Alerts -->
+                        <div class="bg-brand-orange/20 p-4 rounded-2xl border-2 border-brand-orange">
+                            <h3 class="font-bold uppercase tracking-wider text-brand-orange mb-2 text-sm">System Alerts</h3>
+                            <ul id="dash-alerts" class="text-brand-cream/80 text-xs font-bold space-y-2">
+                                <li class="flex items-center gap-2"><span class="text-brand-orange">⚠</span> Firewood inventory below 10</li>
+                                <li class="flex items-center gap-2"><span class="text-brand-orange">⚠</span> Site 14 checkout pending</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: Reservations (CRUD & Check-in) -->
+            <section id="view-reservations" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Master Ledger</h2>
+                    <button id="openNewResBtn" class="bg-brand-green hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-brown transition-colors uppercase tracking-wider">
+                        + Walk-in Booking
+                    </button>
+                </div>
+                
+                <!-- Data Grid -->
+                <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex-1 flex flex-col overflow-hidden">
+                    <!-- Grid Header -->
+                    <div class="grid grid-cols-12 gap-4 p-4 bg-brand-green text-brand-cream font-bold uppercase tracking-widest text-xs border-b-4 border-brand-orange">
+                        <div class="col-span-3">Guest Name</div>
+                        <div class="col-span-2">Site</div>
+                        <div class="col-span-2">Dates</div>
+                        <div class="col-span-2">Status</div>
+                        <div class="col-span-3 text-right">Actions</div>
+                    </div>
+                    <!-- Grid Body (Scrollable) -->
+                    <div id="master-res-list" class="overflow-y-auto flex-1 p-2 space-y-2">
+                        <p class="text-brand-cream/50 italic p-4">Loading ledger data...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reservation CRUD Modal (Hidden) -->
+            <div id="crud-res-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-green shadow-2xl relative my-8">
+                    <button id="closeResModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    <h3 id="resModalTitle" class="text-3xl font-black text-brand-green uppercase tracking-widest mb-6 border-b-4 border-brand-orange inline-block pb-1">New Booking</h3>
+                    
+                    <form id="resCrudForm" class="space-y-4">
+                        <input type="hidden" id="crudDocId">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Guest Name</label>
+                                <input type="text" id="crudGuest" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Site #</label>
+                                <select id="crudSite" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase disabled:opacity-50 disabled:bg-brand-cream/30" required disabled>
+                                    <option value="">Select Dates First...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Check-In</label>
+                                <input type="date" id="crudIn" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Check-Out</label>
+                                <input type="date" id="crudOut" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Vehicle Plate</label>
+                            <input type="text" id="crudPlate" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Status</label>
+                            <select id="crudStatus" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase">
+                                <option value="pending">Pending</option>
+                                <option value="checked-in">Checked In</option>
+                                <option value="checked-out">Checked Out</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-6">
+                            Save Reservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Check-In & Payment Modal -->
+            <div id="checkin-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[70] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-2xl p-8 rounded-3xl border-8 border-brand-orange shadow-2xl relative my-8">
+                    <button id="closeCheckinModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    
+                    <!-- Step 1 & 2: Review and Identity Form -->
+                    <div id="checkin-form-step">
+                        <h3 class="text-3xl font-black text-brand-green uppercase tracking-widest mb-6 border-b-4 border-brand-orange inline-block pb-1">Check-In Protocol</h3>
+                        
+                        <!-- Reservation Summary -->
+                        <div class="bg-brand-green/10 border-4 border-brand-green p-4 rounded-xl mb-6 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs uppercase font-bold text-brand-brown tracking-widest opacity-70 mb-1">Confirm Data</p>
+                                <p id="ci-guest" class="text-xl font-black text-brand-brown"></p>
+                                <p id="ci-dates" class="text-sm font-bold text-brand-brown/70"></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-black text-brand-orange" id="ci-site"></p>
+                                <p id="ci-plate" class="text-sm font-bold text-brand-brown uppercase"></p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Breakdown -->
+                        <div class="bg-brand-orange border-4 border-brand-brown/20 p-4 rounded-xl mb-6 font-bold text-sm space-y-2">
+                            <div class="flex justify-between"><span class="opacity-70">Site Total (<span id="ci-nights"></span> nights):</span> <span id="ci-subtotal"></span></div>
+                            <div class="flex justify-between"><span class="opacity-70">Booking Fee:</span> <span>$5.00</span></div>
+                            <div class="flex justify-between"><span class="opacity-70">Taxes (7%):</span> <span id="ci-tax"></span></div>
+                            <div class="flex justify-between pt-2 border-t-2 border-brand-brown/20 text-brand-green text-lg font-black uppercase tracking-widest">
+                                <span>Amount Due:</span> <span id="ci-total"></span>
+                            </div>
+                        </div>
+
+                        <!-- Identity Capture Form -->
+                        <form id="checkinForm" class="space-y-4">
+                            <input type="hidden" id="ci-docId">
+                            <p class="text-xs uppercase font-bold tracking-widest text-brand-orange border-b-2 border-brand-orange pb-1">Guest Identification</p>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Legal Name</label>
+                                    <input type="text" id="idName" class="w-full bg-white border-4 border-brand-green text-brand-brown p-2 rounded focus:outline-none focus:border-brand-orange font-bold" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Date of Birth</label>
+                                    <input type="date" id="idDob" class="w-full bg-white border-4 border-brand-green text-brand-brown p-2 rounded focus:outline-none focus:border-brand-orange font-bold" required>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">ID Type</label>
+                                    <select id="idType" class="w-full bg-white border-4 border-brand-green text-brand-brown p-2 rounded focus:outline-none focus:border-brand-orange font-bold" required>
+                                        <option value="Drivers License">Driver's License</option>
+                                        <option value="State ID">State ID</option>
+                                        <option value="Passport">Passport</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">ID Number</label>
+                                    <input type="text" id="idNum" class="w-full bg-white border-4 border-brand-green text-brand-brown p-2 rounded focus:outline-none focus:border-brand-orange font-bold" required>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Current Address</label>
+                                <input type="text" id="idAddress" class="w-full bg-white border-4 border-brand-green text-brand-brown p-2 rounded focus:outline-none focus:border-brand-orange font-bold" required>
+                            </div>
+
+                            <!-- NEW: Payment Processing -->
+                            <div class="border-t-4 border-brand-orange pt-4 mt-6">
+                                <p class="text-xs uppercase font-bold tracking-widest text-brand-orange border-b-2 border-brand-orange pb-1 mb-4">Payment Processing</p>
+                                
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Method</label>
+                                        <select id="payMethod" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange font-bold text-lg">
+                                            <option value="Credit Card">Credit Card</option>
+                                            <option value="Cash">Cash</option>
+                                            <option value="Check">Check</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Amount Tendered ($)</label>
+                                        <input type="number" step="0.01" id="payAmount" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange font-black text-brand-green text-lg" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-brand-brown/10 p-3 rounded-xl border-4 border-brand-brown/20 flex justify-between items-center">
+                                    <span class="text-sm font-bold uppercase tracking-widest text-brand-brown">Change Due:</span>
+                                    <span id="payChange" class="text-2xl font-black text-brand-orange">$0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-6">
+                                Process Payment & Check In
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 3: Success & Print Tag -->
+                    <div id="checkin-success-step" class="hidden text-center">
+                        <div class="w-20 h-20 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-brand-orange">
+                            <span class="text-brand-cream font-black text-4xl">✓</span>
+                        </div>
+                        <h3 class="text-3xl font-black text-brand-brown uppercase tracking-widest mb-2">Guest Checked In</h3>
+                        <p class="text-brand-brown/70 font-bold mb-8">Payment processed and identity recorded.</p>
+                        
+                        <div class="flex gap-4">
+                            <button onclick="triggerPrint('printable-parking-tag')" class="flex-1 bg-brand-orange hover:bg-brand-brown text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream transition-colors">
+                                Print Parking Tag
+                            </button>
+                            <button onclick="document.getElementById('checkin-modal').classList.add('hidden')" class="flex-1 bg-brand-cream hover:bg-brand-green hover:text-brand-cream text-brand-brown font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors">
+                                Close Window
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Check-Out Protocol Modal -->
+            <div id="checkout-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[70] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-orange shadow-2xl relative my-8">
+                    <button id="closeCheckoutModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    
+                    <h3 class="text-3xl font-black text-brand-green uppercase tracking-widest mb-2 border-b-4 border-brand-orange inline-block pb-1">Check-Out</h3>
+                    <p class="text-brand-brown/70 font-bold mb-6">Site <span id="co-site-label" class="text-brand-orange font-black text-2xl"></span></p>
+
+                    <form id="checkoutForm" class="space-y-4">
+                        <input type="hidden" id="co-docId">
+                        
+                        <div class="bg-white border-4 border-brand-green p-6 rounded-xl space-y-5">
+                            <p class="text-xs uppercase font-bold tracking-widest text-brand-orange border-b-2 border-brand-orange pb-1 mb-4">Required Procedures</p>
+                            
+                            <!-- Checkbox 1 -->
+                            <label class="flex items-start gap-4 cursor-pointer hover:bg-brand-cream/20 p-2 rounded transition-colors">
+                                <input type="checkbox" class="mt-1 w-6 h-6 accent-brand-orange" required>
+                                <span class="text-brand-brown font-bold text-sm">The guest has fully vacated the site and their vehicle has left the premises.</span>
+                            </label>
+                            
+                            <!-- Checkbox 2 -->
+                            <label class="flex items-start gap-4 cursor-pointer hover:bg-brand-cream/20 p-2 rounded transition-colors">
+                                <input type="checkbox" class="mt-1 w-6 h-6 accent-brand-orange" required>
+                                <span class="text-brand-brown font-bold text-sm">The site is clean, free of trash, and the fire ring has been cleared of debris.</span>
+                            </label>
+
+                            <!-- Checkbox 3 (Example for future expansion) -->
+                            <label class="flex items-start gap-4 cursor-pointer hover:bg-brand-cream/20 p-2 rounded transition-colors">
+                                <input type="checkbox" class="mt-1 w-6 h-6 accent-brand-orange" required>
+                                <span class="text-brand-brown font-bold text-sm">Utility connections (water, sewer caps, electric pedestals) are secure and undamaged.</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-orange hover:bg-brand-brown text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream transition-colors mt-6">
+                            Confirm Check-Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Printable Parking Tag (Hidden from screen, visible to printer) -->
+            <div id="printable-parking-tag" class="print-template">
+                <div class="border-[12px] border-black p-8 text-center max-w-2xl mx-auto mt-12 outline outline-4 outline-offset-4 outline-black rounded-3xl">
+                    <h1 class="text-5xl font-black uppercase tracking-widest mb-2">[CAMPGROUND NAME]</h1>
+                    <h2 id="tag-title" class="text-2xl font-bold uppercase tracking-widest border-b-4 border-black pb-6 mb-8">Official Guest Vehicle</h2>
+                    
+                    <div class="text-[10rem] font-black leading-none mb-6">
+                        <span id="tag-site"></span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-8 text-left border-t-4 border-black pt-8">
+                        <div>
+                            <p class="text-xl uppercase font-bold tracking-widest">Valid Until:</p>
+                            <p id="tag-out" class="text-4xl font-black"></p>
+                        </div>
+                        <div>
+                            <p class="text-xl uppercase font-bold tracking-widest">License Plate:</p>
+                            <p id="tag-plate" class="text-4xl font-black uppercase"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: Manage Sites (CRUD) -->
+            <section id="view-sites" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Manage Sites</h2>
+                    <button id="openNewSiteBtn" class="bg-brand-green hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-brown transition-colors uppercase tracking-wider">
+                        + Add New Site
+                    </button>
+                </div>
+                
+                <!-- Sites Data Grid -->
+                <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex-1 flex flex-col overflow-hidden">
+                    <div class="grid grid-cols-12 gap-4 p-4 bg-brand-green text-brand-cream font-bold uppercase tracking-widest text-xs border-b-4 border-brand-orange">
+                        <div class="col-span-2">Site #</div>
+                        <div class="col-span-2">Type</div>
+                        <div class="col-span-2">Specs</div>
+                        <div class="col-span-2">Utilities</div>
+                        <div class="col-span-2">Daily Rate</div>
+                        <div class="col-span-2 text-right">Actions</div>
+                    </div>
+                    <div id="master-sites-list" class="overflow-y-auto flex-1 p-2 space-y-2">
+                        <p class="text-brand-cream/50 italic p-4">Loading sites data...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Site CRUD Modal (Hidden) -->
+            <div id="crud-site-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-green shadow-2xl relative my-8">
+                    <button id="closeSiteModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    <h3 id="siteModalTitle" class="text-3xl font-black text-brand-green uppercase tracking-widest mb-6 border-b-4 border-brand-orange inline-block pb-1">New Site</h3>
+                    
+                    <form id="siteCrudForm" class="space-y-4">
+                        <input type="hidden" id="crudSiteDocId">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Site Number</label>
+                                <input type="text" id="siteNum" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Site Type</label>
+                                <select id="siteType" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                                    <option value="RV">RV</option>
+                                    <option value="Tent">Tent</option>
+                                    <option value="Cabin">Cabin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Max Length (FT)</label>
+                                <input type="number" id="siteLength" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Power (Amps)</label>
+                                <select id="siteAmps" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                                    <option value="50">50 Amp</option>
+                                    <option value="30">30 Amp</option>
+                                    <option value="20">20 Amp</option>
+                                    <option value="0">No Power</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm uppercase font-bold tracking-widest text-brand-brown mb-2">Daily Rate ($)</label>
+                                <input type="number" step="0.01" id="siteRate" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div class="bg-brand-brown/10 p-2 rounded border-2 border-brand-brown/20 space-y-2">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="siteWater" class="w-5 h-5 accent-brand-orange">
+                                    <span class="text-brand-brown font-bold text-sm uppercase tracking-widest">Water Hookup</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="siteSewer" class="w-5 h-5 accent-brand-orange">
+                                    <span class="text-brand-brown font-bold text-sm uppercase tracking-widest">Sewer Hookup</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-6">
+                            Save Site Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW: Camp Store POS -->
+            <section id="view-pos" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Camp Store POS</h2>
+                    <button id="openNewProductBtn" class="bg-brand-brown hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-cream/20 transition-colors uppercase tracking-wider">
+                        Manage Inventory
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+                    
+                    <!-- Left (2/3): Product Grid -->
+                    <div class="lg:col-span-2 bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex flex-col overflow-hidden p-4">
+                        <div id="pos-product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 pb-2">
+                            <p class="text-brand-cream/50 italic col-span-full">Loading inventory...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right (1/3): The Cart & Checkout -->
+                    <div class="lg:col-span-1 bg-white rounded-2xl border-4 border-brand-orange flex flex-col overflow-hidden">
+                        <h3 class="bg-brand-orange text-brand-brown font-black uppercase tracking-widest p-4 text-xl text-center">Current Sale</h3>
+                        
+                        <!-- Cart Items -->
+                        <div id="pos-cart-list" class="flex-1 overflow-y-auto p-4 space-y-2 border-b-4 border-brand-orange/30">
+                            <p class="text-brand-brown/50 italic text-center mt-10 font-bold uppercase tracking-widest">Cart is empty</p>
+                        </div>
+
+                        <!-- Math & Checkout -->
+                        <div class="p-4 bg-brand-cream/30 space-y-3">
+                            <div class="flex justify-between text-brand-brown font-bold text-sm">
+                                <span class="uppercase tracking-widest opacity-70">Subtotal</span>
+                                <span id="pos-subtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-brand-brown font-bold text-sm">
+                                <span class="uppercase tracking-widest opacity-70">Tax (7%)</span>
+                                <span id="pos-tax">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-brand-green font-black text-2xl border-t-2 border-brand-brown/20 pt-2">
+                                <span class="uppercase tracking-widest">Total</span>
+                                <span id="pos-total">$0.00</span>
+                            </div>
+
+                            <!-- Payment Inputs -->
+                            <div class="grid grid-cols-2 gap-2 mt-4 border-t-2 border-brand-brown/20 pt-4">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-brand-brown mb-1">Method</label>
+                                    <select id="posMethod" class="w-full bg-white border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange font-bold text-brand-brown">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold tracking-widest text-brand-brown mb-1">Tendered ($)</label>
+                                    <input type="number" step="0.01" id="posTendered" class="w-full bg-white border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange font-black text-brand-green" value="0.00">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center text-brand-brown font-bold text-sm bg-white p-2 border-2 border-brand-brown/20 rounded">
+                                <span class="uppercase tracking-widest">Change Due:</span>
+                                <span id="pos-change" class="text-xl font-black text-brand-orange">$0.00</span>
+                            </div>
+
+                            <button id="posCheckoutBtn" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-2">
+                                Process Sale
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product CRUD Modal (Hidden) -->
+            <div id="crud-product-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-green shadow-2xl relative my-8">
+                    <button id="closeProductModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    <h3 id="prodModalTitle" class="text-3xl font-black text-brand-green uppercase tracking-widest mb-6 border-b-4 border-brand-orange inline-block pb-1">Inventory Item</h3>
+                    
+                    <form id="productCrudForm" class="space-y-4">
+                        <input type="hidden" id="crudProdDocId">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Item Name</label>
+                                <input type="text" id="prodName" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">SKU / Code</label>
+                                <input type="text" id="prodCode" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Price ($)</label>
+                                <input type="number" step="0.01" id="prodPrice" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Max Limit (0 = Unlimited)</label>
+                                <input type="number" id="prodLimit" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" value="0" required>
+                            </div>
+                        </div>
+
+                        <div class="bg-brand-brown/10 p-4 rounded-xl border-2 border-brand-brown/20 mt-4">
+                            <label class="flex items-center gap-4 cursor-pointer">
+                                <input type="checkbox" id="prodTax" class="w-6 h-6 accent-brand-orange" checked>
+                                <span class="text-brand-brown font-black text-sm uppercase tracking-widest">Apply Sales Tax (7%)</span>
+                            </label>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-6">
+                            <button type="button" id="deleteProdBtn" class="hidden text-red-600 font-bold uppercase text-xs hover:underline tracking-widest">Delete Item</button>
+                            <button type="submit" class="flex-1 ml-4 bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors">
+                                Save Product
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW: Financials -->
+            <section id="view-financials" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Financial Ledger</h2>
+                    <div class="text-right">
+                        <p class="text-xs uppercase font-bold tracking-widest text-brand-cream/70">Total Revenue</p>
+                        <p id="fin-total-revenue" class="text-2xl font-black text-brand-orange">$0.00</p>
+                    </div>
+                </div>
+                
+                <!-- Financials Data Grid -->
+                <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex-1 flex flex-col overflow-hidden">
+                    <div class="grid grid-cols-12 gap-4 p-4 bg-brand-green text-brand-cream font-bold uppercase tracking-widest text-xs border-b-4 border-brand-orange">
+                        <div class="col-span-2">Date / Time</div>
+                        <div class="col-span-1">Type</div>
+                        <div class="col-span-3">Guest Name</div>
+                        <div class="col-span-2">Method</div>
+                        <div class="col-span-2">Amount</div>
+                        <div class="col-span-2 text-right">Actions</div>
+                    </div>
+                    <div id="master-fin-list" class="overflow-y-auto flex-1 p-2 space-y-2">
+                        <p class="text-brand-cream/50 italic p-4">Loading financial data...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Printable Financial Receipt (Hidden from screen) -->
+            <div id="printable-fin-receipt" class="print-template">
+                <div class="border-4 border-black p-8 max-w-sm mx-auto mt-12 font-mono text-sm">
+                    <div class="text-center border-b-2 border-black pb-4 mb-4">
+                        <h1 class="text-2xl font-black uppercase mb-1">[CAMPGROUND NAME]</h1>
+                        <p>Customer Receipt</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between"><span class="font-bold">Date:</span> <span id="rec-date"></span></div>
+                        <div class="flex justify-between"><span class="font-bold">Trans ID:</span> <span id="rec-id"></span></div>
+                        <div class="flex justify-between"><span class="font-bold">Type:</span> <span id="rec-type" class="uppercase"></span></div>
+                        <div class="flex justify-between"><span class="font-bold">Guest:</span> <span id="rec-guest"></span></div>
+                    </div>
+
+                    <div class="border-t-2 border-dashed border-black pt-4 mb-4">
+                        <div class="flex justify-between text-lg font-black uppercase">
+                            <span>Total Paid</span>
+                            <span id="rec-amount"></span>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <span>Method:</span>
+                            <span id="rec-method" class="uppercase font-bold"></span>
+                        </div>
+                    </div>
+
+                    <div class="text-center border-t-2 border-black pt-4 text-xs font-bold">
+                        <p>Thank you for your business!</p>
+                        <p>Powered by Find A Spot CRS</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: Print Tags -->
+            <section id="view-printing" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Vehicle Tags</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 min-h-0">
+                    
+                    <!-- Left: Reprint Active Tags -->
+                    <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex flex-col overflow-hidden">
+                        <h3 class="bg-brand-green text-brand-cream font-bold uppercase tracking-widest p-4 border-b-4 border-brand-orange text-lg">Active Checked-In Guests</h3>
+                        <div id="active-tags-list" class="overflow-y-auto p-4 space-y-3 flex-1">
+                            <p class="text-brand-cream/50 italic">Loading active tags...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Create Visitor Tag -->
+                    <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex flex-col overflow-hidden">
+                        <h3 class="bg-brand-green text-brand-cream font-bold uppercase tracking-widest p-4 border-b-4 border-brand-orange text-lg">Issue Visitor Tag</h3>
+                        <div class="overflow-y-auto p-6 flex-1">
+                            <form id="visitorTagForm" class="space-y-4">
+                                <!-- Basic Info -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Visiting Site #</label>
+                                        <input type="text" id="visSite" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold uppercase" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Vehicle Plate</label>
+                                        <input type="text" id="visPlate" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold uppercase" required>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Valid Until (Date)</label>
+                                    <input type="date" id="visOut" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                </div>
+
+                                <p class="text-xs uppercase font-bold tracking-widest text-brand-orange border-b-2 border-brand-orange pb-1 mt-6 mb-4">Visitor Identification</p>
+                                
+                                <!-- ID Form -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Legal Name</label>
+                                        <input type="text" id="visIdName" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Date of Birth</label>
+                                        <input type="date" id="visIdDob" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">ID Type</label>
+                                        <select id="visIdType" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                            <option value="Drivers License">Driver's License</option>
+                                            <option value="State ID">State ID</option>
+                                            <option value="Passport">Passport</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">ID Number</label>
+                                        <input type="text" id="visIdNum" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream/70 mb-1">Current Address</label>
+                                    <input type="text" id="visIdAddress" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold" required>
+                                </div>
+
+                                <button type="submit" class="w-full bg-brand-orange hover:bg-brand-cream text-brand-brown font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream/20 transition-colors mt-6">
+                                    Save ID & Print Tag
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: Custom Reports Engine -->
+            <section id="view-reports" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Reports Engine</h2>
+                    <div class="flex gap-4">
+                        <button id="exportCsvBtn" class="hidden bg-brand-brown hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-cream/20 transition-colors uppercase tracking-wider">
+                            Export CSV
+                        </button>
+                        <button id="printReportBtn" class="hidden bg-brand-green hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-brown transition-colors uppercase tracking-wider">
+                            Print Report
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
+                    
+                    <!-- Left (1/4): Query Builder -->
+                    <div class="lg:col-span-1 bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex flex-col overflow-y-auto p-6 space-y-6">
+                        <h3 class="text-brand-orange font-black uppercase tracking-widest text-lg border-b-2 border-brand-orange pb-1">Report Builder</h3>
+                        
+                        <form id="reportBuilderForm" class="space-y-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream mb-1">Data Source</label>
+                                <select id="repSource" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold uppercase" required>
+                                    <option value="transactions">Financial Transactions</option>
+                                    <option value="reservations">Reservations History</option>
+                                    <option value="visitors">Visitor Log</option>
+                                    <option value="inventory">Current Inventory</option>
+                                    <option value="souls_check">Emergency Souls Check</option>
+                                </select>
+                            </div>
+
+                            <div id="repDateFilters" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream mb-1">Start Date</label>
+                                    <input type="date" id="repStart" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase font-bold tracking-widest text-brand-cream mb-1">End Date</label>
+                                    <input type="date" id="repEnd" class="w-full bg-brand-brown border-2 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-cream font-bold">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-brand-orange hover:bg-brand-cream text-brand-brown font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-cream/20 transition-colors mt-4">
+                                Generate Data
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right (3/4): Generated Report View -->
+                    <div class="lg:col-span-3 bg-white rounded-2xl border-4 border-brand-orange flex flex-col overflow-hidden print-template" id="printable-report">
+                        
+                        <!-- Print Header (Only visible on paper) -->
+                        <div class="hidden print:block text-center border-b-4 border-black pb-4 mb-4">
+                            <h1 class="text-3xl font-black uppercase">[CAMPGROUND NAME]</h1>
+                            <h2 id="printReportTitle" class="text-xl font-bold uppercase tracking-widest">Custom Report</h2>
+                            <p id="printReportMeta" class="text-sm font-bold"></p>
+                        </div>
+
+                        <!-- Dynamic Table Container -->
+                        <div class="flex-1 overflow-auto bg-white p-2">
+                            <table class="w-full text-left border-collapse" id="reportTable">
+                                <thead class="bg-brand-brown text-brand-cream text-xs uppercase tracking-widest sticky top-0" id="reportHead">
+                                    <tr><th class="p-3 font-bold">Awaiting Query...</th></tr>
+                                </thead>
+                                <tbody class="text-brand-brown text-sm font-medium" id="reportBody">
+                                    <tr><td class="p-4 text-center italic opacity-50">Select parameters and click Generate Data to build the report.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Footer Totals -->
+                        <div id="reportFooter" class="bg-brand-cream/30 border-t-4 border-brand-orange p-4 flex justify-between items-center text-brand-brown font-black hidden">
+                            <span class="uppercase tracking-widest">Total Records: <span id="repTotalCount">0</span></span>
+                            <span id="repTotalSum" class="text-xl text-brand-green"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: Staff Management -->
+            <section id="view-staff" class="app-view hidden h-full flex flex-col">
+                <div class="flex justify-between items-end mb-6 border-b-4 border-brand-orange pb-2">
+                    <h2 class="text-3xl font-black uppercase tracking-widest">Team Members</h2>
+                    <button id="openNewStaffBtn" class="bg-brand-green hover:bg-brand-orange text-brand-cream font-bold px-4 py-2 rounded-xl border-4 border-brand-brown transition-colors uppercase tracking-wider">
+                        + Add Staff Profile
+                    </button>
+                </div>
+                
+                <!-- Staff Data Grid -->
+                <div class="bg-brand-cream/5 rounded-2xl border-4 border-brand-green/50 flex-1 flex flex-col overflow-hidden">
+                    <div class="grid grid-cols-12 gap-4 p-4 bg-brand-green text-brand-cream font-bold uppercase tracking-widest text-xs border-b-4 border-brand-orange">
+                        <div class="col-span-3">Name</div>
+                        <div class="col-span-2">Role</div>
+                        <div class="col-span-3">Email</div>
+                        <div class="col-span-2">Phone</div>
+                        <div class="col-span-2 text-right">Actions</div>
+                    </div>
+                    <div id="master-staff-list" class="overflow-y-auto flex-1 p-2 space-y-2">
+                        <p class="text-brand-cream/50 italic p-4">Loading staff profiles...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Staff CRUD Modal (Hidden) -->
+            <div id="crud-staff-modal" class="hidden fixed inset-0 bg-brand-brown/95 z-[60] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-brand-cream w-full max-w-lg p-8 rounded-3xl border-8 border-brand-green shadow-2xl relative my-8">
+                    <button id="closeStaffModal" class="absolute top-4 right-4 text-brand-brown font-black text-2xl hover:text-brand-orange transition-colors">&times;</button>
+                    <h3 id="staffModalTitle" class="text-3xl font-black text-brand-green uppercase tracking-widest mb-6 border-b-4 border-brand-orange inline-block pb-1">New Staff Profile</h3>
+                    
+                    <form id="staffCrudForm" class="space-y-4">
+                        <input type="hidden" id="crudStaffDocId">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Full Name</label>
+                                <input type="text" id="staffName" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">System Role</label>
+                                <select id="staffRole" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Front Desk">Front Desk</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Camp Host">Camp Host</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Email Address</label>
+                                <input type="email" id="staffEmail" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Phone Number</label>
+                                <input type="text" id="staffPhone" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase font-bold tracking-widest text-brand-brown mb-1">Employment Status</label>
+                            <select id="staffStatus" class="w-full bg-white border-4 border-brand-green p-2 rounded focus:outline-none focus:border-brand-orange text-brand-brown font-bold uppercase" required>
+                                <option value="Active">Active</option>
+                                <option value="Terminated">Terminated / Inactive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="bg-brand-orange/20 border-l-4 border-brand-orange p-3 mt-4 text-xs font-bold text-brand-brown rounded">
+                            Note: This only manages their profile in the ledger. To grant or revoke login access, you must manage their actual account in the Appwrite Auth console.
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-green hover:bg-brand-orange text-brand-cream font-black uppercase tracking-widest py-4 rounded-xl border-4 border-brand-brown transition-colors mt-6">
+                            Save Staff Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- VIEW: Support (Typeform Embed) -->
+            <section id="view-support" class="app-view hidden h-full flex flex-col">
+                <h2 class="text-3xl font-black uppercase tracking-widest mb-8 border-b-4 border-brand-orange inline-block pb-2">System Support</h2>
+                <div class="bg-brand-cream/5 p-6 rounded-2xl border-4 border-brand-green/50 flex-1 flex flex-col">
+                    <p class="text-brand-cream/80 font-bold mb-4 uppercase tracking-widest">Submit a ticket to the developer:</p>
+                    <div class="flex-1 w-full bg-white rounded-xl overflow-hidden border-4 border-brand-orange">
+                        <!-- REPLACE THIS WITH YOUR TYPEFORM ID -->
+                        <div data-tf-live="01M5JPCE4PH18CK544ZPN1VEN1"></div>
+                        <script src="//embed.typeform.com/next/embed.js"></script>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // --- PRINTING HELPER ---
+        window.triggerPrint = (elementId) => {
+            // Remove active class from all templates
+            document.querySelectorAll('.print-template').forEach(el => el.classList.remove('print-active'));
+            // Add active class to the specific template we want to print
+            document.getElementById(elementId).classList.add('print-active');
+            // Trigger the browser print dialog
+            window.print();
+        };
+
+        // Initialize Appwrite SDK
+        const { Client, Databases, Account } = Appwrite;
+
+        const client = new Client()
+            .setEndpoint('https://nyc.cloud.appwrite.io/v1') // Appwrite Cloud Endpoint
+            .setProject('6aee43d7000c5c15d646'); // Replace with your Project ID
+        
+        const TRANS_COLLECTION_ID = '6aee9dab00156e710c9f';
+        const VISITOR_COLLECTION_ID = '6aeea1ed003e31835113';
+        const STAFF_COLLECTION_ID = '6aeea42a00342f2b5a87';
+        const PRODUCT_COLLECTION_ID = '6aeea8700038f734bbec'; // Replace with Product Collection ID
+
+        const account = new Account(client);
+        const databases = new Databases(client);
+
+        const DATABASE_ID = '6aee44370034812491a3'; // Replace with your Database ID
+        const SITES_COLLECTION_ID = '6aee446300389441a49c'; // Replace with Sites Collection ID
+        const RES_COLLECTION_ID = '6aee4505002bebaa8808'; // Replace with Reservations Collection ID
+
+        // --- AUTHENTICATION & UI LOGIC ---
+
+        // 1. Grab our UI Elements
+        const loginSection = document.getElementById('login-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+        // 2. Helper function to swap the screen
+        const toggleUI = (isAuthenticated) => {
+            if (isAuthenticated) {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        };
+
+        // 3. Check if they are already logged in on page load
+        const checkSession = async () => {
+            try {
+                // If this succeeds, they have an active session token
+                await account.get();
+                toggleUI(true);
+                syncSites();
+                syncDatabase();
+                syncFinancials();
+                syncStaff();
+                syncProducts();
+                
+                
+                // TODO: We will trigger the IndexedDB sync here later
+            } catch (error) {
+                // It fails if no session exists; show the login form
+                toggleUI(false);
+            }
+        };
+
+        // 4. Handle the Login Submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Visual feedback during auth
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'AUTHENTICATING...';
+            submitBtn.disabled = true;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Appwrite v14 Auth Call
+                await account.createEmailPasswordSession(email, password);
+                toggleUI(true);
+                syncDatabase();
+                loginForm.reset();
+            } catch (error) {
+                // If they type the wrong password, Appwrite sends back a clean error message
+                alert('Access Denied: ' + error.message);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // 5. Handle the Logout
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await account.deleteSession('current');
+                toggleUI(false);
+            } catch (error) {
+                alert('Failed to log out: ' + error.message);
+            }
+        });
+
+        // --- DASHBOARD STATE ---
+        let dashQueueMode = 'arrivals'; // Can be 'arrivals' or 'departures'
+        let todayArrivals = [];
+        let todayDepartures = [];
+
+        // --- RESERVATIONS MASTER LEDGER ENGINE ---
+        
+        const masterResList = document.getElementById('master-res-list');
+        const resCrudModal = document.getElementById('crud-res-modal');
+        const resCrudForm = document.getElementById('resCrudForm');
+        
+        // 1. Render the Master Ledger
+        const renderMasterLedger = async () => {
+            const localData = await localforage.getItem('today_reservations');
+            
+            if (!localData || localData.length === 0) {
+                masterResList.innerHTML = '<p class="text-brand-cream/50 italic p-4">No reservations in the system.</p>';
+                return;
+            }
+
+            masterResList.innerHTML = localData.map(res => {
+                const inStr = new Date(res.check_in).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                const outStr = new Date(res.check_out).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                
+                // Status styling
+                let statusColor = 'bg-brand-orange text-brand-cream border-brand-brown';
+                if(res.status === 'checked-in') statusColor = 'bg-brand-green text-brand-cream border-brand-brown';
+                if(res.status === 'checked-out') statusColor = 'bg-brand-cream/20 text-brand-cream/60 border-brand-cream/20';
+
+                return `
+                    <div class="grid grid-cols-12 gap-4 items-center bg-brand-cream/10 p-3 rounded border-l-4 ${res.status === 'checked-in' ? 'border-brand-green' : 'border-brand-orange'} hover:bg-brand-cream/20 transition-colors">
+                        <div class="col-span-3 font-bold truncate">${res.guest_name}</div>
+                        <div class="col-span-2 font-black text-brand-orange">${res.site_id}</div>
+                        <div class="col-span-2 text-sm opacity-80">${inStr} - ${outStr}</div>
+                        <div class="col-span-2">
+                            <span class="text-xs uppercase font-bold tracking-widest px-2 py-1 rounded border-2 ${statusColor}">
+                                ${res.status}
+                            </span>
+                        </div>
+                        <div class="col-span-3 text-right space-x-2 flex justify-end">
+                            <button onclick="startCheckIn('${res.$id}')" class="text-xs bg-brand-green text-brand-cream px-3 py-2 rounded font-bold uppercase hover:bg-brand-cream hover:text-brand-green transition-colors" title="Check In">CI</button>
+                            <button onclick="startCheckOut('${res.$id}')" class="text-xs bg-brand-orange text-brand-cream px-3 py-2 rounded font-bold uppercase hover:bg-brand-cream hover:text-brand-orange transition-colors" title="Check Out">CO</button>
+                            <button onclick="viewReservation('${res.$id}')" class="text-xs bg-brand-brown text-brand-cream px-4 py-2 rounded font-bold uppercase hover:bg-brand-cream hover:text-brand-brown border-2 border-brand-cream/20 transition-colors">View</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // 2. Action: Quick Status Update (Check In / Out)
+        window.updateResStatus = async (docId, newStatus) => {
+            try {
+                await databases.updateDocument(DATABASE_ID, RES_COLLECTION_ID, docId, {
+                    status: newStatus
+                });
+                syncDatabase(); // Re-sync localForage & redraw both ledgers
+            } catch(e) { alert("Failed to update status: " + e.message); }
+        };
+
+        // 3. Action: View & Edit Booking
+        window.viewReservation = async (docId) => {
+            // Pull the record directly from our fast local cache
+            const localData = await localforage.getItem('today_reservations');
+            const res = localData.find(r => r.$id === docId);
+            if (!res) return;
+
+            // Safe timezone conversion for the HTML Date Input (YYYY-MM-DD)
+            const formatDateForInput = (ms) => {
+                const d = new Date(ms);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            };
+
+            // Populate text inputs
+            document.getElementById('crudDocId').value = res.$id;
+            document.getElementById('crudGuest').value = res.guest_name;
+            document.getElementById('crudPlate').value = res.vehicle_plate || '';
+            document.getElementById('crudStatus').value = res.status;
+            document.getElementById('crudIn').value = formatDateForInput(res.check_in);
+            document.getElementById('crudOut').value = formatDateForInput(res.check_out);
+            
+            // Update Title
+            document.getElementById('resModalTitle').innerText = `Edit: ${res.guest_name}`;
+
+            // Trigger the site availability engine to build the dropdown, THEN set the value
+            await updateAvailableSites();
+            document.getElementById('crudSite').value = res.site_id;
+
+            resCrudModal.classList.remove('hidden');
+        };
+
+        // --- CHECK IN & CHECK OUT PROTOCOLS ---
+        const checkinModal = document.getElementById('checkin-modal');
+        const checkinForm = document.getElementById('checkinForm');
+        let currentCheckinTotal = 0;
+
+        // NEW: Real-time Change Calculator
+        document.getElementById('payAmount').addEventListener('input', (e) => {
+            const tendered = parseFloat(e.target.value) || 0;
+            const change = tendered - currentCheckinTotal;
+            const changeDisplay = document.getElementById('payChange');
+            
+            if (change < 0) {
+                changeDisplay.innerText = "SHORT";
+                changeDisplay.classList.replace('text-brand-orange', 'text-red-600');
+            } else {
+                changeDisplay.innerText = '$' + change.toFixed(2);
+                changeDisplay.classList.replace('text-red-600', 'text-brand-orange');
+            }
+        });
+
+        // --- CHECK OUT PROTOCOL ---
+        const checkoutModal = document.getElementById('checkout-modal');
+        const checkoutForm = document.getElementById('checkoutForm');
+
+        window.startCheckOut = async (docId) => {
+            // Pull local data to get the site number for the UI
+            const localData = await localforage.getItem('today_reservations');
+            const res = localData.find(r => r.$id === docId);
+            
+            if (res.status === 'checked-out') return alert("Guest is already checked out.");
+
+            // Populate the UI
+            document.getElementById('co-docId').value = docId;
+            document.getElementById('co-site-label').innerText = res.site_id;
+            
+            checkoutForm.reset(); // Uncheck all boxes
+            checkoutModal.classList.remove('hidden');
+        };
+
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            // Because we put "required" on the HTML checkboxes, the browser won't even 
+            // trigger this submit event unless all boxes are checked!
+            
+            const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "PROCESSING...";
+            submitBtn.disabled = true;
+
+            const docId = document.getElementById('co-docId').value;
+
+            try {
+                // Update Appwrite
+                await databases.updateDocument(DATABASE_ID, RES_COLLECTION_ID, docId, {
+                    status: 'checked-out'
+                });
+                
+                syncDatabase(); // Re-sync localForage & redraw ledgers
+                checkoutModal.classList.add('hidden'); // Close the modal
+                
+            } catch(error) { 
+                alert("Failed to check out: " + error.message); 
+            } finally {
+                submitBtn.innerText = "CONFIRM CHECK-OUT";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Close Check-Out modal button
+        document.getElementById('closeCheckoutModal').addEventListener('click', () => {
+            checkoutModal.classList.add('hidden');
+        });
+
+        window.startCheckIn = async (docId) => {
+            // Reset modal UI to step 1
+            document.getElementById('checkin-form-step').classList.remove('hidden');
+            document.getElementById('checkin-success-step').classList.add('hidden');
+            checkinForm.reset();
+
+            // Pull local data
+            const localData = await localforage.getItem('today_reservations');
+            const res = localData.find(r => r.$id === docId);
+            
+            if (res.status === 'checked-in') return alert("Guest is already checked in.");
+            if (res.status === 'cancelled') return alert("Cannot check in a cancelled reservation.");
+
+            // Calculate Dates & Pricing
+            const inDate = new Date(res.check_in);
+            const outDate = new Date(res.check_out);
+            const nights = Math.round((outDate - inDate) / (1000 * 60 * 60 * 24));
+            
+            // Find the site's rate from our cached admin inventory
+            const site = allAdminSites.find(s => s.site_number === res.site_id);
+            const siteTotal = nights * (site ? site.daily_rate : 0);
+            const bookingFee = 5.00;
+            const taxes = (siteTotal * 0.07);
+            const grandTotal = siteTotal + bookingFee + taxes;
+            
+            // NEW: Pre-fill Payment Data
+            currentCheckinTotal = grandTotal;
+            document.getElementById('payAmount').value = grandTotal.toFixed(2);
+            document.getElementById('payChange').innerText = '$0.00';
+            document.getElementById('payChange').classList.replace('text-red-600', 'text-brand-orange');
+
+            // Populate UI Summary
+            document.getElementById('ci-docId').value = docId;
+            document.getElementById('ci-guest').innerText = res.guest_name;
+            document.getElementById('idName').value = res.guest_name; // Pre-fill name on ID form
+            document.getElementById('ci-site').innerText = 'Site ' + res.site_id;
+            document.getElementById('ci-dates').innerText = `${inDate.toLocaleDateString()} to ${outDate.toLocaleDateString()}`;
+            document.getElementById('ci-plate').innerText = res.vehicle_plate || 'NO PLATE';
+            
+            // Populate Financials
+            document.getElementById('ci-nights').innerText = nights;
+            document.getElementById('ci-subtotal').innerText = `$${siteTotal.toFixed(2)}`;
+            document.getElementById('ci-tax').innerText = `$${taxes.toFixed(2)}`;
+            document.getElementById('ci-total').innerText = `$${grandTotal.toFixed(2)}`;
+
+            // Pre-populate the background Parking Tag for the printer
+            document.getElementById('tag-site').innerText = res.site_id;
+            document.getElementById('tag-out').innerText = outDate.toLocaleDateString();
+            document.getElementById('tag-plate').innerText = res.vehicle_plate || 'N/A';
+
+            checkinModal.classList.remove('hidden');
+        };
+
+        checkinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Verify payment amount before submitting
+            const tendered = parseFloat(document.getElementById('payAmount').value) || 0;
+            if (tendered < currentCheckinTotal) {
+                return alert("Cannot check in: Amount tendered is less than the total due.");
+            }
+
+            const submitBtn = checkinForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "PROCESSING...";
+            submitBtn.disabled = true;
+
+            const docId = document.getElementById('ci-docId').value;
+            
+            // The payload now includes the ID records AND the financial data
+            const payload = {
+                status: 'checked-in',
+                id_type: document.getElementById('idType').value,
+                id_number: document.getElementById('idNum').value,
+                id_address: document.getElementById('idAddress').value,
+                id_dob: document.getElementById('idDob').value,
+                payment_method: document.getElementById('payMethod').value,
+                amount_paid: tendered
+            };
+
+            try {
+                // 1. Update the Reservation (Your existing code)
+                await databases.updateDocument(DATABASE_ID, RES_COLLECTION_ID, docId, payload);
+                
+                // 2. NEW: Record the Financial Transaction
+                const { ID } = Appwrite;
+                await databases.createDocument(DATABASE_ID, TRANS_COLLECTION_ID, ID.unique(), {
+                    type: 'Reservation',
+                    reference_id: docId,
+                    guest_name: document.getElementById('idName').value,
+                    amount: tendered,
+                    method: document.getElementById('payMethod').value,
+                    timestamp: Date.now()
+                });
+
+                syncDatabase(); // Updates the Reservations Ledger
+                syncFinancials(); // NEW: Updates the Financials Ledger
+                
+                // Swap to Print view
+                document.getElementById('checkin-form-step').classList.add('hidden');
+                document.getElementById('checkin-success-step').classList.remove('hidden');
+
+            } catch (error) {
+                alert("Error processing check-in: " + error.message);
+            } finally {
+                submitBtn.innerText = "PROCESS PAYMENT & CHECK IN";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Close Check-in modal
+        document.getElementById('closeCheckinModal').addEventListener('click', () => {
+            checkinModal.classList.add('hidden');
+        });
+
+        // 4. Modal Triggers
+        document.getElementById('openNewResBtn').addEventListener('click', () => {
+            resCrudForm.reset();
+            document.getElementById('crudDocId').value = ""; // Empty ID means new document
+            document.getElementById('resModalTitle').innerText = "New Booking";
+            
+            // Reset the site dropdown to its default disabled state
+            crudSiteSelect.innerHTML = '<option value="">Select Dates First...</option>';
+            crudSiteSelect.disabled = true;
+
+            resCrudModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeResModal').addEventListener('click', () => {
+            resCrudModal.classList.add('hidden');
+        });
+
+        // 5. Submit CRUD Form (Create Walk-in)
+        resCrudForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = resCrudForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "SAVING...";
+            submitBtn.disabled = true;
+
+            const docId = document.getElementById('crudDocId').value;
+            const payload = {
+                guest_name: document.getElementById('crudGuest').value,
+                site_id: document.getElementById('crudSite').value.toUpperCase(),
+                vehicle_plate: document.getElementById('crudPlate').value.toUpperCase(),
+                status: document.getElementById('crudStatus').value,
+                check_in: new Date(document.getElementById('crudIn').value).getTime(),
+                check_out: new Date(document.getElementById('crudOut').value).getTime()
+            };
+
+            try {
+                if (docId) {
+                    // Update existing
+                    await databases.updateDocument(DATABASE_ID, RES_COLLECTION_ID, docId, payload);
+                } else {
+                    // Create new
+                    const { ID } = Appwrite;
+                    await databases.createDocument(DATABASE_ID, RES_COLLECTION_ID, ID.unique(), payload);
+                }
+                resCrudModal.classList.add('hidden');
+                syncDatabase();
+            } catch (error) {
+                alert("Error saving reservation: " + error.message);
+            } finally {
+                submitBtn.innerText = "SAVE RESERVATION";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- DYNAMIC SITE AVAILABILITY ENGINE ---
+        
+        let allAdminSites = [];
+        const crudInInput = document.getElementById('crudIn');
+        const crudOutInput = document.getElementById('crudOut');
+        const crudSiteSelect = document.getElementById('crudSite');
+
+        // Fetch the static inventory once on load
+        const loadAdminSites = async () => {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, SITES_COLLECTION_ID);
+                allAdminSites = response.documents;
+            } catch (error) {
+                console.error("Failed to load site inventory.", error);
+            }
+        };
+
+        // Calculate available sites based on selected dates
+        const updateAvailableSites = async () => {
+            const inDate = new Date(crudInInput.value).getTime();
+            const outDate = new Date(crudOutInput.value).getTime();
+
+            // Reset and disable if dates are invalid
+            if (!inDate || !outDate || inDate >= outDate) {
+                crudSiteSelect.innerHTML = '<option value="">Select Valid Dates...</option>';
+                crudSiteSelect.disabled = true;
+                return;
+            }
+
+            try {
+                // Fetch the current ledger from our localForage cache
+                const allReservations = await localforage.getItem('today_reservations') || [];
+                const currentDocId = document.getElementById('crudDocId').value;
+
+                // Find overlapping reservations (ignoring the current doc if we are editing an existing one)
+                const bookedSiteIds = allReservations
+                    .filter(res => res.$id !== currentDocId) 
+                    .filter(res => (res.check_in < outDate) && (res.check_out > inDate))
+                    .map(res => res.site_id);
+
+                // Filter our static inventory against the booked IDs
+                const availableSites = allAdminSites.filter(site => !bookedSiteIds.includes(site.site_number));
+
+                // Populate the Dropdown
+                if (availableSites.length === 0) {
+                    crudSiteSelect.innerHTML = '<option value="">No Sites Available</option>';
+                    crudSiteSelect.disabled = true;
+                } else {
+                    crudSiteSelect.innerHTML = availableSites.map(site => 
+                        `<option value="${site.site_number}">Site ${site.site_number} (${site.type} - $${site.daily_rate}/nt)</option>`
+                    ).join('');
+                    crudSiteSelect.disabled = false;
+                }
+            } catch (error) {
+                console.error("Failed to calculate availability", error);
+            }
+        };
+
+        // Listen for changes on the date inputs
+        crudInInput.addEventListener('change', updateAvailableSites);
+        crudOutInput.addEventListener('change', updateAvailableSites);
+
+        // --- MANAGE SITES ENGINE ---
+        const masterSitesList = document.getElementById('master-sites-list');
+        const siteCrudModal = document.getElementById('crud-site-modal');
+        const siteCrudForm = document.getElementById('siteCrudForm');
+        
+        // This Replaces your old loadAdminSites() function!
+        const syncSites = async () => {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, SITES_COLLECTION_ID);
+                allAdminSites = response.documents; // Update the global array for the reservation form
+                
+                // Draw the UI
+                if (allAdminSites.length === 0) {
+                    masterSitesList.innerHTML = '<p class="text-brand-cream/50 italic p-4">No sites configured.</p>';
+                    return;
+                }
+
+                masterSitesList.innerHTML = allAdminSites.map(site => {
+                    let utilString = [];
+                    if (site.water) utilString.push('Water');
+                    if (site.sewer) utilString.push('Sewer');
+                    if (utilString.length === 0) utilString.push('None');
+
+                    return `
+                        <div class="grid grid-cols-12 gap-4 items-center bg-brand-cream/10 p-3 rounded border-l-4 border-brand-green hover:bg-brand-cream/20 transition-colors">
+                            <div class="col-span-2 font-black text-brand-orange text-lg">${site.site_number}</div>
+                            <div class="col-span-2 font-bold uppercase">${site.type}</div>
+                            <div class="col-span-2 text-sm opacity-80">${site.max_length}ft • ${site.amps}A</div>
+                            <div class="col-span-2 text-sm opacity-80">${utilString.join(' / ')}</div>
+                            <div class="col-span-2 font-bold text-brand-cream">$${site.daily_rate.toFixed(2)}</div>
+                            <div class="col-span-2 text-right space-x-2 flex justify-end">
+                                <button onclick="editSite('${site.$id}')" class="text-xs bg-brand-green text-brand-cream px-3 py-2 rounded font-bold uppercase hover:bg-brand-cream hover:text-brand-green transition-colors">Edit</button>
+                                <button onclick="deleteSite('${site.$id}', '${site.site_number}')" class="text-xs border-2 border-brand-orange text-brand-orange px-3 py-2 rounded font-bold uppercase hover:bg-brand-orange hover:text-brand-cream transition-colors">Del</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error("Failed to load sites.", error);
+            }
+        };
+
+        // Action: Edit Site
+        window.editSite = (docId) => {
+            const site = allAdminSites.find(s => s.$id === docId);
+            if (!site) return;
+
+            document.getElementById('crudSiteDocId').value = site.$id;
+            document.getElementById('siteNum').value = site.site_number;
+            document.getElementById('siteType').value = site.type;
+            document.getElementById('siteLength').value = site.max_length;
+            document.getElementById('siteAmps').value = site.amps;
+            document.getElementById('siteRate').value = site.daily_rate;
+            document.getElementById('siteWater').checked = site.water;
+            document.getElementById('siteSewer').checked = site.sewer;
+            
+            document.getElementById('siteModalTitle').innerText = `Edit Site: ${site.site_number}`;
+            siteCrudModal.classList.remove('hidden');
+        };
+
+        // Action: Delete Site
+        window.deleteSite = async (docId, siteNum) => {
+            if(!confirm(`WARNING: Are you sure you want to delete Site ${siteNum}?\n\nThis will permanently remove it from the map. It will not delete existing historical reservations attached to it, but you will not be able to book it again.`)) return;
+            try {
+                await databases.deleteDocument(DATABASE_ID, SITES_COLLECTION_ID, docId);
+                syncSites(); 
+            } catch(e) { alert("Failed to delete site: " + e.message); }
+        };
+
+        // Modal Triggers
+        document.getElementById('openNewSiteBtn').addEventListener('click', () => {
+            siteCrudForm.reset();
+            document.getElementById('crudSiteDocId').value = ""; // Empty ID means new document
+            document.getElementById('siteModalTitle').innerText = "New Site Profile";
+            siteCrudModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeSiteModal').addEventListener('click', () => {
+            siteCrudModal.classList.add('hidden');
+        });
+
+        // Submit Form (Cast the inputs to strict Database Types!)
+        siteCrudForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = siteCrudForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "SAVING...";
+            submitBtn.disabled = true;
+
+            const docId = document.getElementById('crudSiteDocId').value;
+            
+            // Appwrite requires these data types to perfectly match the collection schema
+            const payload = {
+                site_number: document.getElementById('siteNum').value.toUpperCase(),
+                type: document.getElementById('siteType').value,
+                max_length: parseInt(document.getElementById('siteLength').value) || 0,
+                amps: parseInt(document.getElementById('siteAmps').value) || 0,
+                daily_rate: parseFloat(document.getElementById('siteRate').value) || 0.00,
+                water: document.getElementById('siteWater').checked,
+                sewer: document.getElementById('siteSewer').checked
+            };
+
+            try {
+                if (docId) {
+                    await databases.updateDocument(DATABASE_ID, SITES_COLLECTION_ID, docId, payload);
+                } else {
+                    const { ID } = Appwrite;
+                    await databases.createDocument(DATABASE_ID, SITES_COLLECTION_ID, ID.unique(), payload);
+                }
+                siteCrudModal.classList.add('hidden');
+                syncSites(); // Redraws the site list and updates the global array
+            } catch (error) {
+                alert("Error saving site: " + error.message);
+            } finally {
+                submitBtn.innerText = "SAVE SITE PROFILE";
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // --- FINANCIALS ENGINE ---
+        const masterFinList = document.getElementById('master-fin-list');
+        let allTransactions = []; // Store globally for receipt printing
+
+        const syncFinancials = async () => {
+            try {
+                // In production, you would add Appwrite Queries to only fetch a specific month/date range
+                const response = await databases.listDocuments(DATABASE_ID, TRANS_COLLECTION_ID);
+                allTransactions = response.documents;
+                
+                if (allTransactions.length === 0) {
+                    masterFinList.innerHTML = '<p class="text-brand-cream/50 italic p-4">No transactions recorded.</p>';
+                    document.getElementById('fin-total-revenue').innerText = '$0.00';
+                    return;
+                }
+
+                // Calculate Total Revenue
+                const totalRev = allTransactions.reduce((sum, t) => sum + t.amount, 0);
+                document.getElementById('fin-total-revenue').innerText = `$${totalRev.toFixed(2)}`;
+
+                // Sort by newest first
+                const sortedTrans = allTransactions.sort((a, b) => b.timestamp - a.timestamp);
+
+                masterFinList.innerHTML = sortedTrans.map(t => {
+                    const dateStr = new Date(t.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                    
+                    return `
+                        <div class="grid grid-cols-12 gap-4 items-center bg-brand-cream/10 p-3 rounded border-l-4 border-brand-orange hover:bg-brand-cream/20 transition-colors">
+                            <div class="col-span-2 text-sm opacity-80">${dateStr}</div>
+                            <div class="col-span-1 font-bold uppercase text-xs">${t.type}</div>
+                            <div class="col-span-3 font-bold truncate">${t.guest_name}</div>
+                            <div class="col-span-2 text-sm uppercase">${t.method}</div>
+                            <div class="col-span-2 font-black text-brand-green">$${t.amount.toFixed(2)}</div>
+                            <div class="col-span-2 text-right">
+                                <button onclick="printReceipt('${t.$id}')" class="text-xs bg-brand-cream text-brand-brown px-3 py-2 rounded font-bold uppercase hover:bg-brand-orange transition-colors">Print Receipt</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                renderDashboard();
+            } catch (error) {
+                console.error("Failed to load financials.", error);
+            }
+        };
+
+        window.printReceipt = (docId) => {
+            const t = allTransactions.find(x => x.$id === docId);
+            if (!t) return;
+
+            // Populate the hidden print layout
+            document.getElementById('rec-date').innerText = new Date(t.timestamp).toLocaleString();
+            document.getElementById('rec-id').innerText = t.$id.substring(0, 8).toUpperCase();
+            document.getElementById('rec-type').innerText = t.type;
+            document.getElementById('rec-guest').innerText = t.guest_name;
+            document.getElementById('rec-amount').innerText = `$${t.amount.toFixed(2)}`;
+            document.getElementById('rec-method').innerText = t.method;
+
+            // Trigger the isolated print layout
+            triggerPrint('printable-fin-receipt');
+        };
+
+        // --- PRINT TAGS ENGINE ---
+        const activeTagsList = document.getElementById('active-tags-list');
+        const visitorTagForm = document.getElementById('visitorTagForm');
+
+        const syncPrintTags = async () => {
+            // Pull the local reservations and filter for ONLY checked-in guests
+            const localData = await localforage.getItem('today_reservations') || [];
+            const activeGuests = localData.filter(res => res.status === 'checked-in');
+
+            if (activeGuests.length === 0) {
+                activeTagsList.innerHTML = '<p class="text-brand-cream/50 italic p-4">No guests currently checked in.</p>';
+                return;
+            }
+
+            activeTagsList.innerHTML = activeGuests.map(res => {
+                return `
+                    <div class="bg-brand-cream/10 p-4 rounded-xl border-l-4 border-brand-green flex justify-between items-center hover:bg-brand-cream/20 transition-colors">
+                        <div>
+                            <p class="font-bold text-lg">${res.guest_name}</p>
+                            <p class="text-sm text-brand-cream/60">Site ${res.site_id} • Plate: ${res.vehicle_plate || 'N/A'}</p>
+                        </div>
+                        <button onclick="reprintGuestTag('${res.$id}')" class="bg-brand-green text-brand-cream px-4 py-2 rounded-lg font-bold uppercase tracking-wider hover:bg-brand-orange transition-colors">
+                            Reprint
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.reprintGuestTag = async (docId) => {
+            const localData = await localforage.getItem('today_reservations');
+            const res = localData.find(r => r.$id === docId);
+            if (!res) return;
+
+            // Populate Print Template (Guest)
+            document.getElementById('tag-title').innerText = "Official Guest Vehicle";
+            document.getElementById('tag-site').innerText = res.site_id;
+            // Add timezone offset safety for standard dates
+            const outDate = new Date(res.check_out);
+            const fixedDate = new Date(outDate.getTime() + Math.abs(outDate.getTimezoneOffset() * 60000));
+            document.getElementById('tag-out').innerText = fixedDate.toLocaleDateString();
+            document.getElementById('tag-plate').innerText = res.vehicle_plate || 'N/A';
+
+            triggerPrint('printable-parking-tag');
+        };
+
+        visitorTagForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = visitorTagForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "PROCESSING...";
+            submitBtn.disabled = true;
+
+            const siteId = document.getElementById('visSite').value.toUpperCase();
+            const plate = document.getElementById('visPlate').value.toUpperCase();
+            
+            // Timezone safety for HTML5 Date Inputs
+            const dateInput = document.getElementById('visOut').value;
+            const validUntilMs = new Date(dateInput + 'T12:00:00').getTime();
+
+            const payload = {
+                site_id: siteId,
+                guest_name: document.getElementById('visIdName').value,
+                vehicle_plate: plate,
+                valid_until: validUntilMs,
+                id_type: document.getElementById('visIdType').value,
+                id_number: document.getElementById('visIdNum').value,
+                id_address: document.getElementById('visIdAddress').value,
+                id_dob: document.getElementById('visIdDob').value
+            };
+
+            try {
+                // 1. Save ID to Appwrite
+                const { ID } = Appwrite;
+                await databases.createDocument(DATABASE_ID, VISITOR_COLLECTION_ID, ID.unique(), payload);
+                
+                // 2. Populate Print Template (Visitor)
+                document.getElementById('tag-title').innerText = "Visitor Parking";
+                document.getElementById('tag-site').innerText = siteId;
+                document.getElementById('tag-out').innerText = new Date(validUntilMs).toLocaleDateString();
+                document.getElementById('tag-plate').innerText = plate;
+
+                // 3. Print
+                triggerPrint('printable-parking-tag');
+                visitorTagForm.reset();
+
+            } catch (error) {
+                alert("Error issuing visitor tag: " + error.message);
+            } finally {
+                submitBtn.innerText = "SAVE ID & PRINT TAG";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- STAFF MANAGEMENT ENGINE ---
+        const masterStaffList = document.getElementById('master-staff-list');
+        const staffCrudModal = document.getElementById('crud-staff-modal');
+        const staffCrudForm = document.getElementById('staffCrudForm');
+        let allStaffMembers = [];
+
+        const syncStaff = async () => {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, STAFF_COLLECTION_ID);
+                allStaffMembers = response.documents;
+                
+                if (allStaffMembers.length === 0) {
+                    masterStaffList.innerHTML = '<p class="text-brand-cream/50 italic p-4">No staff profiles found.</p>';
+                    return;
+                }
+
+                masterStaffList.innerHTML = allStaffMembers.map(staff => {
+                    const isActive = staff.status === 'Active';
+                    const statusColor = isActive ? 'border-brand-green' : 'border-red-600 opacity-60';
+                    const badgeColor = isActive ? 'bg-brand-green' : 'bg-red-600';
+
+                    return `
+                        <div class="grid grid-cols-12 gap-4 items-center bg-brand-cream/10 p-3 rounded border-l-4 ${statusColor} hover:bg-brand-cream/20 transition-colors">
+                            <div class="col-span-3 font-bold truncate">
+                                ${staff.name}
+                                ${!isActive ? '<span class="text-[10px] uppercase text-red-500 ml-2">Inactive</span>' : ''}
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded text-brand-cream ${badgeColor}">
+                                    ${staff.role}
+                                </span>
+                            </div>
+                            <div class="col-span-3 text-sm opacity-80 truncate">${staff.email}</div>
+                            <div class="col-span-2 text-sm opacity-80">${staff.phone}</div>
+                            <div class="col-span-2 text-right space-x-2 flex justify-end">
+                                <button onclick="editStaff('${staff.$id}')" class="text-xs bg-brand-cream text-brand-brown px-3 py-2 rounded font-bold uppercase hover:bg-brand-orange transition-colors">Edit</button>
+                                <button onclick="deleteStaff('${staff.$id}', '${staff.name}')" class="text-xs border-2 border-brand-orange text-brand-orange px-3 py-2 rounded font-bold uppercase hover:bg-brand-orange hover:text-brand-cream transition-colors">Del</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error("Failed to load staff profiles.", error);
+            }
+        };
+
+        window.editStaff = (docId) => {
+            const staff = allStaffMembers.find(s => s.$id === docId);
+            if (!staff) return;
+
+            document.getElementById('crudStaffDocId').value = staff.$id;
+            document.getElementById('staffName').value = staff.name;
+            document.getElementById('staffRole').value = staff.role;
+            document.getElementById('staffEmail').value = staff.email;
+            document.getElementById('staffPhone').value = staff.phone;
+            document.getElementById('staffStatus').value = staff.status;
+            
+            document.getElementById('staffModalTitle').innerText = `Edit: ${staff.name}`;
+            staffCrudModal.classList.remove('hidden');
+        };
+
+        window.deleteStaff = async (docId, name) => {
+            if(!confirm(`WARNING: Are you sure you want to delete the profile for ${name}?`)) return;
+            try {
+                await databases.deleteDocument(DATABASE_ID, STAFF_COLLECTION_ID, docId);
+                syncStaff(); 
+            } catch(e) { alert("Failed to delete staff member: " + e.message); }
+        };
+
+        // Modal Triggers
+        document.getElementById('openNewStaffBtn').addEventListener('click', () => {
+            staffCrudForm.reset();
+            document.getElementById('crudStaffDocId').value = ""; 
+            document.getElementById('staffModalTitle').innerText = "New Staff Profile";
+            staffCrudModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeStaffModal').addEventListener('click', () => {
+            staffCrudModal.classList.add('hidden');
+        });
+
+        // Submit Form
+        staffCrudForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = staffCrudForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "SAVING...";
+            submitBtn.disabled = true;
+
+            const docId = document.getElementById('crudStaffDocId').value;
+            const payload = {
+                name: document.getElementById('staffName').value,
+                role: document.getElementById('staffRole').value,
+                email: document.getElementById('staffEmail').value,
+                phone: document.getElementById('staffPhone').value,
+                status: document.getElementById('staffStatus').value
+            };
+
+            try {
+                if (docId) {
+                    await databases.updateDocument(DATABASE_ID, STAFF_COLLECTION_ID, docId, payload);
+                } else {
+                    const { ID } = Appwrite;
+                    await databases.createDocument(DATABASE_ID, STAFF_COLLECTION_ID, ID.unique(), payload);
+                }
+                staffCrudModal.classList.add('hidden');
+                syncStaff(); 
+            } catch (error) {
+                alert("Error saving staff profile: " + error.message);
+            } finally {
+                submitBtn.innerText = "SAVE STAFF PROFILE";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- POINT OF SALE ENGINE ---
+        let allProducts = [];
+        let posCart = [];
+        let posCartTotal = 0;
+
+        const posProductGrid = document.getElementById('pos-product-grid');
+        const posCartList = document.getElementById('pos-cart-list');
+        const productCrudModal = document.getElementById('crud-product-modal');
+        const productCrudForm = document.getElementById('productCrudForm');
+
+        const syncProducts = async () => {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, PRODUCT_COLLECTION_ID);
+                allProducts = response.documents;
+                
+                if (allProducts.length === 0) {
+                    posProductGrid.innerHTML = '<p class="text-brand-cream/50 italic col-span-full">No products found. Add some inventory!</p>';
+                    return;
+                }
+
+                posProductGrid.innerHTML = allProducts.map(p => `
+                    <div class="bg-brand-green border-4 border-brand-brown rounded-2xl p-4 flex flex-col justify-between hover:-translate-y-1 hover:shadow-xl hover:border-brand-orange transition-all cursor-pointer relative group" onclick="addToCart('${p.$id}')">
+                        <button onclick="event.stopPropagation(); editProduct('${p.$id}')" class="absolute top-2 right-2 bg-brand-brown text-brand-cream text-[10px] uppercase font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+                        
+                        <span class="text-brand-cream/70 text-[10px] font-bold uppercase tracking-widest mb-2">${p.code}</span>
+                        <h4 class="font-black text-brand-cream text-lg leading-tight mb-4">${p.name}</h4>
+                        <div class="flex justify-between items-end">
+                            <span class="bg-brand-cream text-brand-brown font-black px-2 py-1 rounded text-sm border-2 border-brand-brown">$${p.price.toFixed(2)}</span>
+                            ${p.limit > 0 ? `<span class="text-brand-orange text-xs font-bold uppercase tracking-widest">Max ${p.limit}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) { console.error("Failed to load POS products", error); }
+        };
+
+        // --- CART LOGIC ---
+        window.addToCart = (docId) => {
+            const product = allProducts.find(p => p.$id === docId);
+            if (!product) return;
+
+            const existingItem = posCart.find(item => item.product.$id === docId);
+            
+            if (existingItem) {
+                if (product.limit > 0 && existingItem.qty >= product.limit) {
+                    return alert(`Limit reached. You can only sell ${product.limit} of this item per transaction.`);
+                }
+                existingItem.qty++;
+            } else {
+                posCart.push({ product: product, qty: 1 });
+            }
+            renderCart();
+        };
+
+        window.updateCartQty = (docId, delta) => {
+            const index = posCart.findIndex(item => item.product.$id === docId);
+            if (index === -1) return;
+
+            const item = posCart[index];
+            item.qty += delta;
+
+            if (item.qty <= 0) {
+                posCart.splice(index, 1); // Remove if qty drops to 0
+            } else if (item.product.limit > 0 && item.qty > item.product.limit) {
+                item.qty = item.product.limit; // Enforce limit on manual clicks
+            }
+            renderCart();
+        };
+
+        const renderCart = () => {
+            if (posCart.length === 0) {
+                posCartList.innerHTML = '<p class="text-brand-brown/50 italic text-center mt-10 font-bold uppercase tracking-widest">Cart is empty</p>';
+                document.getElementById('pos-subtotal').innerText = "$0.00";
+                document.getElementById('pos-tax').innerText = "$0.00";
+                document.getElementById('pos-total').innerText = "$0.00";
+                posCartTotal = 0;
+                return;
+            }
+
+            let subtotal = 0;
+            let taxableAmount = 0;
+
+            posCartList.innerHTML = posCart.map(item => {
+                const itemTotal = item.qty * item.product.price;
+                subtotal += itemTotal;
+                if (item.product.tax_eligible) taxableAmount += itemTotal;
+
+                return `
+                    <div class="flex justify-between items-center bg-brand-cream p-2 rounded border-l-4 border-brand-green">
+                        <div class="flex-1 overflow-hidden pr-2">
+                            <p class="font-bold text-brand-brown text-sm truncate">${item.product.name}</p>
+                            <p class="text-[10px] text-brand-brown/60 uppercase font-bold tracking-widest">$${item.product.price.toFixed(2)} ea ${item.product.tax_eligible ? '' : '• NO TAX'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCartQty('${item.product.$id}', -1)" class="bg-brand-brown text-brand-cream w-6 h-6 rounded font-black">-</button>
+                            <span class="font-black text-brand-green w-4 text-center">${item.qty}</span>
+                            <button onclick="updateCartQty('${item.product.$id}', 1)" class="bg-brand-orange text-brand-brown w-6 h-6 rounded font-black">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const tax = taxableAmount * 0.07;
+            posCartTotal = subtotal + tax;
+
+            document.getElementById('pos-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('pos-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('pos-total').innerText = `$${posCartTotal.toFixed(2)}`;
+        };
+
+        // Change Calculator
+        document.getElementById('posTendered').addEventListener('input', (e) => {
+            const tendered = parseFloat(e.target.value) || 0;
+            const change = tendered - posCartTotal;
+            const changeDisplay = document.getElementById('pos-change');
+            
+            if (change < 0 && posCartTotal > 0) {
+                changeDisplay.innerText = "SHORT";
+                changeDisplay.classList.replace('text-brand-orange', 'text-red-600');
+            } else {
+                changeDisplay.innerText = '$' + change.toFixed(2);
+                changeDisplay.classList.replace('text-red-600', 'text-brand-orange');
+            }
+        });
+
+        // Checkout Button
+        document.getElementById('posCheckoutBtn').addEventListener('click', async () => {
+            if (posCart.length === 0) return alert("Cart is empty.");
+            
+            const tendered = parseFloat(document.getElementById('posTendered').value) || 0;
+            if (tendered < posCartTotal) return alert("Amount tendered is less than the total due.");
+
+            const btn = document.getElementById('posCheckoutBtn');
+            btn.innerText = "PROCESSING...";
+            btn.disabled = true;
+
+            const { ID } = Appwrite;
+            const posTransactionId = ID.unique();
+
+            try {
+                // 1. Save Transaction to the unified Financials Ledger
+                await databases.createDocument(DATABASE_ID, TRANS_COLLECTION_ID, posTransactionId, {
+                    type: 'POS Sale',
+                    reference_id: posTransactionId,
+                    guest_name: 'Camp Store Walk-in',
+                    amount: posCartTotal,
+                    method: document.getElementById('posMethod').value,
+                    timestamp: Date.now()
+                });
+
+                // 2. Populate the existing Printable Receipt Template
+                document.getElementById('rec-date').innerText = new Date().toLocaleString();
+                document.getElementById('rec-id').innerText = posTransactionId.substring(0, 8).toUpperCase();
+                document.getElementById('rec-type').innerText = "CAMP STORE";
+                document.getElementById('rec-guest').innerText = "Walk-in Customer";
+                document.getElementById('rec-amount').innerText = `$${posCartTotal.toFixed(2)}`;
+                document.getElementById('rec-method').innerText = document.getElementById('posMethod').value;
+
+                syncFinancials(); // Refresh financials in the background
+                
+                // Clear Cart UI
+                posCart = [];
+                document.getElementById('posTendered').value = "0.00";
+                document.getElementById('pos-change').innerText = "$0.00";
+                renderCart();
+
+                // 3. Print
+                triggerPrint('printable-fin-receipt');
+
+            } catch (error) {
+                alert("Transaction failed: " + error.message);
+            } finally {
+                btn.innerText = "PROCESS SALE";
+                btn.disabled = false;
+            }
+        });
+
+        // --- PRODUCT CRUD LOGIC ---
+        window.editProduct = (docId) => {
+            const product = allProducts.find(p => p.$id === docId);
+            if (!product) return;
+
+            document.getElementById('crudProdDocId').value = product.$id;
+            document.getElementById('prodName').value = product.name;
+            document.getElementById('prodCode').value = product.code;
+            document.getElementById('prodPrice').value = product.price;
+            document.getElementById('prodLimit').value = product.limit;
+            document.getElementById('prodTax').checked = product.tax_eligible;
+            
+            document.getElementById('prodModalTitle').innerText = `Edit: ${product.name}`;
+            document.getElementById('deleteProdBtn').classList.remove('hidden');
+            productCrudModal.classList.remove('hidden');
+        };
+
+        document.getElementById('openNewProductBtn').addEventListener('click', () => {
+            productCrudForm.reset();
+            document.getElementById('crudProdDocId').value = ""; 
+            document.getElementById('prodModalTitle').innerText = "New Inventory Item";
+            document.getElementById('deleteProdBtn').classList.add('hidden');
+            productCrudModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeProductModal').addEventListener('click', () => {
+            productCrudModal.classList.add('hidden');
+        });
+
+        document.getElementById('deleteProdBtn').addEventListener('click', async () => {
+            const docId = document.getElementById('crudProdDocId').value;
+            if(!confirm(`WARNING: Are you sure you want to delete this product?`)) return;
+            try {
+                await databases.deleteDocument(DATABASE_ID, PRODUCT_COLLECTION_ID, docId);
+                productCrudModal.classList.add('hidden');
+                syncProducts(); 
+            } catch(e) { alert("Failed to delete product: " + e.message); }
+        });
+
+        productCrudForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = productCrudForm.querySelector('button[type="submit"]');
+            btn.innerText = "SAVING...";
+            btn.disabled = true;
+
+            const docId = document.getElementById('crudProdDocId').value;
+            const payload = {
+                name: document.getElementById('prodName').value,
+                code: document.getElementById('prodCode').value.toUpperCase(),
+                price: parseFloat(document.getElementById('prodPrice').value) || 0.00,
+                limit: parseInt(document.getElementById('prodLimit').value) || 0,
+                tax_eligible: document.getElementById('prodTax').checked
+            };
+
+            try {
+                if (docId) {
+                    await databases.updateDocument(DATABASE_ID, PRODUCT_COLLECTION_ID, docId, payload);
+                } else {
+                    const { ID } = Appwrite;
+                    await databases.createDocument(DATABASE_ID, PRODUCT_COLLECTION_ID, ID.unique(), payload);
+                }
+                productCrudModal.classList.add('hidden');
+                syncProducts(); 
+            } catch (error) {
+                alert("Error saving product: " + error.message);
+            } finally {
+                btn.innerText = "SAVE PRODUCT";
+                btn.disabled = false;
+            }
+        });
+
+        // --- CUSTOM REPORTS ENGINE ---
+        const reportBuilderForm = document.getElementById('reportBuilderForm');
+        const repSourceSelect = document.getElementById('repSource');
+        const repDateFilters = document.getElementById('repDateFilters');
+        
+        const reportHead = document.getElementById('reportHead');
+        const reportBody = document.getElementById('reportBody');
+        const reportFooter = document.getElementById('reportFooter');
+        
+        let currentReportData = []; // Store for CSV export
+
+        // Toggle Date Filters (Inventory doesn't need dates)
+        repSourceSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'inventory' || e.target.value === 'souls_check') {
+                repDateFilters.classList.add('hidden');
+            } else {
+                repDateFilters.classList.remove('hidden');
+            }
+        });
+
+        reportBuilderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = reportBuilderForm.querySelector('button[type="submit"]');
+            btn.innerText = "QUERYING...";
+            btn.disabled = true;
+
+            const source = repSourceSelect.value;
+            const startDate = document.getElementById('repStart').value ? new Date(document.getElementById('repStart').value + 'T00:00:00').getTime() : 0;
+            const endDate = document.getElementById('repEnd').value ? new Date(document.getElementById('repEnd').value + 'T23:59:59').getTime() : Infinity;
+
+            try {
+                // --- CUSTOM EMERGENCY SOULS CHECK ROUTINE ---
+                if (source === 'souls_check') {
+                    const { Query } = Appwrite;
+                    
+                    // 1. Fetch Checked-in Guests
+                    const resReq = await databases.listDocuments(DATABASE_ID, RES_COLLECTION_ID, [Query.limit(1000)]);
+                    const activeGuests = resReq.documents.filter(d => d.status === 'checked-in');
+                    
+                    // 2. Fetch Active Visitors
+                    const visReq = await databases.listDocuments(DATABASE_ID, VISITOR_COLLECTION_ID, [Query.limit(1000)]);
+                    const activeVisitors = visReq.documents.filter(d => d.valid_until >= Date.now());
+                    
+                    // 3. Combine & Normalize Data
+                    currentReportData = [
+                        ...activeGuests.map(g => ({ type: 'Guest', name: g.guest_name, dob: g.id_dob || 'N/A', id_type: g.id_type || 'N/A', id_number: g.id_number || 'N/A', site: g.site_id })),
+                        ...activeVisitors.map(v => ({ type: 'Visitor', name: v.guest_name, dob: v.id_dob || 'N/A', id_type: v.id_type || 'N/A', id_number: v.id_number || 'N/A', site: v.site_id }))
+                    ];
+                    
+                    buildReportTable(source, currentReportData);
+                    document.getElementById('exportCsvBtn').classList.remove('hidden');
+                    document.getElementById('printReportBtn').classList.remove('hidden');
+                    document.getElementById('printReportTitle').innerText = "EMERGENCY SOULS CHECK";
+                    document.getElementById('printReportMeta').innerText = "Live Snapshot: " + new Date().toLocaleString();
+                    
+                    btn.innerText = "GENERATE DATA";
+                    btn.disabled = false;
+                    return; // Skip standard query processing
+                }
+                // --- END CUSTOM ROUTINE ---
+
+                let collectionId = '';
+                let timestampField = '';
+                
+                // Map the dropdown to the correct Appwrite Collection
+                if (source === 'transactions') { collectionId = TRANS_COLLECTION_ID; timestampField = 'timestamp'; }
+                if (source === 'reservations') { collectionId = RES_COLLECTION_ID; timestampField = 'check_in'; }
+                if (source === 'visitors') { collectionId = VISITOR_COLLECTION_ID; timestampField = 'valid_until'; }
+                if (source === 'inventory') { collectionId = PRODUCT_COLLECTION_ID; }
+
+                // Fetch ALL historical data for that collection (Appwrite limits to 100 per page by default, 
+                // in production you would loop this or use Appwrite.Query if dataset gets massive).
+                const { Query } = Appwrite;
+                const response = await databases.listDocuments(DATABASE_ID, collectionId, [
+                    Query.limit(1000) // Increase fetch limit for reports
+                ]);
+                
+                let rawData = response.documents;
+
+                // Filter by Date (if applicable)
+                if (source !== 'inventory') {
+                    rawData = rawData.filter(doc => doc[timestampField] >= startDate && doc[timestampField] <= endDate);
+                }
+
+                currentReportData = rawData;
+                buildReportTable(source, rawData);
+
+                // Reveal Action Buttons
+                document.getElementById('exportCsvBtn').classList.remove('hidden');
+                document.getElementById('printReportBtn').classList.remove('hidden');
+                
+                // Set Print Meta
+                document.getElementById('printReportTitle').innerText = source + " Report";
+                document.getElementById('printReportMeta').innerText = `${document.getElementById('repStart').value || 'All Time'} to ${document.getElementById('repEnd').value || 'All Time'}`;
+
+            } catch (error) {
+                alert("Report failed: " + error.message);
+            } finally {
+                btn.innerText = "GENERATE DATA";
+                btn.disabled = false;
+            }
+        });
+
+        // The Table Builder
+        const buildReportTable = (source, data) => {
+            if (data.length === 0) {
+                reportHead.innerHTML = `<tr><th class="p-3 font-bold">No Data Found</th></tr>`;
+                reportBody.innerHTML = `<tr><td class="p-4 text-center italic opacity-50">Adjust your date range and try again.</td></tr>`;
+                reportFooter.classList.add('hidden');
+                return;
+            }
+
+            let headers = [];
+            let rows = [];
+            let totalSum = 0;
+
+            // Define Columns & Data Mapping based on the Source
+            if (source === 'transactions') {
+                headers = ['Date', 'Trans ID', 'Type', 'Guest', 'Method', 'Amount'];
+                rows = data.sort((a,b) => b.timestamp - a.timestamp).map(d => {
+                    totalSum += d.amount;
+                    return `<tr>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${new Date(d.timestamp).toLocaleDateString()}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 uppercase">${d.$id.substring(0,8)}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 uppercase">${d.type}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 font-bold">${d.guest_name}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${d.method}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 font-black text-brand-green">$${d.amount.toFixed(2)}</td>
+                    </tr>`;
+                });
+                document.getElementById('repTotalSum').innerText = `Total Revenue: $${totalSum.toFixed(2)}`;
+            } 
+            
+            else if (source === 'reservations') {
+                headers = ['Check In', 'Check Out', 'Site', 'Guest', 'Plate', 'Status'];
+                rows = data.sort((a,b) => b.check_in - a.check_in).map(d => {
+                    return `<tr>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${new Date(d.check_in).toLocaleDateString()}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${new Date(d.check_out).toLocaleDateString()}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 font-black text-brand-orange">${d.site_id}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 font-bold">${d.guest_name}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 uppercase">${d.vehicle_plate || 'N/A'}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 uppercase font-bold tracking-widest text-[10px]">${d.status}</td>
+                    </tr>`;
+                });
+                document.getElementById('repTotalSum').innerText = ''; // No financial total for this view
+            }
+
+            else if (source === 'inventory') {
+                headers = ['Code', 'Product Name', 'Price', 'Limit', 'Taxable'];
+                rows = data.sort((a,b) => a.name.localeCompare(b.name)).map(d => {
+                    return `<tr>
+                        <td class="p-2 border-b-2 border-brand-brown/10 uppercase font-bold">${d.code}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${d.name}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10 font-black text-brand-green">$${d.price.toFixed(2)}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${d.limit > 0 ? d.limit : 'Unlimited'}</td>
+                        <td class="p-2 border-b-2 border-brand-brown/10">${d.tax_eligible ? 'Yes' : 'No'}</td>
+                    </tr>`;
+                });
+                document.getElementById('repTotalSum').innerText = '';
+            }
+
+            else if (source === 'souls_check') {
+            headers = ['Type', 'Name', 'DoB', 'ID Type', 'ID Number', 'Site'];
+            rows = data.sort((a,b) => a.site.localeCompare(b.site)).map(d => {
+                return `<tr>
+                    <td class="p-2 border-b-2 border-brand-brown/10 uppercase font-bold tracking-widest text-[10px] text-brand-orange">${d.type}</td>
+                    <td class="p-2 border-b-2 border-brand-brown/10 font-bold">${d.name}</td>
+                    <td class="p-2 border-b-2 border-brand-brown/10">${d.dob}</td>
+                    <td class="p-2 border-b-2 border-brand-brown/10 uppercase text-xs">${d.id_type}</td>
+                    <td class="p-2 border-b-2 border-brand-brown/10 font-mono">${d.id_number}</td>
+                    <td class="p-2 border-b-2 border-brand-brown/10 font-black text-brand-green">${d.site}</td>
+                </tr>`;
+            });
+            document.getElementById('repTotalSum').innerText = ''; // No financial total needed
+        }
+
+            // Inject HTML
+            reportHead.innerHTML = `<tr>${headers.map(h => `<th class="p-3 border-b-4 border-brand-orange">${h}</th>`).join('')}</tr>`;
+            reportBody.innerHTML = rows.join('');
+            
+            document.getElementById('repTotalCount').innerText = data.length;
+            reportFooter.classList.remove('hidden');
+        };
+
+        // --- EXPORT TO CSV ENGINE ---
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (currentReportData.length === 0) return alert("No data to export.");
+            
+            // Extract the keys from the first object to use as CSV headers (ignoring Appwrite's internal $ fields)
+            const exportKeys = Object.keys(currentReportData[0]).filter(k => !k.startsWith('$'));
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Header Row
+            csvContent += exportKeys.join(",") + "\r\n";
+            
+            // Data Rows
+            currentReportData.forEach(row => {
+                let rowArray = exportKeys.map(key => {
+                    let cell = row[key] === null || row[key] === undefined ? "" : row[key];
+                    // Escape quotes and wrap in quotes to prevent comma breaks
+                    cell = cell.toString().replace(/"/g, '""');
+                    return `"${cell}"`;
+                });
+                csvContent += rowArray.join(",") + "\r\n";
+            });
+
+            // Trigger Download
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `CRS_Report_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // --- PRINT TRIGGER ---
+        document.getElementById('printReportBtn').addEventListener('click', () => {
+            triggerPrint('printable-report');
+        });
+        
+        // --- LOCAL-FIRST SYNCING LOGIC ---
+
+        // Configure our local database
+        localforage.config({
+            name: 'FindASpotCRS',
+            storeName: 'reservations_ledger'
+        });
+
+        // Fetch from Cloud and save to Local
+        const syncDatabase = async () => {
+            try {
+                // In a production app, you'd add Appwrite Queries here to only fetch today's dates
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    RES_COLLECTION_ID
+                );
+                
+                // Save the fresh data to IndexedDB
+                await localforage.setItem('today_reservations', response.documents);
+                
+                // Re-render the UI from the updated local storage
+                renderMasterLedger();
+                syncPrintTags();
+                renderDashboard();
+                
+            } catch (error) {
+                console.error("Cloud sync failed. Falling back to local data.", error);
+                // If the campground Wi-Fi goes down, this still fires and loads whatever was saved last!
+                renderMasterLedger();
+                syncPrintTags();
+            }
+        };
+
+        // --- DASHBOARD ENGINE ---
+        const renderDashboard = async () => {
+            const localData = await localforage.getItem('today_reservations') || [];
+            
+            // 1. Calculate "Today" Time Bounds
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const endOfDay = startOfDay + 86399999;
+
+            // 2. Filter Data
+            todayArrivals = localData.filter(r => r.status === 'pending' && r.check_in >= startOfDay && r.check_in <= endOfDay);
+            todayDepartures = localData.filter(r => r.status === 'checked-in' && r.check_out >= startOfDay && r.check_out <= endOfDay);
+            const currentlyOccupied = localData.filter(r => r.status === 'checked-in');
+            
+            // 3. Update KPI Cards
+            document.getElementById('dash-arrivals').innerText = todayArrivals.length;
+            document.getElementById('dash-departures').innerText = todayDepartures.length;
+            
+            const totalSites = allAdminSites.length || 1; // Prevent division by zero
+            const occPercent = Math.round((currentlyOccupied.length / totalSites) * 100);
+            document.getElementById('dash-occupancy').innerText = `${occPercent}%`;
+
+            const todaysTrans = allTransactions.filter(t => t.timestamp >= startOfDay && t.timestamp <= endOfDay);
+            const todayRev = todaysTrans.reduce((sum, t) => sum + t.amount, 0);
+            document.getElementById('dash-revenue').innerText = `$${todayRev.toFixed(2)}`;
+
+            // 4. Render the Front Desk Queue
+            renderDashQueue();
+
+            // 5. Generate System Alerts (Overstays)
+            const overstays = currentlyOccupied.filter(r => r.check_out < startOfDay);
+            const alertsContainer = document.getElementById('dash-alerts');
+            
+            if (overstays.length === 0) {
+                alertsContainer.innerHTML = `<li class="text-brand-green">✓ All systems nominal. No alerts.</li>`;
+            } else {
+                alertsContainer.innerHTML = overstays.map(r => 
+                    `<li class="flex items-center gap-2"><span class="text-brand-orange">⚠</span> OVERSTAY: Site ${r.site_id} (${r.guest_name})</li>`
+                ).join('');
+            }
+        };
+
+        // Helper to draw the queue list based on the toggle state
+        const renderDashQueue = () => {
+            const queueList = document.getElementById('dash-queue-list');
+            const activeData = dashQueueMode === 'arrivals' ? todayArrivals : todayDepartures;
+            
+            if (activeData.length === 0) {
+                queueList.innerHTML = `<p class="text-brand-cream/50 italic text-center mt-10 uppercase tracking-widest font-bold">No pending ${dashQueueMode} today.</p>`;
+                return;
+            }
+
+            queueList.innerHTML = activeData.map(res => {
+                const btnHtml = dashQueueMode === 'arrivals' 
+                    ? `<button onclick="startCheckIn('${res.$id}')" class="bg-brand-green text-brand-cream px-4 py-2 rounded-lg font-black uppercase hover:bg-brand-orange transition-colors">Check In</button>`
+                    : `<button onclick="startCheckOut('${res.$id}')" class="bg-brand-orange text-brand-brown px-4 py-2 rounded-lg font-black uppercase hover:bg-brand-cream transition-colors">Check Out</button>`;
+
+                return `
+                    <div class="bg-brand-brown p-3 rounded-xl border-l-4 ${dashQueueMode === 'arrivals' ? 'border-brand-green' : 'border-brand-orange'} flex justify-between items-center hover:bg-brand-cream/10 transition-colors">
+                        <div>
+                            <p class="font-black text-brand-cream text-lg">${res.guest_name}</p>
+                            <p class="text-xs text-brand-cream/70 font-bold uppercase tracking-widest">Site ${res.site_id} • Plate: ${res.vehicle_plate || 'N/A'}</p>
+                        </div>
+                        ${btnHtml}
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // Toggle Buttons Logic for the Dashboard Queue
+        document.querySelectorAll('#view-dashboard .flex.gap-2 button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update UI Styles for buttons
+                const buttons = e.target.parentElement.querySelectorAll('button');
+                buttons.forEach(b => {
+                    b.className = 'bg-brand-cream/20 text-brand-brown px-3 py-1 rounded text-xs font-bold uppercase tracking-widest hover:bg-brand-orange transition-colors';
+                });
+                e.target.className = 'bg-brand-green text-brand-cream px-3 py-1 rounded text-xs font-bold uppercase tracking-widest';
+                
+                // Set mode and re-render
+                dashQueueMode = e.target.innerText.toLowerCase();
+                renderDashQueue();
+            });
+        });
+
+        // --- QUICK ACTIONS ROUTING ---
+        document.getElementById('btn-quick-walkin').addEventListener('click', () => {
+            // Switch the view first
+            document.querySelector('[data-target="view-reservations"]').click();
+            
+            // Add a tiny delay so the DOM has time to render the new view 
+            // before firing the modal animation
+            setTimeout(() => {
+                document.getElementById('openNewResBtn').click();
+            }, 50);
+        });
+
+        document.getElementById('btn-quick-pos').addEventListener('click', () => {
+            document.querySelector('[data-target="view-pos"]').click();
+        });
+
+        document.getElementById('btn-quick-visitor').addEventListener('click', () => {
+            document.querySelector('[data-target="view-printing"]').click();
+            
+            // Auto-focus the first field of the visitor form so they can start typing immediately
+            setTimeout(() => {
+                document.getElementById('visSite').focus();
+            }, 50);
+        });
+
+        // --- SPA NAVIGATION ROUTING ---
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const appViews = document.querySelectorAll('.app-view');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetViewId = e.currentTarget.getAttribute('data-target');
+                
+                // Hide all views
+                appViews.forEach(view => {
+                    view.classList.add('hidden');
+                });
+                
+                // Show the target view
+                document.getElementById(targetViewId).classList.remove('hidden');
+                
+                // Update active button styling
+                navButtons.forEach(b => {
+                    b.classList.remove('bg-brand-orange', 'text-brand-brown');
+                    if (b !== e.currentTarget && !b.classList.contains('bg-brand-cream/10')) {
+                        b.classList.add('text-brand-cream');
+                    }
+                });
+                
+                // Add active state to the clicked button
+                e.currentTarget.classList.add('bg-brand-orange', 'text-brand-brown');
+                e.currentTarget.classList.remove('text-brand-cream');
+            });
+        });
+
+        // Set Dashboard as active by default on load
+        document.querySelector('[data-target="view-dashboard"]').classList.add('bg-brand-orange', 'text-brand-brown');
+
+        // Run the check immediately when the page loads
+        checkSession();
+    </script>
+</body>
+</html>

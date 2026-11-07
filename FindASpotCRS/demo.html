@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Demo - Find A Spot CRS</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Retro Brand Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cream: '#F4EFE6',   
+                            yellow: '#ECA72C',  
+                            orange: '#D36135',  
+                            green: '#7A8B55',   
+                            brown: '#38220F'    
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'retro': '8px 8px 0px rgba(56, 34, 15, 1)',
+                        'retro-sm': '4px 4px 0px rgba(56, 34, 15, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-brand-brown text-brand-cream font-sans antialiased min-h-screen flex flex-col selection:bg-brand-orange selection:text-brand-cream">
+
+    <!-- Retro Header -->
+    <header class="bg-brand-green py-6 border-b-8 border-brand-orange relative z-10">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+            <a href="landing.html" class="bg-brand-cream text-brand-brown px-4 py-2 border-2 border-brand-brown font-bold uppercase tracking-widest rounded-lg shadow-retro-sm hover:bg-brand-yellow transition-colors flex items-center gap-2">
+                <span>&larr;</span> Back
+            </a>
+            <h1 class="text-2xl md:text-3xl font-black text-brand-cream uppercase tracking-widest drop-shadow-md">
+                System Demo
+            </h1>
+            <div class="w-[88px] hidden md:block"></div> <!-- Spacer to keep title centered -->
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
+        
+        <!-- Decorative Background Elements -->
+        <div class="absolute top-10 left-10 w-64 h-64 bg-brand-orange rounded-full mix-blend-overlay opacity-20 blur-2xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-brand-yellow rounded-full mix-blend-overlay opacity-10 blur-3xl"></div>
+
+        <div class="max-w-5xl w-full relative z-10">
+            
+            <div class="text-center mb-10">
+                <h2 class="text-4xl md:text-5xl font-black uppercase tracking-widest mb-4 text-brand-yellow">See It In Action</h2>
+                <p class="text-lg font-medium text-brand-cream/70 max-w-2xl mx-auto">
+                    Watch how Find A Spot CRS handles walk-in bookings, offline check-ins, and camp store sales with zero lag.
+                </p>
+            </div>
+
+            <!-- Retro Video Player Container -->
+            <div class="bg-brand-cream p-4 md:p-6 rounded-3xl border-8 border-brand-brown shadow-retro relative">
+                
+                <!-- Fake Terminal Header -->
+                <div class="flex gap-2 mb-4 items-center border-b-4 border-brand-brown/20 pb-4">
+                    <div class="w-4 h-4 bg-brand-orange rounded-full border-2 border-brand-brown"></div>
+                    <div class="w-4 h-4 bg-brand-yellow rounded-full border-2 border-brand-brown"></div>
+                    <div class="w-4 h-4 bg-brand-green rounded-full border-2 border-brand-brown"></div>
+                    <span class="ml-4 text-brand-brown font-black uppercase tracking-widest text-xs opacity-50">CRS_OVERVIEW_V1.MP4</span>
+                </div>
+
+                <!-- Video Aspect Ratio Wrapper -->
+                <div class="relative w-full aspect-video bg-black rounded-xl border-4 border-brand-brown overflow-hidden">
+                    <!-- 
+                        Replace the src below with your actual YouTube, Vimeo, or local MP4 link. 
+                        Example for YouTube: src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+                    -->
+                    <iframe 
+                        class="absolute top-0 left-0 w-full h-full"
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1" 
+                        title="Find A Spot CRS Demo" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                    
+                    <!-- Fallback for local MP4 video -->
+                    <!--
+                    <video class="absolute top-0 left-0 w-full h-full object-cover" controls poster="poster-image.jpg">
+                        <source src="demo-video.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    -->
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="mt-16 text-center bg-brand-cream/10 border-4 border-brand-green/50 p-8 rounded-2xl max-w-3xl mx-auto">
+                <h3 class="text-2xl font-black uppercase tracking-widest mb-4">Ready to ditch the lag?</h3>
+                <p class="font-bold text-brand-cream/80 mb-8">Get local-first reliability and own your park's data.</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="landing.html#contact" class="bg-brand-orange text-brand-cream px-8 py-4 border-2 border-brand-brown font-black uppercase tracking-widest rounded-xl shadow-retro hover:bg-brand-yellow hover:text-brand-brown transition-colors">
+                        Request Pricing
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="bg-brand-brown py-8 border-t-4 border-brand-cream/10 text-center relative z-10">
+        <p class="text-brand-cream/50 text-xs font-bold uppercase tracking-widest">
+            &copy; <script>document.write(new Date().getFullYear())</script> Find A Spot CRS. Built for the Great Outdoors. All rights reserved.
+        </p>
+    </footer>
+
+</body>
+</html>
