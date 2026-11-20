@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Projects — @OllyIsAFish</title>
+    <meta name="description" content="Explore web apps, creative tools, and digital builds by @OllyIsAFish.">
+
+    <style>
+        /* =========================================================
+           BASE USER STYLES (Preserved Verbatim)
+           ========================================================= */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #05001F;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .bg-logo {
+            position: fixed;
+            width: 1000px;
+            height: 1000px;
+            background-image: url('logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom right;
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+            bottom: 0;
+            right: 0;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+
+        /* =========================================================
+           DESIGN TOKENS & RESET
+           ========================================================= */
+        :root {
+            --bg-base: #05001F;
+            --surface: rgba(15, 10, 42, 0.72);
+            --surface-hover: rgba(24, 19, 62, 0.86);
+            --surface-input: rgba(9, 6, 30, 0.78);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(96, 165, 250, 0.42);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-blue-light: #60a5fa;
+            --accent-orange: #f97316;
+            --accent-lime: #a3e635;
+            --radius-card: 20px;
+            --radius-btn: 12px;
+            --radius-media: 14px;
+            --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Soft atmospheric backdrop (modern studio depth, non-cyberpunk) */
+        .ambient-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 14% 12%, rgba(59, 130, 246, 0.12), transparent 45%),
+                radial-gradient(circle at 86% 82%, rgba(249, 115, 22, 0.06), transparent 44%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--accent-blue-light);
+            outline-offset: 3px;
+        }
+
+        /* =========================================================
+           PAGE SHELL
+           ========================================================= */
+        .page-container {
+            width: 100%;
+            max-width: 1180px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 1.75rem 1.5rem 3.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.25rem;
+        }
+
+        /* =========================================================
+           1. MINIMAL TOP NAVIGATION BAR
+           ========================================================= */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 1.1rem;
+            background: var(--surface);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 18px 42px -24px rgba(0, 0, 0, 0.55);
+        }
+
+        .brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+            border-radius: 12px;
+            transition: opacity var(--transition);
+            white-space: nowrap;
+        }
+
+        .brand-link:hover {
+            opacity: 0.9;
+        }
+
+        .brand-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.18), rgba(249, 115, 22, 0.14));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 3px;
+            flex-shrink: 0;
+        }
+
+        .brand-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-avatar-fallback {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-handle {
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #f8fafc;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding: 0.5rem 0.85rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            transition: color var(--transition), background var(--transition), border-color var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.is-active {
+            color: #f8fafc;
+            background: rgba(59, 130, 246, 0.18);
+            border-color: rgba(96, 165, 250, 0.38);
+        }
+
+        /* =========================================================
+           2. APP STORE HEADER & CONTROLS
+           ========================================================= */
+        .store-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .hero-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            max-width: 680px;
+        }
+
+        .eyebrow-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            align-self: flex-start;
+            padding: 0.32rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background-color: var(--accent-lime);
+            display: inline-block;
+        }
+
+        .hero-title {
+            font-size: clamp(2.1rem, 4.4vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: #f8fafc;
+        }
+
+        .hero-title .accent-dot {
+            color: var(--accent-orange);
+        }
+
+        .hero-subtitle {
+            font-size: 0.94rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        /* Filter Pills & Search Toolbar */
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.85rem 1rem;
+            background: var(--surface);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+        }
+
+        .filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 0.5rem 0.95rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition);
+        }
+
+        .filter-pill:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .filter-pill.is-active {
+            color: #ffffff;
+            background: var(--accent-blue);
+            border-color: var(--accent-blue-light);
+            box-shadow: 0 8px 22px -10px rgba(59, 130, 246, 0.75);
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1 1 250px;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            display: inline-flex;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 2.4rem 0.6rem 2.5rem;
+            border-radius: 12px;
+            background: var(--surface-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            transition: border-color var(--transition), background var(--transition);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-input:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue-light);
+            background: rgba(9, 6, 30, 0.95);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 0.55rem;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .search-clear:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #f8fafc;
+        }
+
+        .search-clear.is-visible {
+            display: inline-flex;
+        }
+
+        .results-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            padding: 0 0.25rem;
+        }
+
+        /* =========================================================
+           3. APP STORE CARD GRID
+           ========================================================= */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .app-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-card);
+            padding: 1rem;
+            gap: 1.1rem;
+            box-shadow: 0 20px 50px -26px rgba(0, 0, 0, 0.65);
+            transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+            box-shadow: 0 26px 54px -24px rgba(5, 0, 31, 0.9), 0 0 0 1px rgba(96, 165, 250, 0.14);
+        }
+
+        /* 16:9 Preview Banner */
+        .app-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-media);
+            overflow: hidden;
+            background: #0a0626;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        .app-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: relative;
+            z-index: 2;
+            transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .app-card:hover .app-media img {
+            transform: scale(1.03);
+        }
+
+        .app-fallback-art {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-fallback-art svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Card Content Body */
+        .app-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 0.65rem;
+            padding: 0 0.25rem;
+        }
+
+        .app-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .app-name {
+            font-size: 1.08rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #f8fafc;
+            line-height: 1.25;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.24rem 0.62rem;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .category-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background-color: var(--accent-blue-light);
+        }
+
+        .category-dot.accent-orange {
+            background-color: var(--accent-orange);
+        }
+
+        .category-dot.accent-lime {
+            background-color: var(--accent-lime);
+        }
+
+        .app-description {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Card Footer & Visit Button */
+        .app-actions {
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        .visit-btn {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0.74rem 1rem;
+            border-radius: var(--radius-btn);
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: var(--accent-blue);
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+        }
+
+        .visit-btn:hover {
+            background: #2563eb;
+            border-color: #93c5fd;
+            box-shadow: 0 12px 26px -12px rgba(59, 130, 246, 0.75);
+        }
+
+        .visit-btn:active {
+            transform: scale(0.99);
+        }
+
+        .visit-btn svg {
+            transition: transform var(--transition);
+        }
+
+        .visit-btn:hover svg {
+            transform: translate(2px, -2px);
+        }
+
+        /* Empty Search State */
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 3.25rem 1.5rem;
+            text-align: center;
+            background: var(--surface);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .empty-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .empty-desc {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            max-width: 42ch;
+        }
+
+        .reset-btn {
+            margin-top: 0.35rem;
+            padding: 0.55rem 1rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #f8fafc;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .reset-btn:hover {
+            background: rgba(59, 130, 246, 0.32);
+            border-color: var(--accent-blue-light);
+        }
+
+        /* =========================================================
+           4. FOOTER
+           ========================================================= */
+        .page-footer {
+            margin-top: auto;
+            padding-top: 1.35rem;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            font-weight: 700;
+            transition: color var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--accent-blue-light);
+        }
+
+        /* =========================================================
+           RESPONSIVE BREAKPOINTS
+           ========================================================= */
+        @media (max-width: 760px) {
+            .top-nav {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .nav-links {
+                justify-content: space-between;
+                padding-top: 0.65rem;
+                border-top: 1px solid var(--border-subtle);
+            }
+
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrap {
+                max-width: 100%;
+                flex: 1 1 auto;
+            }
+
+            .bg-logo {
+                width: 620px;
+                height: 620px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .page-container {
+                padding: 1.25rem 1rem 2.5rem;
+                gap: 1.75rem;
+            }
+
+            .nav-link {
+                padding: 0.45rem 0.6rem;
+                font-size: 0.75rem;
+            }
+
+            .bg-logo {
+                width: 420px;
+                height: 420px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Subtle atmospheric gradient & fixed watermark logo -->
+    <div class="ambient-backdrop" aria-hidden="true"></div>
+    <div class="bg-logo" aria-hidden="true"></div>
+
+    <div class="page-container">
+
+        <!-- =========================================================
+             1. MINIMAL TOP NAVIGATION BAR
+             ========================================================= -->
+        <nav class="top-nav" aria-label="Primary Navigation">
+            <a href="index.html" class="brand-link" aria-label="@OllyIsAFish Home">
+                <span class="brand-avatar">
+                    <img
+                        src="logo.png"
+                        alt="@OllyIsAFish logo"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    >
+                    <!-- Clean SVG fallback if logo.png is not found -->
+                    <span class="brand-avatar-fallback" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M27.5 20C27.5 24.1 23.6 26.8 18.8 26.8C14.8 26.8 11.9 24.4 10.6 20C11.9 15.6 14.8 13.2 18.8 13.2C23.6 13.2 27.5 15.9 27.5 20Z" fill="#f97316"/>
+                            <path d="M26.5 20L31.5 15.5V24.5L26.5 20Z" fill="#fb923c"/>
+                            <circle cx="15.8" cy="18.6" r="1.8" fill="#05001F"/>
+                            <path d="M13 24.5C15.5 27.2 21.5 27.2 24 24.5" stroke="#a3e635" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                </span>
+                <span class="brand-handle">@OllyIsAFish</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="digital.html" class="nav-link is-active" aria-current="page">Projects</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="https://store.ollyisafish.com" class="nav-link">Shop</a>
+            </div>
+        </nav>
+
+        <!-- =========================================================
+             2. APP STORE HEADER & CONTROLS
+             ========================================================= -->
+        <header class="store-header">
+            <div class="hero-copy">
+                <span class="eyebrow-pill">
+                    <span class="eyebrow-dot" aria-hidden="true"></span>
+                    App Showcase
+                </span>
+                <h1 class="hero-title">Digital Projects<span class="accent-dot">.</span></h1>
+                <p class="hero-subtitle">
+                    Web apps, lighting utilities, and creative builds crafted for everyday use. Browse by category or search below to launch any project.
+                </p>
+            </div>
+
+            <div class="controls-bar" role="region" aria-label="Filter and search projects">
+                <div class="filter-pills" id="category-filters" role="tablist" aria-label="Project categories">
+                    <button type="button" class="filter-pill is-active" data-category="All" role="tab" aria-selected="true">All</button>
+                    <button type="button" class="filter-pill" data-category="Web Apps" role="tab" aria-selected="false">Web Apps</button>
+                    <button type="button" class="filter-pill" data-category="Tools" role="tab" aria-selected="false">Tools</button>
+                    <button type="button" class="filter-pill" data-category="Creative" role="tab" aria-selected="false">Creative</button>
+                </div>
+
+                <div class="search-wrap">
+                    <span class="search-icon" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </svg>
+                    </span>
+                    <input
+                        type="search"
+                        id="project-search"
+                        class="search-input"
+                        placeholder="Search apps &amp; tools..."
+                        aria-label="Search digital projects"
+                        autocomplete="off"
+                    >
+                    <button type="button" id="search-clear" class="search-clear" aria-label="Clear search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-meta">
+                <span id="results-count">Showing 6 projects</span>
+                <span>Click Visit to launch in a new tab</span>
+            </div>
+        </header>
+
+        <!-- =========================================================
+             3. APP STORE CARD GRID (Populated from PROJECTS array)
+             ========================================================= -->
+        <main id="projects-grid" class="projects-grid" aria-live="polite"></main>
+
+        <!-- =========================================================
+             4. FOOTER
+             ========================================================= -->
+        <footer class="page-footer">
+            <span>&copy; <span id="copyright-year">2026</span> @OllyIsAFish</span>
+            <div class="footer-links">
+                <a href="index.html" class="footer-link">Home</a>
+                <a href="contact.html" class="footer-link">Contact</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        /* =========================================================
+           EASY PROJECT CUSTOMIZATION
+           Add, edit, or reorder objects in the PROJECTS array below.
+           - name:        Display title of the app or site
+           - category:    "Web Apps", "Tools", or "Creative"
+           - image:       Path/URL to a 16:9 screenshot (e.g. "images/tesahoda.png").
+                          Leave empty "" or if the file isn't found, clean custom
+                          artwork will display automatically.
+           - description: Concise 2-3 line summary of the project
+           - url:         Live link for the "Visit" button
+           - accent:      "blue", "orange", or "lime"
+           ========================================================= */
+        const PROJECTS = [
+            {
+                name: "Roomies",
+                category: "Web Apps",
+                image: "images/roomies.png",
+                description: "Collaborative household management PWA for organizing shared spaces and daily tasks.",
+                url: "https://example.com/roomies",
+                accent: "lime"
+            },
+            {
+                name: "Find A Spot CRS",
+                category: "Tools",
+                image: "images/find-a-spot-crs.png",
+                description: "Custom web-based reservation and spot-finding management system.",
+                url: "https://example.com/find-a-spot-crs",
+                accent: "blue"
+            }
+        ];
+
+        (function () {
+            try {
+                // Keep footer copyright year current
+                const yearEl = document.getElementById('copyright-year');
+                if (yearEl) {
+                    yearEl.textContent = new Date().getFullYear();
+                }
+
+                const gridEl = document.getElementById('projects-grid');
+                const countEl = document.getElementById('results-count');
+                const filterContainer = document.getElementById('category-filters');
+                const searchInput = document.getElementById('project-search');
+                const searchClear = document.getElementById('search-clear');
+
+                let activeCategory = 'All';
+                let searchQuery = '';
+
+                /**
+                 * Escapes HTML special characters to keep rendered text safe.
+                 */
+                function escapeHtml(str) {
+                    return String(str || '')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                }
+
+                /**
+                 * Generates clean, modern studio-style SVG preview artwork
+                 * shown automatically when a project screenshot isn't supplied yet.
+                 */
+                function buildFallbackArtwork(project, index) {
+                    const accentMap = {
+                        blue:   { main: '#3b82f6', soft: '#60a5fa', bgEnd: '#121d47' },
+                        orange: { main: '#f97316', soft: '#fb923c', bgEnd: '#26173e' },
+                        lime:   { main: '#a3e635', soft: '#bef264', bgEnd: '#13243b' }
+                    };
+                    const palette = accentMap[project.accent] || accentMap.blue;
+                    const gradId = 'cardGrad' + index;
+                    const initials = escapeHtml(
+                        project.name
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map(function (w) { return w.charAt(0).toUpperCase(); })
+                            .join('')
+                    );
+
+                    return `
+                        <svg viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="${gradId}" x1="0" y1="0" x2="320" y2="180" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#0B0726"/>
+                                    <stop offset="1" stop-color="${palette.bgEnd}"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="320" height="180" fill="url(#${gradId})"/>
+                            <circle cx="268" cy="34" r="64" fill="${palette.main}" fill-opacity="0.16"/>
+                            <circle cx="52" cy="156" r="58" fill="#3b82f6" fill-opacity="0.1"/>
+
+                            <!-- Clean mini app-window frame -->
+                            <rect x="34" y="28" width="252" height="124" rx="14" fill="#05001F" fill-opacity="0.62" stroke="${palette.soft}" stroke-opacity="0.28"/>
+                            <circle cx="52" cy="44" r="3.5" fill="${palette.main}" fill-opacity="0.8"/>
+                            <circle cx="64" cy="44" r="3.5" fill="#94a3b8" fill-opacity="0.35"/>
+                            <circle cx="76" cy="44" r="3.5" fill="#94a3b8" fill-opacity="0.2"/>
+                            <line x1="34" y1="58" x2="286" y2="58" stroke="#e2e8f0" stroke-opacity="0.08"/>
+
+                            <!-- App icon tile & UI skeleton -->
+                            <rect x="52" y="76" width="52" height="52" rx="13" fill="${palette.main}" fill-opacity="0.18" stroke="${palette.soft}" stroke-opacity="0.45"/>
+                            <text x="78" y="108" text-anchor="middle" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="800">${initials}</text>
+
+                            <rect x="120" y="82" width="112" height="9" rx="4.5" fill="#e2e8f0" fill-opacity="0.72"/>
+                            <rect x="120" y="100" width="142" height="6" rx="3" fill="#94a3b8" fill-opacity="0.35"/>
+                            <rect x="120" y="114" width="96" height="6" rx="3" fill="${palette.soft}" fill-opacity="0.5"/>
+                        </svg>
+                    `;
+                }
+
+                /**
+                 * Renders the filtered project cards into the App Store grid.
+                 */
+                function renderProjects() {
+                    const query = searchQuery.trim().toLowerCase();
+
+                    const filtered = PROJECTS.filter(function (project) {
+                        const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
+                        const matchesSearch = !query ||
+                            project.name.toLowerCase().includes(query) ||
+                            project.description.toLowerCase().includes(query) ||
+                            project.category.toLowerCase().includes(query);
+                        return matchesCategory && matchesSearch;
+                    });
+
+                    // Update count label
+                    if (countEl) {
+                        const total = PROJECTS.length;
+                        const shown = filtered.length;
+                        countEl.textContent = shown === total
+                            ? `Showing all ${total} projects`
+                            : `Showing ${shown} of ${total} projects`;
+                    }
+
+                    // Handle empty search/filter state
+                    if (filtered.length === 0) {
+                        gridEl.innerHTML = `
+                            <div class="empty-state">
+                                <p class="empty-title">No matching projects found</p>
+                                <p class="empty-desc">Try a different keyword or switch back to all categories.</p>
+                                <button type="button" class="reset-btn" id="reset-filters-btn">Reset filters</button>
+                            </div>
+                        `;
+
+                        const resetBtn = document.getElementById('reset-filters-btn');
+                        if (resetBtn) {
+                            resetBtn.addEventListener('click', resetFilters);
+                        }
+                        return;
+                    }
+
+                    // Build card markup
+                    const cardsHtml = filtered.map(function (project, idx) {
+                        const dotAccentClass = project.accent === 'orange'
+                            ? 'accent-orange'
+                            : (project.accent === 'lime' ? 'accent-lime' : '');
+
+                        const hasImage = Boolean(project.image && project.image.trim());
+                        const imgMarkup = hasImage
+                            ? `<img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.name)} preview" loading="lazy" onerror="this.style.display='none';">`
+                            : '';
+
+                        return `
+                            <article class="app-card">
+                                <div class="app-media">
+                                    ${imgMarkup}
+                                    <div class="app-fallback-art">
+                                        ${buildFallbackArtwork(project, idx)}
+                                    </div>
+                                </div>
+
+                                <div class="app-body">
+                                    <div class="app-title-row">
+                                        <h2 class="app-name">${escapeHtml(project.name)}</h2>
+                                        <span class="category-pill">
+                                            <span class="category-dot ${dotAccentClass}" aria-hidden="true"></span>
+                                            ${escapeHtml(project.category)}
+                                        </span>
+                                    </div>
+
+                                    <p class="app-description">${escapeHtml(project.description)}</p>
+
+                                    <div class="app-actions">
+                                        <a
+                                            href="${escapeHtml(project.url)}"
+                                            class="visit-btn"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label="Visit ${escapeHtml(project.name)}"
+                                        >
+                                            <span>Visit</span>
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M7 17 17 7"></path>
+                                                <path d="M7 7h10v10"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+
+                    gridEl.innerHTML = cardsHtml;
+                }
+
+                /**
+                 * Resets category filter and search input.
+                 */
+                function resetFilters() {
+                    activeCategory = 'All';
+                    searchQuery = '';
+                    if (searchInput) {
+                        searchInput.value = '';
+                    }
+                    if (searchClear) {
+                        searchClear.classList.remove('is-visible');
+                    }
+                    if (filterContainer) {
+                        filterContainer.querySelectorAll('.filter-pill').forEach(function (btn) {
+                            const isAll = btn.getAttribute('data-category') === 'All';
+                            btn.classList.toggle('is-active', isAll);
+                            btn.setAttribute('aria-selected', isAll ? 'true' : 'false');
+                        });
+                    }
+                    renderProjects();
+                }
+
+                // Category filter click handler
+                if (filterContainer) {
+                    filterContainer.addEventListener('click', function (event) {
+                        const pill = event.target.closest('.filter-pill');
+                        if (!pill) return;
+
+                        activeCategory = pill.getAttribute('data-category') || 'All';
+
+                        filterContainer.querySelectorAll('.filter-pill').forEach(function (btn) {
+                            const isSelected = btn === pill;
+                            btn.classList.toggle('is-active', isSelected);
+                            btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                        });
+
+                        renderProjects();
+                    });
+                }
+
+                // Live search input handler
+                if (searchInput) {
+                    searchInput.addEventListener('input', function () {
+                        searchQuery = searchInput.value;
+                        if (searchClear) {
+                            searchClear.classList.toggle('is-visible', searchQuery.length > 0);
+                        }
+                        renderProjects();
+                    });
+                }
+
+                // Clear search button handler
+                if (searchClear && searchInput) {
+                    searchClear.addEventListener('click', function () {
+                        searchQuery = '';
+                        searchInput.value = '';
+                        searchClear.classList.remove('is-visible');
+                        searchInput.focus();
+                        renderProjects();
+                    });
+                }
+
+                // Initial render
+                renderProjects();
+            } catch (err) {
+                console.error('Digital Projects page initialization error:', err);
+            }
+        })();
+    </script>
+</body>
+</html>

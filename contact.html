@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact — @OllyIsAFish</title>
+    <meta name="description" content="Get in touch with @OllyIsAFish for digital projects, collaborations, or general inquiries.">
+
+    <style>
+        /* =========================================================
+           BASE USER STYLES (Preserved Verbatim)
+           ========================================================= */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #05001F;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .bg-logo {
+            position: fixed;
+            width: 1000px;
+            height: 1000px;
+            background-image: url('logo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom right;
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+            bottom: 0;
+            right: 0;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+
+        /* =========================================================
+           DESIGN TOKENS & RESET
+           ========================================================= */
+        :root {
+            --bg-base: #05001F;
+            --surface: rgba(16, 12, 46, 0.72);
+            --surface-hover: rgba(24, 21, 61, 0.86);
+            --surface-subtle: rgba(10, 8, 34, 0.65);
+            --border-subtle: rgba(226, 232, 240, 0.1);
+            --border-hover: rgba(96, 165, 250, 0.42);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-blue-light: #60a5fa;
+            --accent-orange: #f97316;
+            --accent-lime: #a3e635;
+            --radius-card: 20px;
+            --radius-btn: 12px;
+            --transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Soft, understated atmospheric gradients (non-cyberpunk) */
+        .ambient-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 16% 12%, rgba(59, 130, 246, 0.11), transparent 44%),
+                radial-gradient(circle at 84% 78%, rgba(249, 115, 22, 0.06), transparent 42%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent-blue-light);
+            outline-offset: 3px;
+        }
+
+        /* =========================================================
+           PAGE CONTAINER
+           ========================================================= */
+        .page-container {
+            width: 100%;
+            max-width: 900px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 1.75rem 1.25rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.25rem;
+        }
+
+        /* =========================================================
+           1. TOP NAVIGATION BAR
+           ========================================================= */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.55);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            transition: transform var(--transition), border-color var(--transition), background var(--transition);
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-2px);
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            min-width: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding: 0.45rem 0.65rem;
+            border-radius: 8px;
+            transition: color var(--transition), background var(--transition);
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+            border-radius: 999px;
+            background: rgba(5, 0, 31, 0.55);
+            border: 1px solid var(--border-subtle);
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            transition: border-color var(--transition);
+        }
+
+        .brand-pill:hover {
+            border-color: var(--border-hover);
+        }
+
+        .brand-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.14);
+            flex-shrink: 0;
+        }
+
+        .brand-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-avatar-fallback {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* =========================================================
+           2. PAGE HEADER
+           ========================================================= */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.85rem;
+            padding: 0.5rem 0 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.32rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background-color: var(--accent-lime);
+            display: inline-block;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 4.5vw, 2.85rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.12;
+            color: #f8fafc;
+        }
+
+        .page-title .accent-dot {
+            color: var(--accent-orange);
+        }
+
+        .page-subtitle {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            max-width: 56ch;
+            line-height: 1.65;
+        }
+
+        /* =========================================================
+           3. TYPEFORM EMBED CONTAINER
+           ========================================================= */
+        .typeform-card {
+            width: 100%;
+            min-height: 580px;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-card);
+            box-shadow: 0 24px 60px -22px rgba(0, 0, 0, 0.58);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Ensures pasted Typeform widgets fill the container cleanly */
+        .typeform-card [data-tf-live],
+        .typeform-card .tf-v1-widget,
+        .typeform-card iframe {
+            width: 100%;
+            min-height: 580px;
+            flex: 1;
+            border: 0;
+            display: block;
+        }
+
+        /* Styled placeholder shown until Typeform code is pasted */
+        .embed-placeholder {
+            flex: 1;
+            min-height: 580px;
+            padding: 2.5rem 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .embed-placeholder-inner {
+            width: 100%;
+            max-width: 540px;
+            padding: 2.25rem 2rem;
+            border-radius: 16px;
+            background: var(--surface-subtle);
+            border: 1px dashed rgba(148, 163, 184, 0.28);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.25rem;
+        }
+
+        .placeholder-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--accent-blue-light);
+        }
+
+        .placeholder-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: -0.02em;
+        }
+
+        .placeholder-lead {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .setup-steps {
+            width: 100%;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            text-align: left;
+            margin-top: 0.25rem;
+        }
+
+        .setup-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            background: rgba(16, 12, 46, 0.72);
+            border: 1px solid var(--border-subtle);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: rgba(59, 130, 246, 0.16);
+            border: 1px solid rgba(96, 165, 250, 0.32);
+            color: var(--accent-blue-light);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .setup-step code {
+            font-family: inherit;
+            font-size: 0.76rem;
+            color: #f8fafc;
+            background: rgba(5, 0, 31, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 0.12rem 0.4rem;
+            border-radius: 6px;
+            word-break: break-word;
+        }
+
+        /* =========================================================
+           4. DIRECT CHANNELS STRIP
+           ========================================================= */
+        .channels-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .channels-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding-left: 0.25rem;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .channel-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.15rem 1.2rem;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            transition: transform var(--transition), border-color var(--transition), background var(--transition);
+        }
+
+        .channel-card:hover {
+            transform: translateY(-2px);
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+        }
+
+        .channel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .channel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(5, 0, 31, 0.55);
+            border: 1px solid var(--border-subtle);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-blue-light);
+            flex-shrink: 0;
+        }
+
+        .channel-icon.icon-orange {
+            color: var(--accent-orange);
+        }
+
+        .channel-arrow {
+            color: var(--text-secondary);
+            display: inline-flex;
+            transition: transform var(--transition), color var(--transition);
+        }
+
+        .channel-card:hover .channel-arrow {
+            transform: translateX(3px);
+            color: var(--text-primary);
+        }
+
+        .channel-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f8fafc;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .channel-sub {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            display: block;
+            word-break: break-all;
+        }
+
+        /* Copy Email Button */
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: background var(--transition), border-color var(--transition), color var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: rgba(59, 130, 246, 0.24);
+            border-color: var(--accent-blue-light);
+        }
+
+        .copy-btn.is-copied {
+            background: rgba(163, 230, 53, 0.14);
+            border-color: rgba(163, 230, 53, 0.45);
+            color: var(--accent-lime);
+        }
+
+        /* =========================================================
+           5. MINIMAL FOOTER
+           ========================================================= */
+        .page-footer {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .footer-home-link {
+            color: var(--text-secondary);
+            font-weight: 700;
+            transition: color var(--transition);
+        }
+
+        .footer-home-link:hover {
+            color: var(--accent-blue-light);
+        }
+
+        /* =========================================================
+           RESPONSIVE BREAKPOINTS
+           ========================================================= */
+        @media (max-width: 820px) {
+            .top-nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-right {
+                width: 100%;
+                justify-content: space-between;
+                padding-top: 0.55rem;
+                border-top: 1px solid var(--border-subtle);
+            }
+
+            .channels-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bg-logo {
+                width: 620px;
+                height: 620px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page-container {
+                padding: 1.25rem 1rem 2.5rem;
+                gap: 1.75rem;
+            }
+
+            .nav-links {
+                gap: 0.1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.45rem;
+                font-size: 0.74rem;
+            }
+
+            .brand-pill {
+                display: none;
+            }
+
+            .embed-placeholder {
+                padding: 1.5rem 1rem;
+            }
+
+            .embed-placeholder-inner {
+                padding: 1.5rem 1.15rem;
+            }
+
+            .bg-logo {
+                width: 400px;
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Subtle atmospheric gradient & fixed watermark logo -->
+    <div class="ambient-backdrop" aria-hidden="true"></div>
+    <div class="bg-logo" aria-hidden="true"></div>
+
+    <div class="page-container">
+
+        <!-- =========================================================
+             1. TOP NAVIGATION BAR
+             ========================================================= -->
+        <nav class="top-nav" aria-label="Site Navigation">
+            <a href="index.html" class="back-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M19 12H5"></path>
+                    <path d="m12 19-7-7 7-7"></path>
+                </svg>
+                Back to Home
+            </a>
+
+            <div class="nav-right">
+                <div class="nav-links">
+                    <a href="digital.html" class="nav-link">Projects</a>
+                    <a href="https://store.ollyisafish.com" class="nav-link">Shop</a>
+                    <a href="https://www.youtube.com/@OllyIsAFish" class="nav-link" target="_blank" rel="noopener noreferrer">YouTube</a>
+                    <a href="https://www.tiktok.com/@ollyisafish" class="nav-link" target="_blank" rel="noopener noreferrer">TikTok</a>
+                </div>
+
+                <a href="index.html" class="brand-pill" aria-label="@OllyIsAFish Home">
+                    <span class="brand-avatar">
+                        <img
+                            src="logo.png"
+                            alt="@OllyIsAFish logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        >
+                        <!-- Fallback emblem if logo.png is not present -->
+                        <span class="brand-avatar-fallback" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M27.5 20C27.5 24.1 23.6 26.8 18.8 26.8C14.8 26.8 11.9 24.4 10.6 20C11.9 15.6 14.8 13.2 18.8 13.2C23.6 13.2 27.5 15.9 27.5 20Z" fill="#f97316"/>
+                                <path d="M26.5 20L31.5 15.5V24.5L26.5 20Z" fill="#fb923c"/>
+                                <circle cx="15.8" cy="18.6" r="1.8" fill="#05001F"/>
+                            </svg>
+                        </span>
+                    </span>
+                    <span>@OllyIsAFish</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- =========================================================
+             2. PAGE HEADER
+             ========================================================= -->
+        <header class="page-header">
+            <span class="status-badge">
+                <span class="status-dot" aria-hidden="true"></span>
+                Contact
+            </span>
+            <h1 class="page-title">Get in Touch<span class="accent-dot">.</span></h1>
+            <p class="page-subtitle">
+                Have a project idea, collaboration inquiry, or just want to say hello? Fill out the form below and I'll get back to you as soon as I can.
+            </p>
+        </header>
+
+        <!-- =========================================================
+             3. TYPEFORM EMBED CONTAINER
+             ========================================================= -->
+        <main class="typeform-card" aria-label="Contact Form">
+            <!-- PASTE YOUR TYPEFORM EMBED CODE HERE -->
+            <!-- <div data-tf-live="YOUR_TYPEFORM_ID_HERE"></div> -->
+            <!-- <script src="//embed.typeform.com/next/embed.js"></script> -->
+
+            <!-- Delete this placeholder div once you paste your live Typeform embed above -->
+            <div data-tf-live="01M5JPCE4PH18CK544ZPN1VEN1"></div>
+            <script src="//embed.typeform.com/next/embed.js"></script>
+            <!-- END TYPEFORM EMBED -->
+        </main>
+
+        <!-- =========================================================
+             4. DIRECT CHANNELS STRIP
+             ========================================================= -->
+        <section class="channels-section" aria-label="Direct Contact Channels">
+            <h2 class="channels-label">Or reach out directly</h2>
+
+            <div class="channels-grid">
+                <!-- Direct Email Card with One-Click Copy -->
+                <div class="channel-card">
+                    <div class="channel-top">
+                        <span class="channel-icon icon-orange" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                            </svg>
+                        </span>
+                        <button
+                            type="button"
+                            id="copy-email-btn"
+                            class="copy-btn"
+                            data-email="OllyD@ollyisafish.com"
+                            aria-label="Copy email address OllyD@ollyisafish.com"
+                        >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                            </svg>
+                            <span id="copy-email-label">Copy</span>
+                        </button>
+                    </div>
+
+                    <div>
+                        <span class="channel-title">Direct Email</span>
+                        <a href="mailto:hello@ollyisafish.com" class="channel-sub">OllyD@ollyisafish.com</a>
+                    </div>
+                </div>
+
+                <!-- YouTube Card -->
+                <a href="https://www.youtube.com/@ollyisafish" class="channel-card" target="_blank" rel="noopener noreferrer">
+                    <div class="channel-top">
+                        <span class="channel-icon" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
+                                <path d="m10 15 5-3-5-3z"></path>
+                            </svg>
+                        </span>
+                        <span class="channel-arrow" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="channel-title">YouTube</span>
+                        <span class="channel-sub">Videos &amp; devlogs</span>
+                    </div>
+                </a>
+
+                <!-- TikTok Card -->
+                <a href="https://www.tiktok.com/@ollyisafish" class="channel-card" target="_blank" rel="noopener noreferrer">
+                    <div class="channel-top">
+                        <span class="channel-icon" aria-hidden="true">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+                            </svg>
+                        </span>
+                        <span class="channel-arrow" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="channel-title">TikTok</span>
+                        <span class="channel-sub">Short-form clips</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             5. MINIMAL FOOTER
+             ========================================================= -->
+        <footer class="page-footer">
+            <span>&copy; <span id="copyright-year">2026</span> @OllyIsAFish</span>
+            <a href="index.html" class="footer-home-link">&larr; Return to Home</a>
+        </footer>
+
+    </div>
+
+    <script>
+        /**
+         * Lightweight vanilla JS:
+         * 1. One-click copy-to-clipboard for the direct email button.
+         * 2. Keeps the copyright year current.
+         */
+        (function () {
+            try {
+                // Keep copyright year current
+                const yearEl = document.getElementById('copyright-year');
+                if (yearEl) {
+                    yearEl.textContent = new Date().getFullYear();
+                }
+
+                // Email copy-to-clipboard with subtle visual feedback
+                const copyBtn = document.getElementById('copy-email-btn');
+                const copyLabel = document.getElementById('copy-email-label');
+                let resetTimer = null;
+
+                if (copyBtn && copyLabel) {
+                    copyBtn.addEventListener('click', function () {
+                        const email = copyBtn.getAttribute('data-email') || 'OllyD@ollyisafish.com';
+
+                        try {
+                            const tempInput = document.createElement('textarea');
+                            tempInput.value = email;
+                            tempInput.setAttribute('readonly', '');
+                            tempInput.style.position = 'fixed';
+                            tempInput.style.opacity = '0';
+                            tempInput.style.pointerEvents = 'none';
+                            document.body.appendChild(tempInput);
+                            tempInput.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(tempInput);
+
+                            copyBtn.classList.add('is-copied');
+                            copyLabel.textContent = 'Copied!';
+
+                            if (resetTimer) {
+                                clearTimeout(resetTimer);
+                            }
+                            resetTimer = setTimeout(function () {
+                                copyBtn.classList.remove('is-copied');
+                                copyLabel.textContent = 'Copy';
+                            }, 2000);
+                        } catch (copyErr) {
+                            console.error('Unable to copy email address:', copyErr);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Contact page initialization error:', err);
+            }
+        })();
+    </script>
+</body>
+</html>
